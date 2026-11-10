@@ -21150,6 +21150,151 @@
           }
         }
       }
+    },
+    "/auth/guest": {
+      "get": {
+        "operationId": "guestStatus",
+        "tags": [
+          "accounts"
+        ],
+        "summary": "Check whether guest access is enabled",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Guest access state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestAccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "operationId": "guestLogin",
+        "tags": [
+          "accounts"
+        ],
+        "summary": "Create a one-hour browser guest session",
+        "security": [],
+        "responses": {
+          "204": {
+            "description": "Guest session cookie set"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/settings/guest": {
+      "get": {
+        "operationId": "getGuestAccess",
+        "tags": [
+          "settings"
+        ],
+        "summary": "Read guest access setting (administrator only)",
+        "responses": {
+          "200": {
+            "description": "Guest access state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestAccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setGuestAccess",
+        "tags": [
+          "settings"
+        ],
+        "summary": "Enable or disable guest access (administrator only)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestAccess"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved guest access state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestAccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -32542,6 +32687,17 @@
               }
             ],
             "nullable": true
+          }
+        }
+      },
+      "GuestAccess": {
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
           }
         }
       }

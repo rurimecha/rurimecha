@@ -36,3 +36,7 @@
 未激活或授权失效时，只有内置管理员可以登录和访问。此规则覆盖此前签发的会话以及 WebDAV 密码直连。授权失效后重新激活，其他用户需重新登录。正确凭据的登录遇到停用、授权失效或远程访问限制时分别返回 403 `account_disabled`、`account_license_required` 或 `remote_access_denied`。既有令牌失效返回 401。客户端可以更换网络地址，仍须符合 [网络访问规则](network.md)。
 
 账户结构属于当前开发 v1；结构签名不同明确拒绝，没有迁移、历史单管理员协议分支或自动清库。
+
+## 游客体验
+
+管理员通过 `GET /settings/guest` 查看开关，通过 `PUT /settings/guest` 提交 `{"enabled":true|false}`。新安装及升级后默认关闭。关闭时撤销所有游客会话。`GET /auth/guest` 公开返回开关状态；开启后同源浏览器可用 `POST /auth/guest` 获取一小时的 HttpOnly 会话 Cookie，响应不包含令牌。游客使用固定 `guest` 身份，只能读取普通成员可读的媒体资料并播放；`POST /playback/resolve` 和退出登录可用，其他写入、WebDAV、Android 专用接口、来源浏览及管理接口均返回 403。游客不能修改共享资料，也不保存收藏、列表或收听进度。游客仍受服务器授权和网络远程访问设置约束。演示应使用专用实例及可公开播放的媒体。
