@@ -8,7 +8,6 @@ import json
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import tarfile
 import tempfile
 
@@ -17,7 +16,7 @@ parser.add_argument('--version', required=True)
 parser.add_argument('--platform', choices=('linux-amd64', 'windows-x64'), required=True)
 parser.add_argument('--core-package', type=Path, required=True)
 parser.add_argument('--web', type=Path, required=True)
-parser.add_argument('--ffmpeg', type=Path, required=True, help='FFmpeg build output directory for the target platform')
+parser.add_argument('--ffmpeg', type=Path, required=True, help='verified FFmpeg bundle directory with platform archives and corresponding source')
 parser.add_argument('--windows-staging', type=Path, help='private build directory for Windows installer inputs')
 parser.add_argument('--apk', type=Path)
 args = parser.parse_args()
@@ -68,15 +67,40 @@ def matches_tool_platform(path, windows):
         stream.seek(int.from_bytes(header[60:64], 'little'))
         return stream.read(6) == b'PE\x00\x00\x64\x86'
 
-def verify_ffmpeg(bundle, windows):
-    if not bundle.is_dir() or bundle.is_symlink():
-        parser.error('FFmpeg build output directory is required')
+def ffmpeg_archives(bundle):
+    sources = list(bundle.glob('ruri-ffmpeg-*-sources.tar.gz'))
+    if len(sources) != 1:
+        parser.error('FFmpeg bundle must contain one corresponding source archive')
+    source = sources[0]
+    platform = 'windows-amd64' if windows else 'linux-amd64'
+    tools = bundle / f'ruri-ffmpeg-{platform}.tar.gz'
+    archives = sorted((source, bundle / 'ruri-ffmpeg-linux-amd64.tar.gz', bundle / 'ruri-ffmpeg-windows-amd64.tar.gz'))
+    sums = bundle / 'SHA256SUMS'
+    for path in (*archives, sums):
+        if not path.is_file() or path.is_symlink():
+            parser.error(f'missing FFmpeg bundle file: {path.name}')
+    hashes = {path.name: digest(path) for path in archives}
+    if sums.read_text() != ''.join(f'{value}  {name}\n' for name, value in hashes.items()):
+        parser.error('FFmpeg tool or source archive checksum mismatch')
+    return tools, source, hashes[source.name]
+
+def verify_ffmpeg(bundle, source, windows):
     files = artifact_files(bundle)
     suffix = '.exe' if windows else ''
     tools = [f'bin/{name}{suffix}' for name in ('ffmpeg', 'ffprobe')]
-    source_paths = ('third_party/ffmpeg', '.github/workflows/build-ffmpeg.yml')
-    recipe = root / source_paths[0]
-    license_hashes = {f'licenses/{name}': value for name, value in artifact_files(recipe / 'licenses').items()}
+    source_prefix = 'third_party/ffmpeg/'
+    with tarfile.open(source) as archive:
+        revision = archive.pax_headers.get('comment', '')
+        if not re.fullmatch('[0-9a-f]{40}', revision):
+            parser.error('FFmpeg source archive is missing its Git revision')
+        source_notice = archive.extractfile(source_prefix + 'SOURCE.txt').read()
+        license_hashes = {
+            member.name.removeprefix(source_prefix): hashlib.sha256(archive.extractfile(member).read()).hexdigest()
+            for member in archive.getmembers()
+            if member.isfile() and member.name.startswith(source_prefix + 'licenses/')
+        }
+    if 'licenses/FFmpeg-GPL-3.0.txt' not in license_hashes:
+        parser.error('FFmpeg source archive is missing its GPL license')
     licenses = set(license_hashes)
     if windows:
         licenses.add('licenses/MinGW-runtime.txt')
@@ -93,14 +117,10 @@ def verify_ffmpeg(bundle, windows):
     if (bundle / 'SHA256SUMS').read_text() != sums:
         parser.error('FFmpeg tool checksums do not match the bundle')
     notice = (bundle / 'SOURCE.txt').read_bytes()
-    source = re.search(rb'\bruri-ffmpeg-[\w.-]+-sources\.tar\.gz\b', notice)
-    if notice != (recipe / 'SOURCE.txt').read_bytes() or source is None:
-        parser.error('FFmpeg source notice does not match the release recipe')
-    status = subprocess.check_output(['git', '-C', str(root), 'status', '--porcelain',
-                                      '--untracked-files=all', '--', *source_paths])
-    if status:
-        parser.error('archive FFmpeg from a checkout with a clean, committed build recipe')
-    return source[0].decode('ascii'), source_paths
+    source_name = re.search(rb'\bruri-ffmpeg-[\w.-]+-sources\.tar\.gz\b', notice)
+    if notice != source_notice or source_name is None or source_name[0].decode('ascii') != source.name:
+        parser.error('FFmpeg source notice does not match the bundled source archive')
+    return revision
 
 info = read_json(args.core_package / 'build-info.json')
 web = read_json(args.web / 'frontend-release.json')
@@ -127,7 +147,7 @@ try:
         parser.error('missing Flutter assets')
 except (KeyError, TypeError, ValueError) as exc:
     parser.error(f'invalid build manifest: {exc}')
-source_name, source_paths = verify_ffmpeg(args.ffmpeg, windows)
+tools_archive, source_archive, source_sha256 = ffmpeg_archives(args.ffmpeg)
 suffix = '.exe' if windows else ''
 reset = 'reset-admin-password.cmd' if windows else 'reset-admin-password.sh'
 required = ('rurimecha-core' + suffix, 'rurimecha-api-docs.tar.gz')
@@ -153,7 +173,19 @@ with tempfile.TemporaryDirectory(prefix='release-', dir=output.parent) as tempor
     for name in required:
         shutil.copy2(args.core_package / name, core / name)
     shutil.copytree(notices, core / 'third_party')
-    shutil.copytree(args.ffmpeg, core / 'media-tools')
+    media_tools = core / 'media-tools'
+    media_tools.mkdir()
+    with tarfile.open(tools_archive) as archive:
+        archive.extractall(media_tools, filter='data')
+    source_revision = verify_ffmpeg(media_tools, source_archive, windows)
+    notices_dir = root / 'third_party/ffmpeg/redistribution'
+    shutil.copy2(notices_dir / 'IJG.txt', media_tools / 'licenses')
+    if windows:
+        toolchain = (media_tools / 'toolchain.txt').read_text().splitlines()
+        if 'mingw-w64-x86-64-dev\t8.0.0-1' not in toolchain:
+            parser.error('verify the MinGW-w64 and Winpthreads notices for the new Windows toolchain')
+        shutil.copytree(notices_dir / 'windows-amd64', media_tools / 'licenses', dirs_exist_ok=True)
+    (media_tools / 'SOURCE-SHA256').write_text(f'{source_sha256}  {source_archive.name}\n')
     shutil.copy2(root / 'packaging' / args.platform / reset, core / reset)
     if windows:
         core.rename(output)
@@ -162,8 +194,7 @@ with tempfile.TemporaryDirectory(prefix='release-', dir=output.parent) as tempor
             shutil.copy2(root / 'packaging' / args.platform / name, core / name)
         attachments = staging / 'attachments'
         attachments.mkdir()
-        subprocess.run(['git', '-C', str(root), 'archive', '--format=tar.gz',
-                        '--output', str(attachments / source_name), 'HEAD', *source_paths], check=True)
+        shutil.copy2(source_archive, attachments / source_archive.name)
         with tarfile.open(attachments / f'rurimecha-core-{args.platform}-{args.version}.tar.gz', 'w:gz') as archive:
             archive.add(core, arcname='rurimecha-core')
         with tarfile.open(attachments / f'rurimecha-web-{args.version}.tar.gz', 'w:gz') as archive:
@@ -174,7 +205,8 @@ with tempfile.TemporaryDirectory(prefix='release-', dir=output.parent) as tempor
                 archive.add(docker / name, arcname=f'rurimecha-docker/{name}')
         if args.apk:
             shutil.copy2(args.apk, attachments / f'rurimecha-android-{args.version}.apk')
-        metadata = {'version': args.version, 'platform': args.platform, 'artifacts': {p.name: digest(p) for p in sorted(attachments.iterdir())}}
+        metadata = {'version': args.version, 'platform': args.platform, 'ffmpeg_source_revision': source_revision,
+                    'artifacts': {p.name: digest(p) for p in sorted(attachments.iterdir())}}
         (attachments / 'release.json').write_text(json.dumps(metadata, indent=2) + '\n')
         sums = ''.join(f'{digest(p)}  {p.name}\n' for p in sorted(attachments.iterdir()))
         (attachments / 'SHA256SUMS').write_text(sums)

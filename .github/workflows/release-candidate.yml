@@ -1,0 +1,276 @@
+name: Verify release candidate
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    if: github.event.repository.private && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      core_revision: ${{ steps.revisions.outputs.core }}
+      frontend_revision: ${{ steps.revisions.outputs.frontend }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      VERSION: 0.0.0-ci.${{ github.run_id }}
+    steps:
+      - name: Check private repository access
+        env:
+          GH_TOKEN: ${{ secrets.RURI_CI_READER }}
+        run: |
+          : "${GH_TOKEN:?Set RURI_CI_READER}"
+          for repo in rurimecha/rurimecha-core rurimecha/rurimecha-frontend rurimecha/rurimecha-website; do
+            if ! visibility=$(gh api "repos/$repo" --jq .visibility) || [[ "$visibility" != private ]]; then
+              echo "Cannot verify private access to $repo" >&2
+              exit 1
+            fi
+          done
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rurimecha/rurimecha-core
+          ref: refs/heads/dev
+          path: rurimecha-core
+          token: ${{ secrets.RURI_CI_READER }}
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rurimecha/rurimecha-frontend
+          ref: refs/heads/dev
+          path: rurimecha-frontend
+          token: ${{ secrets.RURI_CI_READER }}
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rurimecha/rurimecha-website
+          ref: refs/heads/dev
+          path: rurimecha-website
+          token: ${{ secrets.RURI_CI_READER }}
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: rurimecha
+          persist-credentials: false
+      - name: Record build inputs
+        id: revisions
+        run: |
+          echo "core=$(git -C rurimecha-core rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "frontend=$(git -C rurimecha-frontend rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Verify synchronized docs
+        run: python3 rurimecha-core/scripts/sync-release-docs.py --check
+      - name: Archive docs for review
+        run: tar -czf docs-for-review.tar.gz -C rurimecha README.md LICENSE docs/USAGE.md docs/FEATURES.md docs/api docs/screenshots
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: docs-for-review
+          path: docs-for-review.tar.gz
+          if-no-files-found: error
+          overwrite: true
+      - name: Download the pinned FFmpeg tools
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          FFMPEG_DIGEST: ${{ vars.RURI_FFMPEG_DIGEST }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$FFMPEG_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo 'Set RURI_FFMPEG_DIGEST to the digest from the Build FFmpeg tools workflow summary.' >&2
+            exit 1
+          fi
+          image="ghcr.io/rurimecha/ffmpeg-tools@$FFMPEG_DIGEST"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+          docker pull "$image"
+          container=$(docker create "$image" /unused)
+          trap 'docker rm "$container" >/dev/null; docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+          mkdir "$RUNNER_TEMP/ffmpeg-input" "$RUNNER_TEMP/ffmpeg-linux-amd64"
+          docker cp "$container:/ffmpeg/." "$RUNNER_TEMP/ffmpeg-input/"
+          (cd "$RUNNER_TEMP/ffmpeg-input" && sha256sum --check --strict SHA256SUMS)
+          tar -xzf "$RUNNER_TEMP/ffmpeg-input/ruri-ffmpeg-linux-amd64.tar.gz" -C "$RUNNER_TEMP/ffmpeg-linux-amd64"
+          echo "$RUNNER_TEMP/ffmpeg-linux-amd64/bin" >> "$GITHUB_PATH"
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: rurimecha-core/go.mod
+          cache-dependency-path: rurimecha-core/go.sum
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.47.9'
+          channel: stable
+          cache: true
+      - name: Build Web and check the release profile
+        working-directory: rurimecha-frontend
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter test --no-pub test/release_features_test.dart
+          make web AI=false
+      - name: Build signed Android APK
+        working-directory: rurimecha-frontend
+        env:
+          RURI_ANDROID_KEYSTORE_BASE64: ${{ secrets.RURI_ANDROID_KEYSTORE_BASE64 }}
+          RURI_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.RURI_ANDROID_KEYSTORE_PASSWORD }}
+          RURI_ANDROID_KEY_ALIAS: ${{ secrets.RURI_ANDROID_KEY_ALIAS }}
+          RURI_ANDROID_KEY_PASSWORD: ${{ secrets.RURI_ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${RURI_ANDROID_KEYSTORE_BASE64:?Set RURI_ANDROID_KEYSTORE_BASE64}"
+          : "${RURI_ANDROID_KEYSTORE_PASSWORD:?Set RURI_ANDROID_KEYSTORE_PASSWORD}"
+          : "${RURI_ANDROID_KEY_ALIAS:?Set RURI_ANDROID_KEY_ALIAS}"
+          : "${RURI_ANDROID_KEY_PASSWORD:?Set RURI_ANDROID_KEY_PASSWORD}"
+          export RURI_ANDROID_KEYSTORE_FILE="$RUNNER_TEMP/rurimecha-release.jks"
+          trap 'rm -f "$RURI_ANDROID_KEYSTORE_FILE"' EXIT
+          printf '%s' "$RURI_ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RURI_ANDROID_KEYSTORE_FILE"
+          chmod 600 "$RURI_ANDROID_KEYSTORE_FILE"
+          flutter build apk --release --no-pub --dart-define=RURI_AI=false \
+            --build-name="$VERSION" --build-number="${{ github.run_number }}"
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          test -s "$apk"
+          signer=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)
+          aapt=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt -type f | sort -V | tail -n 1)
+          test -n "$signer" && test -n "$aapt"
+          "$signer" verify --verbose "$apk"
+          package=$("$aapt" dump badging "$apk")
+          package=${package%%$'\n'*}
+          [[ "$package" == *"name='dev.rurimecha.android' versionCode='${{ github.run_number }}' versionName='$VERSION'"* ]]
+      - name: Check Core release API and playback
+        working-directory: rurimecha-core
+        run: go test ./cmd/rurimecha-core ./internal/app ./internal/httpapi ./internal/playback
+      - name: Package Linux and stage Windows installer inputs
+        run: |
+          for goos in linux windows; do
+            platform=linux-amd64
+            staging=()
+            apk=()
+            if [ "$goos" = windows ]; then
+              platform=windows-x64
+              staging=(--windows-staging "$RUNNER_TEMP/windows-core-input")
+            else
+              apk=(--apk rurimecha-frontend/build/app/outputs/flutter-apk/app-release.apk)
+            fi
+            make -C rurimecha-core dist GOOS="$goos" GOARCH=amd64 VERSION="$VERSION" \
+              WEB_DIR="$PWD/rurimecha-frontend/build/web"
+            python3 rurimecha/scripts/package-release.py --version "$VERSION" --platform "$platform" \
+              --core-package "rurimecha-core/dist/$platform/rurimecha-core" --web rurimecha-frontend/build/web \
+              --ffmpeg "$RUNNER_TEMP/ffmpeg-input" "${staging[@]}" "${apk[@]}"
+          done
+          (cd "rurimecha/releases/$VERSION/linux-amd64" && sha256sum -c SHA256SUMS)
+          test -s "rurimecha/releases/$VERSION/linux-amd64/rurimecha-android-$VERSION.apk"
+          tar -xzf "rurimecha/releases/$VERSION/linux-amd64/rurimecha-core-linux-amd64-$VERSION.tar.gz" -C "$RUNNER_TEMP"
+          test -x "$RUNNER_TEMP/rurimecha-core/install.sh"
+          test -f "$RUNNER_TEMP/rurimecha-core/rurimecha.service"
+          sh -n "$RUNNER_TEMP/rurimecha-core/install.sh"
+          sh -n "$RUNNER_TEMP/rurimecha-core/reset-admin-password.sh"
+          test "$("$RUNNER_TEMP/rurimecha-core/rurimecha-core" -version)" = "$VERSION"
+          python3 rurimecha/third_party/ffmpeg/smoke.py linux-amd64 "$RUNNER_TEMP/rurimecha-core/media-tools"
+          python3 rurimecha-core/scripts/check-release-tools.py "$RUNNER_TEMP/rurimecha-core/rurimecha-core"
+      - name: Build and run Docker image
+        run: |
+          image="rurimecha-core:$VERSION"
+          context="$RUNNER_TEMP/docker-context"
+          mkdir "$context"
+          cp -R "$RUNNER_TEMP/rurimecha-core/"{rurimecha-core,third_party,media-tools} "$context/"
+          docker build --platform linux/amd64 -t "$image" \
+            -f rurimecha/packaging/docker/Dockerfile "$context"
+          test "$(docker run --rm "$image" -version)" = "$VERSION"
+          for tool in ffmpeg ffprobe; do
+            docker run --rm --entrypoint "/usr/local/bin/media-tools/bin/$tool" "$image" -version
+          done
+          mkdir docker-image
+          docker save "$image" | gzip > docker-image/rurimecha-core-linux-amd64-image.tar.gz
+          (cd docker-image && sha256sum rurimecha-core-linux-amd64-image.tar.gz > SHA256SUMS)
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: linux-amd64
+          path: rurimecha/releases/${{ env.VERSION }}/linux-amd64/
+          if-no-files-found: error
+          overwrite: true
+      - name: Transfer Windows installer inputs within CI
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: internal-windows-installer-input
+          path: ${{ runner.temp }}/windows-core-input/
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: docker-image
+          path: docker-image/
+          if-no-files-found: error
+          overwrite: true
+          compression-level: 0
+
+  windows:
+    needs: package
+    runs-on: windows-2025
+    env:
+      VERSION: 0.0.0-ci.${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rurimecha/rurimecha-core
+          ref: ${{ needs.package.outputs.core_revision }}
+          path: rurimecha-core
+          token: ${{ secrets.RURI_CI_READER }}
+          persist-credentials: false
+          sparse-checkout: scripts/check-release-tools.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: internal-windows-installer-input
+          path: windows-core-input
+      - name: Verify the Windows installer inputs
+        shell: pwsh
+        timeout-minutes: 5
+        run: |
+          $process = Start-Process .\windows-core-input\rurimecha-core.exe -ArgumentList '-version' `
+            -RedirectStandardOutput version.txt -PassThru
+          $null = $process.Handle
+          $process.WaitForExit()
+          $version = (Get-Content -Raw version.txt).Trim()
+          if ($process.ExitCode -ne 0 -or $version -ne $env:VERSION) { throw "Unexpected Core version: $version" }
+          foreach ($tool in @('ffmpeg', 'ffprobe')) {
+            & ".\windows-core-input\media-tools\bin\$tool.exe" -version
+            if ($LASTEXITCODE -ne 0) { throw "Packaged $tool failed" }
+          }
+          python rurimecha-core/scripts/check-release-tools.py .\windows-core-input\rurimecha-core.exe
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rurimecha/rurimecha-frontend
+          ref: ${{ needs.package.outputs.frontend_revision }}
+          path: rurimecha-frontend
+          token: ${{ secrets.RURI_CI_READER }}
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: rurimecha-distribution
+          persist-credentials: false
+          sparse-checkout: packaging/windows-x64/installer.iss
+          sparse-checkout-cone-mode: false
+      - name: Test update selection and build Windows installer
+        shell: pwsh
+        run: |
+          dotnet run --project rurimecha-frontend/test/windows-release/ReleaseChecks.csproj
+          if ($LASTEXITCODE -ne 0) { throw 'Desktop update checks failed' }
+          ./rurimecha-frontend/scripts/package-windows-desktop.ps1 -Version $env:VERSION `
+            -CoreDirectory ./windows-core-input -InstallerScript ./rurimecha-distribution/packaging/windows-x64/installer.iss `
+            -OutputDirectory ./windows-installer
+          $installer = Get-Item "windows-installer/rurimecha-windows-x64-setup-$env:VERSION.exe"
+          $checksum = '{0}  {1}' -f (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $installer.Name
+          Set-Content -Encoding ascii -NoNewline -Path windows-installer/SHA256SUMS -Value "$checksum`n"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: windows-desktop-installer
+          path: |
+            windows-installer/rurimecha-windows-x64-setup-${{ env.VERSION }}.exe
+            windows-installer/SHA256SUMS
+          if-no-files-found: error
+          overwrite: true
+          compression-level: 0
