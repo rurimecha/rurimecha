@@ -1,0 +1,20 @@
+[Unit]
+Description=Rurimecha media library
+After=network.target
+
+[Service]
+Type=exec
+User=rurimecha
+Group=rurimecha
+WorkingDirectory=/opt/rurimecha
+StateDirectory=rurimecha
+StateDirectoryMode=0700
+ExecStart=/opt/rurimecha/rurimecha-core -data-dir /var/lib/rurimecha
+UMask=0077
+NoNewPrivileges=true
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=25s
+
+[Install]
+WantedBy=multi-user.target

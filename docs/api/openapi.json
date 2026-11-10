@@ -11243,6 +11243,107 @@
         }
       }
     },
+    "/auth/setup": {
+      "get": {
+        "operationId": "getAdminSetupStatus",
+        "tags": [
+          "accounts"
+        ],
+        "summary": "Check if the installation still needs an administrator password.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Setup status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "required"
+                  ],
+                  "properties": {
+                    "required": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "operationId": "setupAdmin",
+        "tags": [
+          "accounts"
+        ],
+        "summary": "Set the first administrator password with the one-time setup code.",
+        "description": "Only an empty installation can be set up. The code comes from the server data directory. On success, sign in through POST /auth/login.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "setup_code",
+                  "password",
+                  "confirm_password"
+                ],
+                "properties": {
+                  "setup_code": {
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "confirm_password": {
+                    "type": "string",
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Administrator password set"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
     "/auth/login": {
       "post": {
         "operationId": "accountLogin",
@@ -21056,7 +21157,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Opaque session token returned by POST /auth/login. The bootstrap credential file is only the initial admin password, never an API bearer token."
+        "description": "Opaque session token returned by POST /auth/login. The one-time setup code cannot be used as a bearer token."
       },
       "sessionCookie": {
         "type": "apiKey",
