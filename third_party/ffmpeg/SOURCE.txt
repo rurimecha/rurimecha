@@ -1,0 +1,13 @@
+FFmpeg 9.0.2-rurimecha.1
+Copyright (c) the FFmpeg developers and the respective library contributors.
+
+This build of FFmpeg and FFprobe is distributed under the GNU General Public
+License version 3 or later. See licenses/ for the license texts and notices.
+
+Corresponding source, including the build recipe and linked library sources,
+is archived as ruri-ffmpeg-9.0.2-rurimecha.1-sources.tar.gz. Obtain it from
+the same Rurimecha release as these binaries, at no additional charge.
+
+Repository and release index:
+https://github.com/rurimecha/rurimecha/tree/main/third_party/ffmpeg
+https://github.com/rurimecha/rurimecha/releases

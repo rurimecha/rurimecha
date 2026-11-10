@@ -1,0 +1,7 @@
+*
+!build.sh
+!SOURCE.txt
+!sources/
+!sources/**
+!licenses/
+!licenses/**

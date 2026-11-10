@@ -1,0 +1,3024 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Ruri Scrape Service API",
+    "version": "1",
+    "description": "Authenticated text-metadata cache: language/field selection, bounded persistence, daily successful acquisitions, durable jobs, import/export. No binary-image service or manual metadata edits. See scrape-service.md."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8091"
+    }
+  ],
+  "security": [
+    {
+      "Bearer": []
+    },
+    {
+      "SessionCookie": []
+    }
+  ],
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "get_health",
+        "summary": "GET /health",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "post_auth_login",
+        "summary": "POST /auth/login",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "post_auth_logout",
+        "summary": "POST /auth/logout",
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "get_auth_me",
+        "summary": "GET /auth/me",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_auth_me",
+        "summary": "PUT /auth/me",
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/access": {
+      "get": {
+        "operationId": "get_auth_access",
+        "summary": "GET /auth/access",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Access"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/sessions": {
+      "get": {
+        "operationId": "get_auth_sessions",
+        "summary": "GET /auth/sessions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/sessions/{id}": {
+      "delete": {
+        "operationId": "delete_auth_sessions_id",
+        "summary": "DELETE /auth/sessions/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/keys": {
+      "get": {
+        "operationId": "get_keys",
+        "summary": "GET /keys",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKeyList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_keys",
+        "summary": "POST /keys",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKey"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeyInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/keys/{id}": {
+      "delete": {
+        "operationId": "delete_keys_id",
+        "summary": "DELETE /keys/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "get_products",
+        "summary": "GET /products",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_products",
+        "summary": "POST /products",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MetadataPackage"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{code}": {
+      "get": {
+        "operationId": "get_products_code",
+        "summary": "GET /products/{code}",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_products_code",
+        "summary": "DELETE /products/{code}",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{code}/refresh": {
+      "post": {
+        "operationId": "post_products_code_refresh",
+        "summary": "POST /products/{code}/refresh",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{code}/package": {
+      "get": {
+        "operationId": "get_products_code_package",
+        "summary": "GET /products/{code}/package",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetadataPackage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lookup": {
+      "post": {
+        "operationId": "post_lookup",
+        "summary": "POST /lookup",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Selection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/export": {
+      "get": {
+        "operationId": "get_export",
+        "summary": "GET /export",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bundle"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import": {
+      "post": {
+        "operationId": "post_import",
+        "summary": "POST /import",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collection": {
+      "get": {
+        "operationId": "get_collection",
+        "summary": "GET /collection",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionStatus"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collection/run": {
+      "post": {
+        "operationId": "post_collection_run",
+        "summary": "POST /collection/run",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/settings": {
+      "get": {
+        "operationId": "get_settings",
+        "summary": "GET /settings",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_settings",
+        "summary": "PUT /settings",
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs": {
+      "get": {
+        "operationId": "get_jobs",
+        "summary": "GET /jobs",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_jobs",
+        "summary": "POST /jobs",
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{id}": {
+      "get": {
+        "operationId": "get_jobs_id",
+        "summary": "GET /jobs/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_jobs_id",
+        "summary": "DELETE /jobs/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{id}/items": {
+      "get": {
+        "operationId": "get_jobs_id_items",
+        "summary": "GET /jobs/{id}/items",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobItemPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{id}/events": {
+      "get": {
+        "operationId": "get_jobs_id_events",
+        "summary": "GET /jobs/{id}/events",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{id}/cancel": {
+      "post": {
+        "operationId": "post_jobs_id_cancel",
+        "summary": "POST /jobs/{id}/cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{id}/retry": {
+      "post": {
+        "operationId": "post_jobs_id_retry",
+        "summary": "POST /jobs/{id}/retry",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ruri_scrape_session"
+      }
+    },
+    "schemas": {
+      "MetadataPackage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "format",
+          "version",
+          "metadata",
+          "source"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "ruri-metadata"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PackageMetadata"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PackageSource"
+          },
+          "translations": {
+            "type": "array",
+            "nullable": true,
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/TextInput"
+            },
+            "description": "Distinct BCP 47 locales, excluding und and all original metadata text locales. Does not change original_locale."
+          },
+          "images": {
+            "type": "array",
+            "nullable": true,
+            "maxItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/PackageImage"
+            }
+          }
+        },
+        "description": "One portable product snapshot with optional local translations and embedded images. Entire JSON at most 64 MiB; normalized metadata at most 8 MiB."
+      },
+      "PackageMetadata": {
+        "type": "object",
+        "properties": {
+          "original_locale": {
+            "type": "string",
+            "description": "BCP 47 language tag; canonicalized by the server. Use und for unknown.",
+            "nullable": true,
+            "default": "und"
+          },
+          "texts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TextInput"
+            },
+            "nullable": true
+          },
+          "release_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "release_date_precision": {
+            "type": "string",
+            "enum": [
+              "",
+              "year",
+              "month",
+              "day"
+            ],
+            "nullable": true
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "BCP 47 language tag; canonicalized by the server. Use und for unknown."
+            },
+            "nullable": true
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            },
+            "nullable": true
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Credit"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "nullable": true
+          },
+          "cover_ref": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "locator"
+            ],
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "product_info": {
+            "$ref": "#/components/schemas/ProductInfo",
+            "nullable": true
+          }
+        },
+        "required": [
+          "original_locale",
+          "texts",
+          "identifiers"
+        ],
+        "additionalProperties": false,
+        "description": "Portable provider descriptions without local work/node identity. Original texts are preserved; local translations are separate package entries."
+      },
+      "TextInput": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "BCP 47 language tag; canonicalized by the server. Use und for unknown."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "default": ""
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "default": ""
+          },
+          "description_parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DescriptionPart"
+            },
+            "nullable": true,
+            "maxItems": 256,
+            "description": "Ordered structured description, <=256 KiB total JSON. Omitted/null/empty clears on manual replacement. Empty parts are null or an empty array."
+          }
+        },
+        "required": [
+          "locale"
+        ],
+        "additionalProperties": false
+      },
+      "DescriptionPart": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "text",
+              "image",
+              "tracks"
+            ]
+          },
+          "heading": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductImage"
+            },
+            "nullable": true,
+            "maxItems": 256
+          },
+          "tracks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DescriptionTrack"
+            },
+            "nullable": true,
+            "maxItems": 512
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Ordered content section in the parent text locale. All strings are plain text; never interpret as HTML."
+      },
+      "ProductImage": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "HTTP(S) image reference; no credentials."
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "caption": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "description": "Remote image reference only. Omitted/zero dimensions mean unknown. Caption is plain text."
+      },
+      "DescriptionTrack": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "duration_text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false,
+        "description": "Advertised track, not a file binding. Duration retains seller wording/units."
+      },
+      "Identifier": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "namespace",
+          "value"
+        ],
+        "additionalProperties": false
+      },
+      "Credit": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "role",
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "ProductInfo": {
+        "type": "object",
+        "additionalProperties": {},
+        "maxProperties": 100,
+        "description": "Optional product details, preserving provider units and semantics. Keys match ^[a-z][a-z0-9_]{0,63}$, each JSON value <=256 KiB except localized_metadata <=4 MiB. Typical keys: series_name, price (JPY for DLsite), currency_price, age_category_string, duration (ASMR seconds), file_size, image_samples, language_editions, translation_info, rate_average_2dp, rate_count, dl_count. Client must render plain text and treat URLs/raw content as untrusted. Reserved normalized keys sample_images, age_rating and language_versions are validated across providers. series_name/series_id also normalize ASMR series. Missing age_rating means unknown, never all-ages by default. Manual protection/reset applies separately per product key.",
+        "properties": {
+          "sample_images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductImage"
+            },
+            "nullable": true,
+            "maxItems": 256
+          },
+          "age_rating": {
+            "type": "string",
+            "enum": [
+              "all_ages",
+              "r15",
+              "r18"
+            ],
+            "nullable": true
+          },
+          "language_versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductEdition"
+            },
+            "nullable": true,
+            "maxItems": 256
+          },
+          "summaries": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Short provider summaries keyed by metadata BCP 47 locale; separate from the full description."
+          },
+          "credit_references": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "provider",
+                "role",
+                "id",
+                "name",
+                "url"
+              ]
+            },
+            "description": "Provider credit IDs and links; descriptive references, not local entity IDs."
+          },
+          "original_product": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Linked original product facts; does not replace current product identity or prose."
+          },
+          "advertised_size": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Seller-advertised size text; never a local media measurement."
+          },
+          "advertised_duration": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Upstream-advertised duration value with unit marker; not locally probed."
+          },
+          "field_sources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "dlsite",
+                "asmr.one"
+              ]
+            },
+            "description": "Field paths supplemented from the secondary provider."
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "official_price": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "price_without_tax": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "discount_rate": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained.",
+            "maximum": 100
+          },
+          "rate_average_2dp": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained.",
+            "maximum": 5
+          },
+          "rate_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "dl_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "review_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "wishlist_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Validated provider observation; missing/null is unknown, explicit zero is retained."
+          },
+          "is_discount": {
+            "type": "boolean",
+            "description": "Explicit provider flag; false is retained. Does not establish permanent free availability."
+          },
+          "is_sale": {
+            "type": "boolean",
+            "description": "Explicit provider flag; false is retained. Does not establish permanent free availability."
+          },
+          "is_free": {
+            "type": "boolean",
+            "description": "Explicit provider flag; false is retained. Does not establish permanent free availability."
+          },
+          "currency": {
+            "type": "string",
+            "description": "Price currency; current providers return JPY."
+          },
+          "rate_count_detail": {
+            "description": "Validated per-star counts: an object keyed by stars 1..5, or an array of review_point/count records. Provider numeric strings may be retained in the distribution."
+          },
+          "localized_metadata": {
+            "type": "object",
+            "maxProperties": 100,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LocalizedMetadata"
+            },
+            "description": "Canonical metadata language tags to complete language records, total JSON size <=4 MiB. Request switches support zh-Hans, zh-Hant, ja and en."
+          }
+        }
+      },
+      "ProductEdition": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^RJ(?:[0-9]{6}|[0-9]{8})$"
+          },
+          "language": {
+            "type": "string",
+            "description": "Canonical BCP 47, omitted if unknown."
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "additionalProperties": false,
+        "description": "Published edition reference, not a local work merge or audio-language assertion."
+      },
+      "PackageSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "code",
+          "url",
+          "fetched_at",
+          "raw"
+        ],
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "dlsite",
+              "asmr.one"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^(RJ|BJ|VJ)([0-9]{6}|[0-9]{8})$"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "HTTPS provider evidence URL."
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "raw": {
+            "description": "Original upstream JSON evidence, at most 12 MiB. Not replaced by local translations.",
+            "nullable": true
+          }
+        }
+      },
+      "PackageImage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "data"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Must be a supported provider image URL referenced by package metadata or translations."
+          },
+          "data": {
+            "type": "string",
+            "format": "byte",
+            "description": "Base64 original JPEG/PNG/GIF/WebP bytes; maximum 16 MiB decoded per image, 32 MiB decoded total per package."
+          }
+        }
+      },
+      "Section": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "success",
+              "unknown",
+              "failed",
+              "not_requested"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin"
+            ]
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "role",
+          "revision",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "client_name": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "client_name",
+          "created_at",
+          "expires_at",
+          "current"
+        ],
+        "additionalProperties": false
+      },
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "client_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "LoginResult": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "session",
+          "token"
+        ],
+        "additionalProperties": false
+      },
+      "ProfileInput": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "current_password": {
+            "type": "string",
+            "format": "password"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        },
+        "required": [
+          "username",
+          "current_password",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "APIKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "read",
+              "lookup",
+              "admin"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "token": {
+            "type": "string",
+            "description": "Returned only at creation."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "scope",
+          "created_at",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "KeyInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "read",
+              "lookup",
+              "admin"
+            ]
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          }
+        },
+        "required": [
+          "name",
+          "scope",
+          "days"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "internal_error",
+                  "unauthorized",
+                  "forbidden",
+                  "not_found",
+                  "stale_revision",
+                  "invalid_input",
+                  "busy",
+                  "limit_exceeded",
+                  "provider_unavailable",
+                  "canceled"
+                ]
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "enum": [
+              "ruri-scrape"
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "service"
+        ],
+        "additionalProperties": false
+      },
+      "Record": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PackageMetadata"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PackageSource"
+          },
+          "sections": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Section"
+            }
+          },
+          "observation_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "code",
+          "revision",
+          "metadata",
+          "source",
+          "sections",
+          "observation_id",
+          "created_at",
+          "updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "Summary": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partial": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "revision",
+          "title",
+          "provider",
+          "updated_at",
+          "partial"
+        ],
+        "additionalProperties": false
+      },
+      "LookupInput": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64
+          },
+          "refresh": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "Selection": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "language": {
+            "type": "string",
+            "description": "Selected requested metadata observation locale; actual text locales remain in values.metadata.texts. Empty for language-independent fields."
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "source": {
+            "$ref": "#/components/schemas/PackageSource"
+          },
+          "sections": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Section"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "revision",
+          "language",
+          "values",
+          "source",
+          "sections"
+        ],
+        "additionalProperties": false
+      },
+      "Provider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "dlsite",
+              "asmr.one"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "Settings": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Provider"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 120
+          },
+          "interval_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 60000
+          },
+          "failure_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3600
+          },
+          "max_products": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "daily_new_limit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "proxy_configured": {
+            "type": "boolean"
+          },
+          "metadata_locales": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "zh-Hans",
+                "zh-Hant",
+                "ja",
+                "en"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "自动获取时逐一尝试的资料语言。"
+          },
+          "default_return_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "ja"
+            ],
+            "description": "查询未指定语言时优先返回的资料语言。"
+          }
+        },
+        "required": [
+          "revision",
+          "providers",
+          "timeout_seconds",
+          "interval_ms",
+          "failure_seconds",
+          "max_products",
+          "daily_new_limit",
+          "proxy_configured",
+          "metadata_locales",
+          "default_return_locale"
+        ],
+        "additionalProperties": false
+      },
+      "SettingsInput": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Provider"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 120
+          },
+          "interval_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 60000
+          },
+          "failure_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3600
+          },
+          "max_products": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "daily_new_limit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "proxy_configured": {
+            "type": "boolean"
+          },
+          "proxy_url": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "metadata_locales": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "zh-Hans",
+                "zh-Hant",
+                "ja",
+                "en"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "自动获取时逐一尝试的资料语言。"
+          },
+          "default_return_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "ja"
+            ],
+            "description": "查询未指定语言时优先返回的资料语言。"
+          }
+        },
+        "required": [
+          "providers",
+          "timeout_seconds",
+          "interval_ms",
+          "failure_seconds",
+          "max_products",
+          "daily_new_limit",
+          "metadata_locales",
+          "default_return_locale"
+        ],
+        "additionalProperties": false
+      },
+      "CollectionStatus": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "acquired": {
+            "type": "integer"
+          },
+          "daily_limit": {
+            "type": "integer"
+          },
+          "products": {
+            "type": "integer"
+          },
+          "max_products": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "day",
+          "acquired",
+          "daily_limit",
+          "products",
+          "max_products"
+        ],
+        "additionalProperties": false
+      },
+      "JobInput": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "lookup",
+              "collect"
+            ]
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 1000
+          },
+          "refresh": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "additionalProperties": false
+      },
+      "DiscoveryQuery": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "dlsite",
+              "asmr.one"
+            ]
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "new",
+              "hot",
+              "rating",
+              "sales"
+            ]
+          },
+          "site": {
+            "type": "string",
+            "enum": [
+              "maniax",
+              "home",
+              "girls"
+            ]
+          },
+          "work_type": {
+            "type": "string",
+            "enum": [
+              "SOU",
+              "MUS",
+              "all"
+            ]
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "provider",
+          "sort",
+          "site",
+          "work_type",
+          "page"
+        ],
+        "additionalProperties": false
+      },
+      "Source": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "query": {
+            "$ref": "#/components/schemas/DiscoveryQuery"
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "refresh": {
+            "type": "boolean"
+          },
+          "exclude_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "name",
+          "enabled",
+          "query",
+          "pages",
+          "limit",
+          "refresh",
+          "exclude_codes",
+          "updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "canceling",
+              "canceled",
+              "succeeded",
+              "partial",
+              "failed"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/JobInput"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source",
+            "nullable": true
+          },
+          "cursor": {
+            "type": "integer"
+          },
+          "discovery_done": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "processed": {
+            "type": "integer"
+          },
+          "succeeded": {
+            "type": "integer"
+          },
+          "failed": {
+            "type": "integer"
+          },
+          "skipped": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "collection_day": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "input",
+          "cursor",
+          "discovery_done",
+          "total",
+          "processed",
+          "succeeded",
+          "failed",
+          "skipped",
+          "error",
+          "created_at",
+          "finished_at"
+        ],
+        "additionalProperties": false,
+        "description": "Durable lookup or daily acquisition job. Source is a server-generated discovery snapshot, not a user-managed source."
+      },
+      "JobItem": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "metadata_saved",
+              "succeeded",
+              "skipped",
+              "failed",
+              "canceled"
+            ]
+          },
+          "error": {
+            "type": "string"
+          },
+          "metadata_saved": {
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "code",
+          "state",
+          "error",
+          "metadata_saved",
+          "expected_revision",
+          "updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "code": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "Bundle": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "ruri-scrape-bundle"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "exported_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Record"
+            },
+            "maxItems": 1000
+          }
+        },
+        "required": [
+          "format",
+          "version",
+          "exported_at",
+          "records"
+        ],
+        "additionalProperties": false
+      },
+      "ImportInput": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "skip",
+              "fail",
+              "replace"
+            ]
+          },
+          "expected_revisions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          "bundle": {
+            "$ref": "#/components/schemas/Bundle"
+          }
+        },
+        "required": [
+          "mode",
+          "expected_revisions",
+          "bundle"
+        ],
+        "additionalProperties": false
+      },
+      "ImportResult": {
+        "type": "object",
+        "properties": {
+          "imported": {
+            "type": "integer"
+          },
+          "skipped": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "imported",
+          "skipped"
+        ],
+        "additionalProperties": false
+      },
+      "Access": {
+        "type": "object",
+        "properties": {
+          "read": {
+            "type": "boolean"
+          },
+          "lookup": {
+            "type": "boolean"
+          },
+          "refresh": {
+            "type": "boolean"
+          },
+          "manage": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "read",
+          "lookup",
+          "refresh",
+          "manage"
+        ],
+        "additionalProperties": false
+      },
+      "SummaryPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Summary"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "additionalProperties": false
+      },
+      "JobPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "additionalProperties": false
+      },
+      "JobItemPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobItem"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "additionalProperties": false
+      },
+      "EventPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "additionalProperties": false
+      },
+      "APIKeyList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIKey"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "SessionList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Session"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "LocalizedMetadata": {
+        "type": "object",
+        "description": "Complete per-language display fields. Title and introduction are stored in texts with the same locale. Missing fields remain empty; clients must not fill them from another language. Source/raw is null; raw evidence is stored separately.",
+        "properties": {
+          "release_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "release_date_precision": {
+            "type": "string",
+            "enum": [
+              "",
+              "year",
+              "month",
+              "day"
+            ],
+            "nullable": true
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "BCP 47 language tag; canonicalized by the server. Use und for unknown."
+            },
+            "nullable": true
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Credit"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "nullable": true
+          },
+          "cover_ref": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "locator"
+            ],
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "product_info": {
+            "type": "object",
+            "additionalProperties": {},
+            "maxProperties": 100,
+            "description": "Only this language observation. Nested localized_metadata is rejected."
+          },
+          "source": {
+            "$ref": "#/components/schemas/PackageSource",
+            "nullable": true
+          },
+          "via": {
+            "type": "string"
+          },
+          "cache_url": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "state"
+              ],
+              "additionalProperties": false
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
