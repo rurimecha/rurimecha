@@ -13718,6 +13718,7 @@
     "/library-jobs": {
       "post": {
         "operationId": "startLibraryJob",
+        "description": "Kikoeru-compatible sources require skip_scan=true and probe=false; their directory and media information comes from the source API. A request that scans or probes such a source returns 400 before creating a job.",
         "tags": [
           "library"
         ],
@@ -28453,7 +28454,8 @@
           },
           "probe": {
             "type": "boolean",
-            "default": false
+            "default": false,
+            "description": "Local sources only. Must be false for Kikoeru-compatible sources."
           },
           "force_metadata": {
             "type": "boolean",
@@ -28465,7 +28467,8 @@
           },
           "skip_scan": {
             "type": "boolean",
-            "default": false
+            "default": false,
+            "description": "Required true for Kikoeru-compatible sources unless metadata_only is true."
           },
           "automatic": {
             "type": "boolean",

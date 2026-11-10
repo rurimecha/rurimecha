@@ -8,6 +8,8 @@
 
 source_ids 为 1..64 个不重复 ID。子树范围必须属于唯一来源且为存在的目录；首次没有完整索引时应全量扫描。其余字段可省略，布尔默认 false。skip_scan 只跳过枚举，继续归纳；metadata_only 跳过扫描和归纳，只处理元数据。force_metadata 传递给刮削和媒体探测，不绕过修订、范围及人工保护。刮削须先启用 scraper；探测依赖外部 ffprobe。
 
+kikoeru 兼容来源已在入库时取得目录和媒体信息。对此类来源运行归纳时必须设置 `skip_scan=true` 且 `probe=false`；可按需设置 `scrape=true`。请求扫描或探测兼容来源返回 400，不创建任务；混合来源请求包含此类无效组合时也整体拒绝。
+
 返回 id、state、input、created_at、finished_at、items；每个来源项包含 source_id、state、observed_nodes、skipped_works 和 stages。阶段含 kind、state、error（稳定代码）、job_ids 和 duration_ms。child job_ids 可在扫描/刮削/探测原接口查询逐项错误。归纳直接在流程阶段执行，不产生单独归纳任务 ID。
 
 状态为 queued/running/canceling/succeeded/partial/failed/canceled/interrupted。不存在或停用的来源只影响自身；扫描失败停止该来源后续步骤，部分扫描可继续；归纳失败停止依赖其结果的刮削阶段，独立媒体观察继续。刮削逐作品隔离，超过 1000 作品分批；取消会通知正在运行的子任务。重启先将未结束历史标记 interrupted。未被用户取消的手动流程在应用完成初始化后以原任务 ID 恢复：保留已完成来源，重算中断来源，复用已成功保存的观察；不从旧调用栈继续。正常服务关闭也保存 resume_pending=true；显式取消不恢复。自动流程由来源持久策略与修订重新协调。
