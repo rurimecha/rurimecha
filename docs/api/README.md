@@ -51,6 +51,6 @@
 
 - [产品授权管理](licensing.md)说明如何查询授权状态、激活和反激活。
 
-- [云端授权中心 OpenAPI](license-service.openapi.json)：授权中心管理、在线激活/反激活与受保护的绑定操作。
+- [云端授权中心 OpenAPI](license-service.openapi.json)：授权中心管理、在线激活/反激活、测试申请和邮箱验证后的授权查询。
 
 - [台本编辑与格式转换](subtitle-editing.md)：实际字幕文件、手工草稿、转换预览与确认覆盖。
