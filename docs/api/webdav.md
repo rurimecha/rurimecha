@@ -4,7 +4,7 @@
 
 ## 账户密码直连
 
-播放器填写现有账户的当前用户名和密码，服务地址为 `http://服务器:端口/dav/`，使用HTTP Basic认证。HTTP 会明文传输密码，请在可信网络中使用。无需先网页登录或创建DAV会话，不提供独立DAV密码、会话签发或令牌配置步骤。`POST /auth/sessions` 已移除；网页Cookie和API Bearer仍用于原有管理接口，不用于DAV。
+播放器填写现有账户的当前用户名和密码，使用 HTTP Basic 认证。启用 HTTPS 后，服务地址为 `https://证书对应的服务器名称:HTTPS端口/dav/`；仅使用 HTTP 时为 `http://服务器:HTTP端口/dav/`。HTTP 会明文传输密码，请只在可信网络中使用。强制 HTTPS 模式保留 HTTP 监听并返回 307；WebDAV 客户端应直接使用 HTTPS 地址，不依赖客户端跟随重定向。无需先网页登录或创建 DAV 会话，不提供独立 DAV 密码、会话签发或令牌配置步骤。`POST /auth/sessions` 已移除；网页 Cookie 和 API Bearer 仍用于原有管理接口，不用于 DAV。
 
 DAV只验证账户身份并提供只读文件访问，不签发网页/API令牌。密码验证与网页登录共用账户凭据；内部返回账户ID、用户名、角色和修订，目录路径不包含用户名。管理员可管理 admin/member 账户；各账户共享只读媒体来源目录，账户管理与个人资料隔离见 accounts.md。
 
