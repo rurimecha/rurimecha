@@ -2,19 +2,20 @@
 name: Build FFmpeg tools
 
 on:
-  push:
-    branches: [dev]
-    paths:
-      - third_party/ffmpeg/**
-      - .github/workflows/build-ffmpeg.yml
   workflow_dispatch:
+    inputs:
+      reuse_run_id:
+        description: 'Successful Build FFmpeg tools run to reuse. Clear only to build new tools.'
+        required: false
+        default: '42772332252'
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || github.event.repository.private
+    if: inputs.reuse_run_id == ''
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -39,6 +40,80 @@ jobs:
           if-no-files-found: error
           compression-level: 0
           overwrite: true
+
+  publish:
+    needs: source
+    if: ${{ always() && !cancelled() && github.event.repository.private && (inputs.reuse_run_id != '' || needs.source.result == 'success') }}
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      packages: write
+    steps:
+      - name: Select a verified FFmpeg build
+        id: build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REUSE_RUN_ID: ${{ inputs.reuse_run_id }}
+        run: |
+          run_id="${REUSE_RUN_ID:-$GITHUB_RUN_ID}"
+          revision="$GITHUB_SHA"
+          if [[ -n "$REUSE_RUN_ID" ]]; then
+            [[ "$run_id" =~ ^[0-9]+$ ]]
+            workflow_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/build-ffmpeg.yml" --jq .id)
+            run=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id")
+            if ! jq -e --argjson workflow "$workflow_id" --arg repo "$GITHUB_REPOSITORY" \
+              '.workflow_id == $workflow and .head_repository.full_name == $repo and .conclusion == "success"' <<< "$run" >/dev/null; then
+              echo 'Select a successful Build FFmpeg tools run from this repository.' >&2
+              exit 1
+            fi
+            revision=$(jq -r .head_sha <<< "$run")
+          fi
+          printf 'run_id=%s\nrevision=%s\n' "$run_id" "$revision" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.build.outputs.run_id }}
+          pattern: ffmpeg-*
+          merge-multiple: true
+          path: ffmpeg-artifacts
+      - name: Store the verified bundle in GHCR
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          SOURCE_REVISION: ${{ steps.build.outputs.revision }}
+        run: |
+          set -euo pipefail
+          export LC_ALL=C
+          shopt -s nullglob
+          sources=(ffmpeg-artifacts/ruri-ffmpeg-*-sources.tar.gz)
+          if [[ ${#sources[@]} -ne 1 ]]; then
+            echo 'The selected build must provide exactly one corresponding source archive.' >&2
+            exit 1
+          fi
+          python3 - "${sources[0]}" "$SOURCE_REVISION" <<'PY'
+          import sys
+          import tarfile
+          with tarfile.open(sys.argv[1]) as archive:
+              if archive.pax_headers.get('comment') != sys.argv[2]:
+                  sys.exit('FFmpeg source archive revision does not match the selected run')
+          PY
+          mkdir ffmpeg-bundle
+          cp "${sources[0]}" ffmpeg-artifacts/ruri-ffmpeg-{linux,windows}-amd64.tar.gz ffmpeg-bundle/
+          (cd ffmpeg-bundle && sha256sum ruri-ffmpeg-*.tar.gz > SHA256SUMS)
+
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/ffmpeg-tools:run-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+          docker build -t "$image" -f - ffmpeg-bundle <<'DOCKERFILE'
+          FROM scratch
+          LABEL org.opencontainers.image.source="https://github.com/rurimecha/rurimecha"
+          COPY . /ffmpeg/
+          DOCKERFILE
+          pushed=$(docker push "$image")
+          printf '%s\n' "$pushed"
+          digest=$(sed -nE 's/.* digest: (sha256:[0-9a-f]{64}) .*/\1/p' <<< "$pushed")
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          printf 'Set Core repository variable `RURI_FFMPEG_DIGEST` to `%s`.\n\nFFmpeg source commit `%s`.\n' \
+            "$digest" "$SOURCE_REVISION" >> "$GITHUB_STEP_SUMMARY"
 
   verify:
     needs: build
