@@ -20,7 +20,7 @@ Linux 压缩包内的音视频工具需要 glibc 2.35 或更新版本，例如 U
 
 Linux 服务安装需要 systemd，应用数据保存在 `/var/lib/rurimecha`。服务以 `rurimecha` 账号运行，请确保这个账号可以访问要添加的媒体目录。也可以在解压目录运行 `./rurimecha-core -data-dir ./data` 手动启动，直接在终端查看设置码。设置前也可以在数据目录的 `setup-code` 文件中查看。
 
-Docker 用户请在 Compose 文件旁创建 `.env`。将 `RURI_IMAGE` 设为发行页提供的镜像，将 `RURI_MEDIA_DIR` 设为运行 Docker 的电脑上存放媒体的文件夹。启动后，Ruri 中可通过 `/media/library` 访问该文件夹。默认只读，账号和作品资料保存在独立的 `ruri-data` 卷。
+Docker 用户请在 Compose 文件旁创建 `.env`。将 `RURI_IMAGE` 设为 `docker.io/rurimecha/rurimecha:<版本号>`；若希望跟随最新正式版，也可使用 `docker.io/rurimecha/rurimecha:latest`。将 `RURI_MEDIA_DIR` 设为运行 Docker 的电脑上存放媒体的文件夹。启动后，Ruri 中可通过 `/media/library` 访问该文件夹。默认只读，账号和作品资料保存在独立的 `ruri-data` 卷。当前镜像提供 Linux x86-64 版本。
 
 Linux 和 Docker 用户在运行 Ruri 的电脑上打开 `http://127.0.0.1:8080/`。首次打开时填入上表中的一次性设置码，再输入两遍自己设定的密码。之后用 `admin` 和该密码登录。已有安装继续使用原账号和密码。
 
