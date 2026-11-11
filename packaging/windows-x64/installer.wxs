@@ -29,6 +29,7 @@
         <Shortcut Id="RuriShortcut" Name="Rurimecha" Target="[INSTALLFOLDER]Rurimecha.exe"
                   WorkingDirectory="INSTALLFOLDER" />
         <RemoveFolder Id="RuriMenu" On="uninstall" />
+        <RemoveFolder Id="RemoveProgramsDir" Directory="ProgramsDir" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="Installed"
                        Type="integer" Value="1" KeyPath="yes" />
       </Component>
