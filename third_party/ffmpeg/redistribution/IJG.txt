@@ -1,0 +1,4 @@
+This software is based in part on the work of the Independent JPEG Group.
+
+The corresponding FFmpeg source archive contains the attribution and terms
+for the IJG code in libavcodec/jfdctfst.c and libavcodec/jrevdct.c.

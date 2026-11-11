@@ -1,0 +1,14 @@
+services:
+  core:
+    image: ${RURI_IMAGE:?Set RURI_IMAGE to the Ruri release image}
+    platform: linux/amd64
+    init: true
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ruri-data:/data
+      - ${RURI_MEDIA_DIR:?Set RURI_MEDIA_DIR to your media directory}:/media/library:ro
+    stop_grace_period: 20s
+
+volumes:
+  ruri-data:

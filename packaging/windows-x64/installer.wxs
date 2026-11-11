@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="Rurimecha" Language="2052" Codepage="936" Version="$(var.MsiVersion)"
+           Manufacturer="Rurimecha" UpgradeCode="{9B5B6D7B-B5C9-4F71-AC3C-716D485BE015}">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" SummaryCodepage="936" />
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="已安装较新的 Ruri 版本。" />
+    <MediaTemplate EmbedCab="yes" />
+    <Icon Id="RuriIcon" SourceFile="$(var.PayloadDir)\Ruri.ico" />
+    <Property Id="ARPPRODUCTICON" Value="RuriIcon" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="RURI_LISTEN_IP" Secure="yes" />
+    <Property Id="RURI_LISTEN_PORT" Secure="yes" />
+    <Property Id="RURI_ORIGINAL_IP" Secure="yes" />
+    <Property Id="RURI_ORIGINAL_PORT" Secure="yes" />
+    <Property Id="RURI_REMOVE_DATA" Secure="yes" />
+    <Property Id="INSTALLFOLDER" Secure="yes">
+      <RegistrySearch Id="PreviousInstallFolder" Root="HKCU" Key="Software\Rurimecha"
+                      Name="InstallDir" Type="raw" Win64="yes" />
+    </Property>
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <Binary Id="RuriInstallerActions" SourceFile="$(var.ActionsDll)" />
+    <CustomAction Id="ReadNetwork" BinaryKey="RuriInstallerActions" DllEntry="ReadNetwork" />
+    <CustomAction Id="CheckNetwork" BinaryKey="RuriInstallerActions" DllEntry="CheckNetwork" />
+    <CustomAction Id="PrepareNetwork" BinaryKey="RuriInstallerActions" DllEntry="PrepareNetwork" />
+    <CustomAction Id="ApplyNetwork" BinaryKey="RuriInstallerActions" DllEntry="ApplyNetwork"
+                  Execute="deferred" Impersonate="yes" />
+    <CustomAction Id="RollbackNetwork" BinaryKey="RuriInstallerActions" DllEntry="RollbackNetwork"
+                  Execute="rollback" Impersonate="yes" />
+    <CustomAction Id="PrepareRemoveData" BinaryKey="RuriInstallerActions" DllEntry="PrepareRemoveData" />
+    <CustomAction Id="RemoveUserData" BinaryKey="RuriInstallerActions" DllEntry="RemoveUserData"
+                  Execute="deferred" Impersonate="yes" />
+    <InstallUISequence>
+      <Show Dialog="PrepareDlg" Before="AppSearch">0</Show>
+      <Custom Action="ReadNetwork" After="AppSearch">NOT (REMOVE~="ALL")</Custom>
+      <Show Dialog="RuriRemoveDlg" Before="ProgressDlg">Installed AND REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE</Show>
+    </InstallUISequence>
+    <InstallExecuteSequence>
+      <Custom Action="ReadNetwork" After="AppSearch">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="PrepareNetwork" Before="InstallValidate">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="RollbackNetwork" Before="ApplyNetwork">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="ApplyNetwork" After="InstallFiles">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="PrepareRemoveData" Before="RemoveUserData">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
+      <Custom Action="RemoveUserData" Before="RemoveFiles">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
+    </InstallExecuteSequence>
+    <UI>
+      <!-- Skip WiX's placeholder license agreement. -->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog"
+               Value="InstallDirDlg" Order="2">NOT Installed</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog"
+               Value="WelcomeDlg" Order="2">1</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog"
+               Value="RuriNetworkDlg" Order="5">WIXUI_INSTALLDIR_VALID="1"</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog"
+               Value="RuriNetworkDlg" Order="3">NOT Installed</Publish>
+      <Dialog Id="RuriNetworkDlg" Width="370" Height="270" Title="Rurimecha 安装">
+        <Control Id="Title" Type="Text" X="15" Y="15" Width="340" Height="25"
+                 Text="{\WixUI_Font_Title}设置访问地址" />
+        <Control Id="Description" Type="Text" X="20" Y="48" Width="330" Height="35"
+                 Text="仅为当前 Windows 用户安装 Ruri。选择本机 IP 和端口；0.0.0.0 表示监听全部 IPv4 地址。" />
+        <Control Id="IpLabel" Type="Text" X="20" Y="98" Width="80" Height="17" Text="监听 IP：" />
+        <Control Id="Ip" Type="Edit" X="105" Y="95" Width="240" Height="20" Property="RURI_LISTEN_IP" />
+        <Control Id="PortLabel" Type="Text" X="20" Y="135" Width="80" Height="17" Text="监听端口：" />
+        <Control Id="Port" Type="Edit" X="105" Y="132" Width="90" Height="20" Property="RURI_LISTEN_PORT" />
+        <Control Id="Hint" Type="Text" X="20" Y="173" Width="330" Height="35"
+                 Text="点击下一步会检查地址和端口是否可用。安装或升级前，请先从系统托盘退出 Ruri。" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="上一步">
+          <Publish Event="NewDialog" Value="InstallDirDlg">1</Publish>
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="下一步">
+          <Publish Event="DoAction" Value="CheckNetwork" Order="1">1</Publish>
+          <Publish Event="SpawnDialog" Value="RuriNetworkErrorDlg" Order="2">RURI_NETWORK_VALID&lt;&gt;"1"</Publish>
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" Order="3">RURI_NETWORK_VALID="1"</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="取消">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+      </Dialog>
+      <Dialog Id="RuriNetworkErrorDlg" Width="300" Height="130" Title="请检查监听设置">
+        <Control Id="Message" Type="Text" X="15" Y="15" Width="270" Height="75" Text="[RURI_NETWORK_ERROR]" />
+        <Control Id="OK" Type="PushButton" X="122" Y="103" Width="56" Height="17" Default="yes" Cancel="yes" Text="确定">
+          <Publish Event="EndDialog" Value="Return">1</Publish>
+        </Control>
+      </Dialog>
+      <Dialog Id="RuriRemoveDlg" Width="370" Height="230" Title="卸载 Rurimecha">
+        <Control Id="Title" Type="Text" X="15" Y="15" Width="340" Height="25"
+                 Text="{\WixUI_Font_Title}选择是否保留应用数据" />
+        <Control Id="Description" Type="Text" X="20" Y="50" Width="330" Height="42"
+                 Text="默认只卸载程序，保留数据以便重新安装。请先从系统托盘退出 Ruri。" />
+        <Control Id="RemoveData" Type="CheckBox" X="20" Y="100" Width="330" Height="20"
+                 Property="RURI_REMOVE_DATA" CheckBoxValue="1" Text="同时清除本机 Ruri 应用数据" />
+        <Control Id="Warning" Type="Text" X="20" Y="135" Width="330" Height="45"
+                 Text="勾选后将永久删除账户、媒体库资料（含收藏、进度和台本）、设置和本机授权信息。媒体来源目录中的音视频原文件不会删除。" />
+        <Control Id="Remove" Type="PushButton" X="225" Y="203" Width="65" Height="17" Default="yes" Text="卸载">
+          <Publish Event="EndDialog" Value="Return">1</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="300" Y="203" Width="56" Height="17" Cancel="yes" Text="取消">
+          <Publish Event="EndDialog" Value="Exit">1</Publish>
+        </Control>
+      </Dialog>
+    </UI>
+    <Property Id="LEGACY_INNO">
+      <RegistrySearch Id="LegacyInnoInstall" Root="HKCU"
+                      Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\Rurimecha.Desktop_is1"
+                      Name="UninstallString" Type="raw" />
+    </Property>
+    <Condition Message="请先在 Windows 设置中卸载旧版 Ruri，再安装此版本。媒体库资料会保留。">NOT LEGACY_INNO</Condition>
+    <Condition Message="此安装包仅支持为当前 Windows 用户安装。请取消为所有用户安装的参数后重试。">NOT ALLUSERS</Condition>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="ProgramsDir" Name="Programs">
+          <Directory Id="INSTALLFOLDER" Name="Rurimecha" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="RuriMenu" Name="Rurimecha" />
+      </Directory>
+    </Directory>
+    <DirectoryRef Id="RuriMenu">
+      <Component Id="StartMenuShortcuts" Guid="{4257548F-9B8E-4DB3-8FE1-3CC8E520B2F7}">
+        <Shortcut Id="RuriShortcut" Name="Rurimecha" Target="[INSTALLFOLDER]Rurimecha.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RuriMenu" On="uninstall" />
+        <RemoveFolder Id="RemoveProgramsDir" Directory="ProgramsDir" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="Installed"
+                       Type="integer" Value="1" KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="InstallDir"
+                       Type="string" Value="[INSTALLFOLDER]" />
+      </Component>
+    </DirectoryRef>
+    <Feature Id="Main" Title="Rurimecha" Level="1">
+      <ComponentGroupRef Id="PayloadFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+  </Product>
+</Wix>

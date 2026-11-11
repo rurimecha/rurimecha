@@ -1,0 +1,11 @@
+Copyright (c) 2026 rurimecha. All rights reserved.
+
+This repository publishes documentation and release packaging tools. No general
+license to redistribute Rurimecha's own software or documentation is granted.
+Files that carry a separate license remain available under that license.
+
+The FFmpeg build recipe is licensed under the MIT License as described in
+third_party/ffmpeg/README.md. The bundled FFmpeg and FFprobe executables are
+distributed under GPL-3.0-or-later. The FFmpeg sources and other third-party
+components retain their own licenses and copyright notices. The Rurimecha
+personal-use terms apply to Rurimecha's own software only.
