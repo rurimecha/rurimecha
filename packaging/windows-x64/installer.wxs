@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="Rurimecha" Language="1033" Version="$(var.MsiVersion)"
+  <Product Id="*" Name="Rurimecha" Language="2052" Codepage="936" Version="$(var.MsiVersion)"
            Manufacturer="Rurimecha" UpgradeCode="{9B5B6D7B-B5C9-4F71-AC3C-716D485BE015}">
-    <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" />
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" SummaryCodepage="936" />
     <MajorUpgrade AllowSameVersionUpgrades="yes"
                   DowngradeErrorMessage="已安装较新的 Ruri 版本。" />
     <MediaTemplate EmbedCab="yes" />
