@@ -20623,7 +20623,7 @@
           "scan"
         ],
         "summary": "remoteFacets",
-        "description": "List available circle, voice actor, or tag names for a Number178 source.",
+        "description": "List available circle, voice actor, or tag names for a One or Number178 source.",
         "parameters": [
           {
             "name": "source",

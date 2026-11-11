@@ -13,7 +13,7 @@
 | GET | /sources/{source}/nodes | 节点分页及子目录浏览 |
 | GET | /nodes/{node} | 单个节点，包括保留的缺失记录 |
 | GET | /sources/{source}/remote-works | 浏览来源作品；支持 page、page_size、q、search_field 和 sort |
-| GET | /sources/{source}/remote-facets | 读取 Number178 来源已有的社团、声优或标签；使用 field= circle、voice 或 tag |
+| GET | /sources/{source}/remote-facets | 读取来源已有的社团、声优或标签；使用 field= circle、voice 或 tag |
 | GET | /sources/{source}/remote-works/{code} | 查看 RJ 作品资料和音轨树 |
 | GET | /sources/{source}/remote-works/{code}/cover | 查看来源封面 |
 | GET | /works/{work}/remote-cover | 读取已入库作品的来源封面 |
@@ -37,7 +37,7 @@
 
 kikoeru 兼容来源使用 `{"name":"远端音声","kind":"kikoeru_compatible","remote_site_url":"https://asmr.one","path":"","download_path":"/media/remote","proxy_url":"http://127.0.0.1:7890"}`。创建时先访问填写的网站，再验证 One 或 Number178 的作品契约；仅已识别的 `asmr.one` 网站可解析到独立的接口域名。验证成功后保存 `remote_site_url`、`remote_api_url` 和 `remote_dialect`（`one` 或 `number178`）。两种契约都不符合返回 422 `remote_source_unsupported`，站点拒绝匿名访问返回 422 `remote_source_access_denied`，网络失败返回 502；不创建来源。`download_path` 可省略；配置后必须是服务器可写绝对目录。`proxy_url` 可省略或留空，留空时使用服务器默认网络；指定后探测、浏览、入库、封面、附件、播放转发和服务器下载都使用此代理，支持不含凭据的 HTTP、HTTPS、SOCKS5 地址。外部媒体通过代理时要求 HTTPS，拒绝私网 IP 字面地址与本地主机名；主机名可由代理解析，TLS 仍验证目标主机身份。与所配置接口地址同主机的媒体不受此限制。Android 直连绕过服务器代理，需代理时选择服务端播放。该来源只手动选择作品入库或刷新，不接受本地扫描、监听、自动探测策略。虚拟根下按 RJ 号平铺作品目录，每个来源单独管理，相同 RJ 号不跨来源合并。入库快照包含来源的作品资料、封面地址和完整目录树；音频、视频、图片、字幕、文本和其他普通文件保持来源中的目录层级。归纳按普通作品边界建立作品，人工描述仍可覆盖来源资料。若来源不可访问，已入库资料保留，远端未保存的文件暂不可播放。
 
-浏览 q 是普通文本，`search_field` 可为 `text`（默认）、`circle`、`voice` 或 `tag`。One 适配器将分类搜索转换为该站语法；Number178 适配器用已有名称找到对应分类，再读取该分类的作品。Number178 分类列表可通过 `/remote-facets?field=tag` 等接口读取。sort 支持 `recent`、`downloads`、`release`、`rating`；`page_size` 返回来源实际页大小。浏览不自动入库。封面通过本服务的认证接口读取。入库/刷新需要管理员；作品树的删除以移除来源或现有目录管理规则为准。
+浏览 q 是普通文本，`search_field` 可为 `text`（默认）、`circle`、`voice` 或 `tag`。One 适配器将分类搜索转换为该站语法；Number178 适配器用已有名称找到对应分类，再读取该分类的作品。One 与 Number178 分类列表均可通过 `/remote-facets?field=tag` 等接口读取。sort 支持 `recent`、`downloads`、`release`、`rating`；`page_size` 返回来源实际页大小。浏览不自动入库。封面通过本服务的认证接口读取。入库/刷新需要管理员；作品树的删除以移除来源或现有目录管理规则为准。
 
 配置下载目录后，可对已入库文件启动服务器保存。下载使用来源支持的 Range 续传；未完成文件不进入播放和本地扫描。Number178 来源若只返回播放列表而没有原文件，该作品入库返回 422，不把播放列表当作音频保存。完成的文件优先用于播放和 WebDAV，丢失或大小不符则继续从来源读取。来源移除不删除下载目录中的文件。若另把下载目录加入本地来源，它按独立本地来源扫描，可使用普通本地媒体探测；kikoeru 来源始终只使用 API 媒体资料。
 
