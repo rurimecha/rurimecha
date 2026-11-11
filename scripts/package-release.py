@@ -131,6 +131,8 @@ try:
         parser.error('official releases require public activation-center configuration')
     if info['version'] != args.version or info['platform'] != args.platform or web['format'] != 1 or web.get('ai') is not False:
         parser.error('version or web manifest format mismatch')
+    if web['version'] != args.version or info['build_number'] != web['build_number']:
+        parser.error('Core and Web release versions or build numbers differ')
     for component in ('core', 'frontend'):
         if info[component]['dirty'] is not False or not re.fullmatch('[0-9a-f]{40}', info[component]['revision']):
             parser.error('official releases require clean, committed source revisions')
@@ -205,7 +207,9 @@ with tempfile.TemporaryDirectory(prefix='release-', dir=output.parent) as tempor
                 archive.add(docker / name, arcname=f'rurimecha-docker/{name}')
         if args.apk:
             shutil.copy2(args.apk, attachments / f'rurimecha-android-{args.version}.apk')
-        metadata = {'version': args.version, 'platform': args.platform, 'ffmpeg_source_revision': source_revision,
+        metadata = {'version': args.version, 'build_number': info['build_number'],
+                    'sources': {name: info[name]['revision'] for name in ('core', 'frontend')},
+                    'platform': args.platform, 'ffmpeg_source_revision': source_revision,
                     'artifacts': {p.name: digest(p) for p in sorted(attachments.iterdir())}}
         (attachments / 'release.json').write_text(json.dumps(metadata, indent=2) + '\n')
         sums = ''.join(f'{digest(p)}  {p.name}\n' for p in sorted(attachments.iterdir()))
