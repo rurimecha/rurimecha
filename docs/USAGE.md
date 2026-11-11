@@ -15,7 +15,7 @@
 
 ### Windows 安装
 
-1. 下载 `.msi` 安装包并双击打开向导，点「下一步」，选择安装目录。默认装在 `%LOCALAPPDATA%\Programs\Rurimecha`，仅供当前 Windows 用户使用。若曾安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。
+1. 下载 `.msi` 安装包并双击打开向导，点「下一步」，选择安装目录。安装包仅支持「为当前用户安装」，无需管理员权限；默认目录为 `%LOCALAPPDATA%\Programs\Rurimecha`，开始菜单入口也仅对当前 Windows 用户可见。其他 Windows 用户需要分别安装。若曾安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。
 2. 设置监听 IP 和端口，再点「下一步」检查是否可用。首次安装默认 IP 为 `0.0.0.0`、端口为 `8080`，表示接收这台电脑所有 IPv4 地址上的连接；只供本机使用时填 `127.0.0.1`。选择某个 IP 时，必须填写这台电脑实际拥有的地址。端口被占用时，退出占用它的程序或改用其他端口，再重试。升级或重新安装默认沿用已有网络设置。
 3. 确认安装，完成后从开始菜单打开 **Rurimecha**。如提示缺少 WebView2，安装微软的 [Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) 后重新打开。
 4. 在窗口顶部点「Ruri → 打开数据文件夹」，用记事本打开 `setup-code` 文件，复制设置码，返回 Ruri 完成首次设置。
