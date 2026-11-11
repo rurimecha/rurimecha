@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="Rurimecha" Language="1033" Version="$(var.MsiVersion)"
+           Manufacturer="Rurimecha" UpgradeCode="{9B5B6D7B-B5C9-4F71-AC3C-716D485BE015}">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" />
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="已安装较新的 Ruri 版本。" />
+    <MediaTemplate EmbedCab="yes" />
+    <Icon Id="RuriIcon" SourceFile="$(var.PayloadDir)\Ruri.ico" />
+    <Property Id="ARPPRODUCTICON" Value="RuriIcon" />
+    <Property Id="LEGACY_INNO">
+      <RegistrySearch Id="LegacyInnoInstall" Root="HKCU"
+                      Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\Rurimecha.Desktop_is1"
+                      Name="UninstallString" Type="raw" />
+    </Property>
+    <Condition Message="请先在 Windows 设置中卸载旧版 Ruri，再安装此版本。媒体库资料会保留。">NOT LEGACY_INNO</Condition>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="ProgramsDir" Name="Programs">
+          <Directory Id="INSTALLFOLDER" Name="Rurimecha" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="RuriMenu" Name="Rurimecha" />
+      </Directory>
+    </Directory>
+    <DirectoryRef Id="RuriMenu">
+      <Component Id="StartMenuShortcuts" Guid="{4257548F-9B8E-4DB3-8FE1-3CC8E520B2F7}">
+        <Shortcut Id="RuriShortcut" Name="Rurimecha" Target="[INSTALLFOLDER]Rurimecha.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <Shortcut Id="ResetAdminShortcut" Name="Reset Ruri administrator password"
+                  Target="[INSTALLFOLDER]reset-admin-password.cmd"
+                  Arguments="&quot;[LocalAppDataFolder]Rurimecha\data&quot;"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RuriMenu" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="Installed"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <Feature Id="Main" Title="Rurimecha" Level="1">
+      <ComponentGroupRef Id="PayloadFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+    </Feature>
+  </Product>
+</Wix>

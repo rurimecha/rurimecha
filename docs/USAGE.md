@@ -15,7 +15,7 @@ Linux 压缩包内的音视频工具需要 glibc 2.35 或更新版本，例如 U
 | 平台 | 怎么启动 | 首次设置码在哪 |
 | --- | --- | --- |
 | Linux | 解压后在目录中运行 `sudo ./install.sh`，安装并启动开机自启服务。 | 运行 `sudo journalctl -u rurimecha.service -g 'Ruri administrator setup code:' -n 1 --no-pager`。 |
-| Windows | 运行桌面客户端安装程序，再从开始菜单打开 Rurimecha。 | 在「Ruri → 打开数据文件夹」中查看 `setup-code` 文件。 |
+| Windows | 运行 MSI 安装包，再从开始菜单打开 Rurimecha。若已安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。 | 在「Ruri → 打开数据文件夹」中查看 `setup-code` 文件。 |
 | Docker | 解压 Compose 包，按下文填写 `.env`，在该目录运行 `docker compose up -d`。 | 在 Compose 文件所在目录运行 `docker compose logs core`，找到 `Ruri administrator setup code:` 开头的一行。 |
 
 Linux 服务安装需要 systemd，应用数据保存在 `/var/lib/rurimecha`。服务以 `rurimecha` 账号运行，请确保这个账号可以访问要添加的媒体目录。也可以在解压目录运行 `./rurimecha-core -data-dir ./data` 手动启动，直接在终端查看设置码。设置前也可以在数据目录的 `setup-code` 文件中查看。
@@ -28,6 +28,8 @@ Linux 和 Docker 用户在运行 Ruri 的电脑上打开 `http://127.0.0.1:8080/
 
 Windows 客户端若提示缺少 WebView2，请安装微软的 Evergreen Runtime，再重新打开 Ruri。[WebView2 下载](https://developer.microsoft.com/microsoft-edge/webview2/)
 
+Windows 桌面版点窗口右上角的关闭按钮会把窗口隐藏到系统托盘，媒体库会继续运行。双击托盘里的 Ruri 图标可重新打开窗口；需要完全关闭时，在托盘图标上点右键，选择「退出 Ruri」。安装更新前也请先从托盘退出。
+
 ## 升级现有安装
 
 - **Linux**。通过 `install.sh` 安装的服务，在新版本的解压目录再次运行 `sudo ./install.sh` 即可升级。脚本会重启服务，继续使用 `/var/lib/rurimecha` 中的数据。手动启动的安装先停止 Ruri，解压新版后用原来的 `-data-dir` 参数启动。
@@ -38,7 +40,7 @@ Ruri 会在启动时自动升级支持的数据库。需要升级数据库时，
 
 ## 添加媒体目录
 
-1. 登录管理员账号，在首页点击「添加媒体路径」，选中服务器上存放音声或视频的目录。Windows 桌面版先选择磁盘，再打开音声文件夹；也可以输入 `C:\Music` 这样的完整路径。Docker 用户可选 `/media/library`。
+1. 登录管理员账号，在首页点击「添加媒体路径」，选中服务器上存放音声或视频的目录。Windows 桌面版会打开系统文件夹选择窗口；用浏览器连接 Windows 服务器时，可先选择磁盘再打开文件夹，也可以输入 `C:\Music` 这样的完整路径。Docker 用户可选 `/media/library`。
 2. 选择需要的自动操作。「自动扫描」查找文件，「自动归档」把文件整理成作品，「自动刮削」为已有 RJ 编号的作品获取资料，「自动提取媒体信息」读取时长、音轨等信息。
 3. 添加后，从媒体来源打开目录即可浏览文件。要集中查看整理好的内容，进入作品库。等待期间可在「后台任务」查看进度和结果。
 
