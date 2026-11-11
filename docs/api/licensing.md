@@ -26,7 +26,7 @@
 
 ## 云端授权中心
 
-生产形态为 Cloudflare Workers/D1，当前地址 https://ruri-license.rurimecha-11c899c9.workers.dev。详细路由和 DTO 见 [独立 OpenAPI](license-service.openapi.json)。Core 与中心之间只在激活、更新、反激活时联网。
+服务地址以发行配置为准。详细路由和 DTO 见 [独立 OpenAPI](license-service.openapi.json)。Core 与中心之间只在激活、更新、反激活时联网。
 
 机器客户端应发送真实应用 User-Agent，例如 `RuriMecha-Core/1`；workers.dev 的浏览器完整性检查可能拒绝通用库默认标识。不能把 User-Agent 当作授权证明，权限始终依赖管理身份、密钥或实例签名。
 
@@ -39,11 +39,9 @@
 - `GET /admin/activations?license_id=…` 分页读取历史，`POST /admin/activations/{activation}/release` 接受空对象并幂等释放指定绑定。`GET /admin/events` 分页读取事件，可选 license_id。
 - 列表默认 limit=50，范围 1..100，offset>=0；用户和许可证支持最多 254 字符的 q 字面检索。许可证列表仅带本页活跃绑定，历史单独查询；items/total/limit/offset 或 licenses/activations/total/limit/offset 来自同一读取事务。
 - `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 license_key/device_name/instance_key/host_id，可选 existing_license_id；反激活接受 certificate/proof。
-- `POST /v1/self`、`POST /v1/release` 当前始终返回 503 self_service_unavailable。邮件与购买用户身份验证按用户要求后续配置，不提供密钥持有人查看全部云端绑定或远程解绑的权限。当前使用 Core 本机管理员反激活或联系发行方管理员处理。
+- `POST /v1/self`、`POST /v1/release` 当前始终返回 503 self_service_unavailable。不提供密钥持有人查看全部云端绑定或远程解绑的权限。当前使用 Core 本机管理员反激活或联系发行方管理员处理。
 
 授权中心错误对象含稳定 error.code 与 request_id。常见额外代码：customer_conflict/order_conflict 为 409；self_service_unavailable/license_schema_mismatch/license_not_configured 为 503；request_too_large 为 413；rate_limited 为 429。管理 PUT 为完整替换，按最后提交生效。停用、缩短期限和释放不能即时撤销离线副本，既有证书可能继续使用至原到期日。
-
-本机仅执行管理与备份，不是授权主数据库。中心不依赖管理员机器、公网 IP 或持续开机；本机数据导出不参与授权决策。Go 本地中心只用于独立合成开发夹具，不随终端用户分发。
 
 授权生效后可创建和使用其他账号。未激活或授权失效时，只有内置管理员可以访问网页和 WebDAV，Android 播放仍要求有效授权。参见 [账号与会话](accounts.md)。
 

@@ -1,6 +1,7 @@
 # Rurimecha 使用手册
 
-- [安装与首次登录](#安装与首次登录) · [升级现有安装](#升级现有安装)
+- [安装与首次登录](#安装与首次登录)：[Windows](#windows-安装) · [Linux](#linux-安装) · [Docker 与端口映射](#docker-安装)
+- [升级现有安装](#升级现有安装) · [Nginx 反向代理](#通过-nginx-访问-ruri) · [WebDAV 连接与排错](#用其他播放器或文件管理器连接)
 - [添加媒体目录](#添加媒体目录) · [找作品和选版本](#找作品和选版本) · [获取和编辑作品资料](#获取和编辑作品资料)
 - [播放与续听](#播放与续听) · [珍藏片段](#珍藏片段) · [在 Android 上收听](#在-android-上收听)
 - [隐私模式与收听记录](#隐私模式与收听记录)
@@ -8,27 +9,107 @@
 
 ## 安装与首次登录
 
-从发行页下载对应的包，并按页面上的 SHA-256 校验。首版支持 64 位 Linux（x86-64）、Docker（x86-64）和 64 位 Windows（x64）。Android 客户端单独安装。[发行下载](https://github.com/rurimecha/rurimecha/releases)
+从发行页下载对应的包，并按页面上的 SHA-256 校验。服务器支持 Linux x86-64、Docker Linux x86-64 镜像和 Windows x64。Android 手机安装包需要另外下载，手机要连接一台已经运行的 Ruri。[发行下载](https://github.com/rurimecha/rurimecha/releases)
 
-Linux 压缩包内的音视频工具需要 glibc 2.35 或更新版本，例如 Ubuntu 22.04 或 Debian 12。Docker 镜像已提供运行环境。
+先完成下面一种安装，再按[首次设置管理员密码](#首次设置管理员密码)操作。自己的电脑就是服务器时，直接在这台电脑上打开；装在 NAS 或另一台电脑上时，使用那台设备的局域网地址。
 
-| 平台 | 怎么启动 | 首次设置码在哪 |
+### Windows 安装
+
+1. 下载 `.msi` 安装包，双击完成安装，再从开始菜单打开 **Rurimecha**。若曾安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。
+2. 如提示缺少 WebView2，安装微软的 [Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) 后重新打开。
+3. 在窗口顶部点「Ruri → 打开数据文件夹」，用记事本打开 `setup-code` 文件，复制设置码，返回 Ruri 完成首次设置。
+
+点窗口右上角的 × 会隐藏到系统托盘，Ruri 继续运行。双击托盘图标可重新打开；需要完全关闭或安装更新时，在托盘图标上点右键，选择「退出 Ruri」。默认先供这台电脑使用；让其他设备访问的方法见[连接与网络](#连接与网络)。
+
+### Linux 安装
+
+1. 下载 Linux x86-64 服务器包并完整解压。在解压目录打开终端，运行：
+
+   ```sh
+   sudo ./install.sh
+   ```
+
+2. 安装后会启动 Ruri，并在开机后自动运行。在这台电脑的浏览器打开 `http://127.0.0.1:8080/`。从其他电脑访问时，使用 `http://服务器的局域网地址:8080/`。
+3. 在服务器终端运行下列命令，复制输出中的设置码：
+
+   ```sh
+   sudo journalctl -u rurimecha.service -g 'Ruri administrator setup code:' -n 1 --no-pager
+   ```
+
+服务安装需要 systemd；随包音视频工具要求 glibc 2.35 或更新版本，例如 Ubuntu 22.04 或 Debian 12。应用资料保存在 `/var/lib/rurimecha`。Ruri 以 `rurimecha` 用户运行，这个用户需要能读取媒体文件夹及其上级目录；不要为解决读取问题把整块媒体盘设为所有人可写。
+
+不安装服务也可以在解压目录运行 `./rurimecha-core -data-dir ./data`，并保持终端运行；设置码会显示在终端中。这种方式的数据在所选目录内，升级时继续使用同一个目录。
+
+### Docker 安装
+
+以下以已安装 Docker 和 Docker Compose 的 Linux 电脑或 NAS 为例，使用发行版提供的 `compose.yaml`。NAS 的容器管理界面也可以填写相同的镜像、目录映射和端口。镜像需要 x86-64 设备，ARM 设备不能直接使用此包。
+
+**1. 准备文件和媒体目录。** 下载并解压 Compose 包。在 `compose.yaml` 旁新建一个名为 `.env` 的文本文件，填写：
+
+```dotenv
+RURI_IMAGE=docker.io/rurimecha/rurimecha:<版本号>
+RURI_MEDIA_DIR="/srv/media/音声"
+```
+
+把 `<版本号>` 换成发行页给出的版本，**不保留尖括号**；把第二行换成这台 Docker 主机上已经存在的媒体文件夹。想跟随最新正式版时，可用 `RURI_IMAGE=docker.io/rurimecha/rurimecha:latest`。Windows 的 Docker Desktop 使用 Linux 容器时，媒体路径可写为 `D:/ASMR`，并允许 Docker 访问该磁盘。
+
+这个文件夹会在 Ruri 中显示为 `/media/library`。添加媒体时选择这个路径，不要填写宿主机的 `/srv/media/音声` 或 `D:/ASMR`。示例以只读方式打开媒体；手工台本可选择「保存到 Ruri」，无需开放媒体写入权限。
+
+**2. 启动并完成首次设置。** 在 Compose 文件所在目录运行：
+
+```sh
+docker compose up -d
+docker compose logs core
+```
+
+在日志中找到 `Ruri administrator setup code:` 开头的一行，复制设置码。在运行 Docker 的电脑上打开 `http://127.0.0.1:8080/` 完成设置。手机上的 `127.0.0.1` 指手机自己，不能用来访问这台电脑。
+
+**3. 让手机或其他电脑连接。** 不需要其他设备访问时，保留示例设置即可。需要局域网访问时，同时完成以下两项：
+
+- 在 Ruri 的「网络设置」查看并记下「当前局域网范围」。在「局域网范围」中保留这些原有网段，再另起一行加入家庭网络的网段。例如设备地址为 `192.168.1.x`、子网掩码为 `255.255.255.0` 时，填 `192.168.1.0/24`。Docker 中自动识别的网段可能不包含家庭网络；只改端口映射仍可能被拒绝。监听地址保持默认全部 IPv4 地址，不填容器里并不存在的宿主机 IP。
+- 编辑 `compose.yaml` 中 `ports` 的一行。假设 Docker 主机的局域网地址是 `192.168.1.20`，希望从 `18080` 端口访问，改为：
+
+  ```yaml
+  ports:
+    - "192.168.1.20:18080:8080"
+  ```
+
+保存后运行 `docker compose up -d`，手机和其他电脑用 `http://192.168.1.20:18080/` 访问。原来的 `http://127.0.0.1:8080/` 不再是这份映射的入口。把示例 IP 换成自己设备的地址，并在主机防火墙中允许家庭网络连接该端口。
+
+端口映射可以这样读：**在哪个主机地址接收：对外端口：Ruri 内部端口**。
+
+| Compose 中的设置 | 应使用的地址 | 适合谁 |
 | --- | --- | --- |
-| Linux | 解压后在目录中运行 `sudo ./install.sh`，安装并启动开机自启服务。 | 运行 `sudo journalctl -u rurimecha.service -g 'Ruri administrator setup code:' -n 1 --no-pager`。 |
-| Windows | 运行 MSI 安装包，再从开始菜单打开 Rurimecha。若已安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。 | 在「Ruri → 打开数据文件夹」中查看 `setup-code` 文件。 |
-| Docker | 解压 Compose 包，按下文填写 `.env`，在该目录运行 `docker compose up -d`。 | 在 Compose 文件所在目录运行 `docker compose logs core`，找到 `Ruri administrator setup code:` 开头的一行。 |
+| `127.0.0.1:8080:8080` | Docker 主机上打开 `http://127.0.0.1:8080/` | 仅本机，或由同机 Nginx 中转 |
+| `192.168.1.20:18080:8080` | `http://192.168.1.20:18080/` | 指定局域网地址上的其他设备 |
+| `8080:8080` | 主机各地址的 `8080` 端口 | 会监听全部主机地址，需自行限制访问范围 |
 
-Linux 服务安装需要 systemd，应用数据保存在 `/var/lib/rurimecha`。服务以 `rurimecha` 账号运行，请确保这个账号可以访问要添加的媒体目录。也可以在解压目录运行 `./rurimecha-core -data-dir ./data` 手动启动，直接在终端查看设置码。设置前也可以在数据目录的 `setup-code` 文件中查看。
+只更换对外端口时，修改中间的数字，最后的 `8080` 保持不变，也不需要改 Ruri 的内部端口。可以运行 `docker compose ps` 检查实际映射。[Docker 端口映射说明](https://docs.docker.com/engine/network/port-publishing/)
 
-Docker 用户请在 Compose 文件旁创建 `.env`。将 `RURI_IMAGE` 设为 `docker.io/rurimecha/rurimecha:<版本号>`；若希望跟随最新正式版，也可使用 `docker.io/rurimecha/rurimecha:latest`。将 `RURI_MEDIA_DIR` 设为运行 Docker 的电脑上存放媒体的文件夹。启动后，Ruri 中可通过 `/media/library` 访问该文件夹。默认只读，账号和作品资料保存在独立的 `ruri-data` 卷。当前镜像提供 Linux x86-64 版本。
+Ruri 中显示的 `172.x.x.x` 地址通常是容器地址，手机应填写主机的局域网地址及对外端口。Docker 中的自动发现未必能传到家庭网络，搜索不到时直接填写地址。
 
-Linux 和 Docker 用户在运行 Ruri 的电脑上打开 `http://127.0.0.1:8080/`。首次打开时填入上表中的一次性设置码，再输入两遍自己设定的密码。之后用 `admin` 和该密码登录。已有安装继续使用原账号和密码。
+**4. 使用服务器授权功能时，提供宿主机标识。** 若需要 Android 在线播放、多人账号或珍藏片段，还需让容器读取这台主机的标识。在 Linux 主机上，确认 `/etc/machine-id` 文件存在且非空，再在 `compose.yaml` 的现有 `volumes` 列表下增加一行：
 
-要修改自己的密码，在「账户与会话 → 修改密码」中输入当前密码，再输入两遍新密码。在「用户管理」为其他账号创建或重置密码时，也需要输入两遍。
+```yaml
+volumes:
+  - ruri-data:/data
+  - ${RURI_MEDIA_DIR}:/media/library:ro
+  - /etc/machine-id:/run/ruri-host/machine-id:ro
+```
 
-Windows 客户端若提示缺少 WebView2，请安装微软的 Evergreen Runtime，再重新打开 Ruri。[WebView2 下载](https://developer.microsoft.com/microsoft-edge/webview2/)
+这是服务 `core` 下的目录列表，保留文件末尾原有的 `volumes: ruri-data:` 定义。不要复制另一台机器的标识。保存后运行 `docker compose up -d`，再到 Ruri 的「服务器授权」激活。
 
-Windows 桌面版点窗口右上角的关闭按钮会把窗口隐藏到系统托盘，媒体库会继续运行。双击托盘里的 Ruri 图标可重新打开窗口；需要完全关闭时，在托盘图标上点右键，选择「退出 Ruri」。安装更新前也请先从托盘退出。
+Windows Docker Desktop 用户可在宿主机 PowerShell 中、Compose 文件所在目录执行 `(Get-CimInstance Win32_ComputerSystemProduct).UUID | Set-Content -Encoding ascii ./ruri-host-id`，然后将上例最后一行换成 `./ruri-host-id:/run/ruri-host/machine-id:ro`。容器重建时保留这个文件；换机器时按[授权与换机说明](#服务器授权与账号)重新激活。未提供可用宿主机标识时，管理员仍可使用网页和 WebDAV，授权功能会提示暂不可用。
+
+账号、作品资料、设置和授权保存在 `ruri-data` 数据卷中。**升级时保留数据卷，不运行 `docker compose down -v`**。音视频原文件仍在主机的媒体目录；备份或换机要分别处理应用资料和媒体。
+
+### 首次设置管理员密码
+
+把安装步骤中取得的设置码填入首次设置页面，再输入两遍自己的新密码。设置完成后用 `admin` 和新密码登录；设置码只使用一次，之后不再作为密码。
+
+已有安装继续使用原来的账号和密码。如果忘记密码，按[重置管理员密码](#重置管理员密码)操作。不要为了找回密码删除应用数据目录或 Docker 数据卷。
+
+要修改自己的密码，在「账户与会话 → 修改密码」输入当前密码，再输入两遍新密码。管理员给其他用户创建或重置密码时，也需要输入两遍。
 
 ## 升级现有安装
 
@@ -108,13 +189,49 @@ Ruri 会在启动时自动升级支持的数据库。需要升级数据库时，
 
 ### 准备音视频工具
 
-Linux、Windows 和 Docker 发行版自带 FFmpeg 和 FFprobe。启动后即可使用兼容转码、音量标准化、画面预览、指定音轨和内嵌字幕。Linux 用户请完整解压发行包，并将 `media-tools` 文件夹与 Ruri 程序放在同一目录。
+Linux、Windows 和 Docker 发行版自带 FFmpeg 和 FFprobe。支持的本地文件可使用兼容转码、音量标准化、画面预览、指定音轨和内嵌字幕；能否使用取决于文件格式和已读取的媒体信息。kikoeru 兼容来源直接播放原文件，不提供这些处理。Linux 用户请完整解压发行包，并将 `media-tools` 文件夹与 Ruri 程序放在同一目录。
 
 管理员可在管理页打开「解析工具」查看工具是否可用。若要改用自行安装的工具，请选择支持 `fd` 输入的版本，填写两个程序的完整路径，测试通过后保存。清空两个路径并保存可恢复默认选择。也可在该页联网自动下载工具，服务器需要约 500 MB 可用空间。
 
-### 用其他播放器连接
+### 用其他播放器或文件管理器连接
 
-支持 WebDAV 的播放器可以直接使用 Ruri 里的用户名和密码。若已开启 HTTPS，服务器地址填为 `https://证书对应的服务器名称:HTTPS端口/dav/`；否则填 `http://服务器地址:HTTP端口/dav/`。文件以只读方式提供，播放器中可以浏览目录和播放原文件。使用 HTTP 时，请只在可信网络内连接；开启强制 HTTPS 后，播放器请直接填写 HTTPS 地址。
+在支持 WebDAV 的播放器或文件管理器中新建连接，填写：
+
+| 项目 | 填什么 |
+| --- | --- |
+| 地址 | `http://服务器地址:端口/dav/`；已开启 HTTPS 时改用 `https://证书对应的服务器名称:端口/dav/` |
+| 用户名、密码 | 你在 Ruri 中使用的当前账号和密码，不是首次设置码 |
+| 路径 | 已在完整地址中填写 `/dav/` 时，不要再重复追加 |
+
+例如服务器是 `192.168.1.20`，对外端口是 `18080`，填写 `http://192.168.1.20:18080/dav/`。通过下文 Nginx 教程连接时可填 `https://ruri.example.com/dav/`。账号要有访问资格；未激活服务器授权时只有内置管理员可用。
+
+连接后可按文件夹浏览并播放原文件，不能上传、删除或改名，也不会把第三方播放器的收听进度同步到 Ruri。新加的文件先在 Ruri 中扫描，之后才会出现在 WebDAV 里。播放格式取决于所用播放器，WebDAV 不转换音视频格式。
+
+**Windows 文件资源管理器怎么添加。** 打开「此电脑」，选择「添加一个网络位置」（有些版本在右键菜单或顶部菜单中），选择自定义位置，输入完整 WebDAV 地址，再填写 Ruri 账号。直接把地址粘贴到浏览器或资源管理器地址栏，不等于已经添加了网络位置。
+
+**HTTP 能在播放器使用，为什么 Windows 却拒绝挂载？** Windows 的 WebClient 组件默认只允许在 HTTPS 下使用账户密码认证。Ruri 的 HTTP 地址可能被它拒绝，表现为反复询问密码、网络名称找不到或错误 67；这不一定是 Ruri 的密码有误。可选做法如下：
+
+- 使用能直接连接 HTTP WebDAV 的播放器或文件管理器，无需修改 Windows 设置。
+- 启用 Ruri HTTPS，或按 [Nginx 教程](#通过-nginx-访问-ruri)提供 HTTPS 入口。填写证书包含的名称，并让 Windows 信任证书；不要只忽略浏览器的证书警告后就认为资源管理器也会接受。
+- 只在可信家庭网络使用 HTTP、并希望继续使用资源管理器时，可允许 Windows 对 HTTP 发送账户密码。先按 Win+R，输入 `services.msc`，确认 **WebClient** 服务存在。以管理员身份打开 PowerShell，执行：
+
+  ```powershell
+  New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\WebClient\Parameters' -Name BasicAuthLevel -PropertyType DWord -Value 2 -Force
+  Restart-Service WebClient
+  ```
+
+  这会对该 Windows 系统的 WebDAV 连接生效，HTTP 连接中的密码没有加密。重启服务会中断已连接的 WebDAV 位置，之后重新连接。以后恢复为仅允许 HTTPS 时，把命令中的 `-Value 2` 改为 `-Value 1` 再执行。若系统没有 WebClient 服务，或设置被单位策略管理，请使用支持 WebDAV 的客户端，不要通过修改 Ruri 密码来反复尝试。[微软说明](https://learn.microsoft.com/en-us/iis/publish/using-webdav/using-the-webdav-redirector)
+
+其他常见情况：
+
+| 现象 | 可以怎么处理 |
+| --- | --- |
+| 普通网页也打不开 | 先核对服务器地址、Docker 对外端口、防火墙和「局域网范围」 |
+| 改密码后仍提示密码错误 | 断开旧网络位置；在 Windows「凭据管理器 → Windows 凭据」中移除这台服务器的旧记录，再用新密码连接 |
+| 浏览器打开 `/dav/` 返回“不支持的方法” | 用 WebDAV 客户端添加连接；这个地址用于列文件，不是网页目录页面 |
+| 无法复制较大的文件，或报 `0x800700DF` | Windows WebClient 有自己的单文件传输上限，HTTPS 也不会取消这个限制。可改用专用 WebDAV 客户端或播放器；需要调高限制时参考微软说明中的 `FileSizeLimitInBytes` |
+| 只在文件特别多的目录中出错 | Windows WebClient 也有目录属性大小上限；优先换用专用客户端，不必为此移动原文件 |
+| 能浏览但不能删除、上传或改名 | Ruri WebDAV 只读，这些操作不受支持 |
 
 ## 珍藏片段
 
@@ -160,15 +277,126 @@ Android 在隐私模式下准备使用扬声器时会先询问，选择「继续
 
 激活、更新和反激活时服务器需要联网。授权有效期内，Ruri 可以离线使用。续期后可用原密钥更新授权。要换服务器，先在旧服务器反激活，再到新服务器激活。旧服务器无法启动时，联系许可证提供者核对购买信息并释放绑定。替换同一台机器上的 Docker 容器时，请保留数据卷和已配置的宿主机标识。
 
+在「账户与会话 → 登录会话与 WebDAV」可查看当前有效登录的设备名称、客户端类型、登录 IP、登录和到期时间，并撤销不用的登录。IP 记录的是登录时的地址，切换网络后不会更新。浏览器显示浏览器和系统名称；Android 显示设备型号；桌面客户端可显示电脑名称。这里不保存已退出或过期的登录历史。
+
 ## 连接与网络
 
-- **在服务器上打开。** 初次使用的地址是 `http://127.0.0.1:8080/`。修改监听地址或端口后，请按页面提示使用新地址重新打开。
-- **从局域网访问。** 用浏览器打开 `http://服务器的局域网地址:8080/`。Linux 和 Windows 默认可从局域网访问。Docker 示例默认只允许本机访问。要让其他设备连接 Docker 安装，在 Compose 的端口映射 `127.0.0.1:8080:8080` 中把 `127.0.0.1` 换成服务器的局域网地址，再运行 `docker compose up -d` 并使用新地址访问。
-- **从局域网外访问。** 在「网络设置」开启「允许远程访问」，再到「用户管理 → 访问权限」为相应账号开启远程访问。HTTP 会明文传输登录和媒体数据，请通过可信网络或 VPN 连接。
+### 从其他设备访问
 
-在账号菜单打开「网络设置」可保留 HTTP，或同时开启 HTTPS，并分别设置端口。开启 HTTPS 前，选择 PEM 格式的证书文件和匹配的未加密私钥文件；以后更换证书时也要同时重新选择这两个文件。服务器会检查文件是否匹配、证书是否有效，成功后在应用数据目录保存。请使用证书中包含的名称或 IP 打开 HTTPS 地址，并确保设备信任该证书。若当前页面使用 HTTP，请只在可信局域网内选择并提交私钥。勾选「强制使用 HTTPS」后，HTTP 端口仍可连接，并会跳转到 HTTPS；播放器请直接填写 HTTPS 地址。
+- **Linux 服务**默认可从同一局域网访问，地址为 `http://服务器的局域网地址:8080/`；无法连接时检查防火墙是否允许该端口。
+- **Windows 桌面版**默认只供这台电脑使用。要让手机连接，在「网络设置」保留 `127.0.0.1` 的本机监听，同时选择电脑的局域网地址，保存后使用页面显示的局域网地址和端口。不要套用 Linux 的默认 `8080` 地址。还需允许 Windows 防火墙中的相应入站连接，并保持 Ruri 运行；电脑睡眠或关机后其他设备无法播放。
+- **Docker**按照[端口映射和局域网范围步骤](#docker-安装)设置，使用主机地址和对外端口；不使用容器的 `172.x.x.x` 地址。
 
-同页还可调整 IPv4、IPv6 和监听地址。「局域网范围」留空时会识别直连的私有网段。要手动限定范围时，每行填写一个网段，例如 `192.168.1.0/24`。
+在「网络设置」的「局域网范围」留空时，Ruri 会自动识别直连的私有网段。需要手动填写时，每行一个网段，例如 `192.168.1.0/24`；Docker、VPN 或跨网段家庭网络可能需要手动补充，填写前保留页面所显示的原有范围。
+
+从局域网外访问时，需要同时开启服务器的「允许远程访问」，以及「用户管理 → 访问权限」中相应账号的远程访问。HTTP 会传输未加密的登录和媒体数据，外网使用 HTTPS 或可信 VPN。经过 Nginx 时，访问范围按[反代教程](#通过-nginx-访问-ruri)处理。
+
+### 开启 HTTPS
+
+在「网络设置」保留 HTTP，或同时开启 HTTPS，并分别设置端口。默认 HTTPS 端口为 `8443`。开启前选择 PEM 格式的证书和匹配的未加密私钥文件；更换时同时选择这两个文件。使用证书包含的名称或 IP 连接，并让设备信任该证书。若当前页面使用 HTTP，请在可信局域网中提交证书文件。
+
+勾选「强制使用 HTTPS」后，HTTP 会跳转到 HTTPS，播放器和 WebDAV 客户端仍应直接填写 HTTPS 地址。修改地址、端口或证书会中断连接，保存前记下新地址，再按提示重新打开。
+
+Docker 还需增加 HTTPS 的端口映射，例如在原有 HTTP 映射下面添加 `"192.168.1.20:8443:8443"`，保存后运行 `docker compose up -d`。需要 HTTP 自动跳转时，HTTPS 两侧端口保持一致，避免被跳到没有映射的端口。通过 Nginx 提供入口时，按下一节设置。
+
+## 通过 Nginx 访问 Ruri
+
+这部分适合已有 Nginx、域名和证书的用户。只想在家里用手机连接时，可以直接使用上一节的局域网地址。
+
+Nginx 可以提供 HTTPS 入口，再通过 HTTP 连接 Ruri；不需要把同一份证书再上传给 Ruri。在「网络设置 → 可信代理」填写 Nginx 连接 Ruri 时使用的 IP 后，Ruri 会按访客 IP 判断局域网及账号远程访问权限，并为 HTTPS 登录设置安全 Cookie。
+
+| 连接方式 | 设置方法 |
+| --- | --- |
+| HTTPS 入口 → HTTP Ruri | 使用下面的示例，证书只配置在 Nginx 中 |
+| HTTP 入口 → HTTP Ruri | 同样填写可信代理；仅用于可信网络 |
+| HTTPS 入口 → HTTPS Ruri | 同样填写可信代理；另配置上游证书校验 |
+| `https://域名/ruri/` 子目录 | 不支持，请使用独立域名的根路径，例如 `https://ruri.example.com/` |
+
+### 示例：同机 Nginx 提供 HTTPS
+
+以下假设 Nginx 和 Ruri 直接运行在同一台 Linux 电脑上，域名为 `ruri.example.com`，家庭网段为 `192.168.1.0/24`。
+
+1. 让域名解析到 Nginx 所在设备，准备与域名匹配、访问设备信任的证书。示例路径为 `/etc/nginx/certs/ruri-fullchain.pem` 和 `/etc/nginx/certs/ruri-key.pem`。
+2. 直接打开 Ruri 的「网络设置」，在「可信代理」填写 `127.0.0.1`，在「局域网范围」保留原有网段并加入 `192.168.1.0/24`。保存。只通过同机 Nginx 访问时，可让 Ruri 仅监听 `127.0.0.1`，HTTP 端口保留 `8080`。
+3. 在 Nginx 的配置目录新建 `ruri.conf`，例如 Debian/Ubuntu 的 `/etc/nginx/conf.d/ruri.conf`，填写：
+
+```nginx
+server {
+    listen 80;
+    server_name ruri.example.com;
+    return 308 https://ruri.example.com$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name ruri.example.com;
+    ssl_certificate     /etc/nginx/certs/ruri-fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/ruri-key.pem;
+
+    client_max_body_size 257m;
+    client_body_timeout 600s;
+    send_timeout 600s;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Connection "";
+
+        proxy_buffering off;
+        proxy_request_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 600s;
+        proxy_send_timeout 600s;
+        proxy_redirect off;
+        gzip off;
+    }
+}
+```
+
+4. 将域名和证书路径换成自己的值，检查配置后重新加载：
+
+   ```sh
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
+
+5. 用 `https://ruri.example.com/` 登录，保存一次设置，播放并拖动进度。WebDAV 使用 `https://ruri.example.com/dav/`；换机恢复时通过同一入口上传迁移包。
+
+上述示例适用于直接接收用户连接的一层 Nginx。如果前面还有 CDN 或其他代理，须先在 Nginx 中限定并还原这些受信入口的访客地址，不能直接使用用户自填的地址头。可信代理只填自己控制的地址或专用代理网段，不填整个互联网或普通用户共用的网段。
+
+外网访问仍需同时开启 Ruri 的「允许远程访问」和相应账号的远程访问权限。只需家庭使用时保持远程访问关闭，也可在 Nginx 的 HTTPS `server` 中额外添加 `allow 192.168.1.0/24; deny all;`。反代上游跨越不可信网络时，使用 HTTPS 上游或可信隧道。
+
+保留用户原来的认证信息、Cookie、`Origin` 和 `Referer`。不要伪造来源绕过登录检查，也无需另行改写 Cookie。不要另加占用 `Authorization` 的 Nginx 账号密码认证，以免与 Ruri 和 WebDAV 密码冲突。WebDAV 列目录需要 `PROPFIND`，不能只允许 GET/POST。媒体、图片和登录响应不设置公共缓存。
+
+### Docker 与 HTTPS 上游
+
+- **只有 Ruri 在 Docker 中**：保留 `127.0.0.1:8080:8080` 的端口映射，Nginx 仍连接 `http://127.0.0.1:8080`。Ruri 看到的连接可能来自 Docker 网桥网关；在 Compose 目录运行 `docker inspect "$(docker compose ps -q core)" --format '{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}'` 查看网关地址，将对应地址填入「可信代理」。容器重建后若网关变化，需重新核对。Ruri 的「局域网范围」填写家庭网段。
+- **Nginx 和 Ruri 都在 Docker 中**：加入同一个专用 Docker 网络，上游改为 `http://core:8080`；`127.0.0.1` 指 Nginx 容器自身。可信代理填写 Nginx 容器的固定 IP，或该专用代理网络的网段；不要信任其他用户容器共用的网络。Ruri 无须向主机发布端口，访问设备使用 Nginx 的地址。
+- **需要 HTTPS 上游**：先在 Ruri 启用 HTTPS，上游改为 `https://127.0.0.1:8443`（容器间为 `https://core:8443`），另加以下设置。`ruri.example.com` 必须包含在 Ruri 上游证书中；家庭自建证书应改填其根证书文件，不关闭校验。
+
+  ```nginx
+  proxy_ssl_server_name on;
+  proxy_ssl_name ruri.example.com;
+  proxy_ssl_verify on;
+  proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+  proxy_ssl_verify_depth 3;
+  ```
+
+### 常见问题
+
+| 现象 | 先检查什么 |
+| --- | --- |
+| 登录或保存返回 403 | 可信代理是否为 Ruri 实际接收连接的代理 IP；外部域名、端口与协议是否传对；访客是否满足局域网及账号访问权限 |
+| 反复跳转或跳到 `8443` | HTTPS 入口是否传递了 `X-Forwarded-Proto`，代理是否已加入可信名单；只由 Nginx 提供 HTTPS 时，无需开启 Ruri 的强制跳转 |
+| 502 | Ruri 是否运行、端口或容器地址是否正确；使用 HTTPS 上游时再检查证书名称与信任根 |
+| 页面能开，播放卡住或不能拖动 | 保留 `Range`，关闭媒体缓存和缓冲，并确认直连 Ruri 能播放 |
+| 上传迁移包报 413 | 核对 `client_max_body_size`；Ruri 也有包大小上限 |
+| WebDAV 无法列目录 | 使用 `/dav/`；保留认证信息，并允许 `PROPFIND` |
+
 
 ## 换机与恢复
 

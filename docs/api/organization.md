@@ -2,7 +2,7 @@
 
 当前采用单作品归属：一个目录或文件最多属于一部作品，也可未归纳。作品根目录及普通后代属于该作品；遇到子作品根，子树转归子作品。新增文件继承当前边界。相同编号在同一作品内重复出现时默认是包装层，不改变外层根；不同位置的同号副本仍是不同作品，人工可以强制拆分同号子目录。
 
-目录扫描和归纳是两步。扫描更新观察索引与自动语义属性；保存人工决定只更新归纳输入；预览/应用或显式归纳任务才原子发布新归属。接口均相对 /api/v1，需 Bearer 认证。
+目录扫描和归纳是两步。扫描更新观察索引与自动语义属性；保存人工决定只更新归纳输入；预览/应用或显式归纳任务才原子发布新归属。接口均相对 /api/v1，需有效会话，网页使用同源 Cookie，原生和外部客户端使用 Bearer。
 
 ## 人工目录决定与文件覆盖
 
@@ -33,13 +33,13 @@ origin 默认 manual，可 ai。未知节点或目标作品为 404；种类/字�
 
 PUT/DELETE 成功返回 node_id、revision、pending=true 和新集合 ETag。pending 表示这次输入变化尚需归纳应用，不是后台任务状态。当前成员查询在应用前仍显示上一套已发布归属；可直接执行归纳，或启用 auto_organize 交由后台收敛。决定保存和归纳应用分别提交；应用失败会保留待处理决定及旧归属，用户可调整决定或处理锁定后重试。
 
-移除了 member-selection、management_mode、manual_ref_count 和 max_ancestor_depth。目录操作不展开为只包含当前文件的有限集合；播放组、字幕、视角或描述编辑不会冻结整部作品。
+目录操作不展开为只包含当前文件的有限集合；播放组、字幕、视角或描述编辑不会冻结整部作品。
 
 ## 规则配置
 
-规则已改为按被赋值的节点字段分组：boundary、identifier、format、media_kind、category、effect、transparent、collection、ignore。GET/PUT /organize/rules 的 profile 为 fields 对象，不再有扁平 rules/category。规则在加载或修改时编译并复用；完整字段、正则、属性编辑和重置契约见 [节点属性](node-attributes.md)。
+规则按节点字段分组：boundary、identifier、format、media_kind、category、effect、transparent、collection、ignore。GET/PUT /organize/rules 的 profile 为 fields 对象，完整字段、正则、属性编辑和重置契约见 [节点属性](node-attributes.md)。
 
-目录编号和 boundary=root 是边界线索，媒体及局部结构共同决定自动候选；not_work 只取消当前目录边界。文件编号不自动拆分同目录作品，同号包装与不同号子作品仍按固定 BFS 判断。
+目录编号和 boundary=root 是边界线索，媒体及局部结构共同决定自动候选；not_work 只取消当前目录边界。文件编号不自动拆分同目录作品，同号包装与不同号子作品按目录边界处理。
 
 ## 预览与应用
 
@@ -59,7 +59,7 @@ works 每项为 root_node_id、work_id、identifier、title、member_count、gro
 
 部分读取、取消、离线以及未确认缺失不能推断删除。新取到的不完整索引仅可预览；已经基于完整可信快照开始的计算允许发布该代结果，期间的新观察留待后续处理。需要通过完整扫描或可信基线子树扫描并明确 mark_missing=true 核对缺失；已知 missing 文件保留关系和可用性标记，后续边界变化仍按同一继承规则处理。
 
-输入维护、快照计算和关系发布分开：扫描分类及规则变化后的自动属性维护尊重最新 manual:/ai: 字段；预览前也可能执行这一独立输入维护，它不会发布作品关系。计算期间的节点修改不使当前任务作废，发布不会回写旧属性，最新描述覆盖在发布事务中合并。desired_generation 只随观察、规则、节点属性、目标删除或显式恢复分类等输入变化推进；applied_generation 只推进到本轮快照代次。关系输出不推进输入代次。输入停止变化、任务成功且无阻塞时两者相等。
+`desired_generation` 是当前输入代次，`applied_generation` 是已应用代次，均为字符串。两者不一致表示仍有变化待处理；输入停止变化且成功处理后两者相等。归纳不覆盖受保护的人工或 AI 字段。
 
 ## 解除与数据保护
 
@@ -69,13 +69,13 @@ POST /works/{work}/release，正文 {}，使用作品 If-Match：删除指向该
 
 旧成员在转移后保留 excluded 历史记录，不构成第二个所有者。人工字幕注解变为不可用，显式视角绑定保留 active=false 历史；资源回原作品且组范围满足时恢复。普通列表默认隐藏 inactive 作品，include_inactive=true 可查看。相同根可复用作品 ID，不按同 RJ 自动搬迁元数据；改名仍视为旧节点缺失和新节点出现。
 
-播放组沿用 main/bonus/video/other、default/se/no_se；MP3/WAV 是组内格式，不要求名单对应。默认组优先选择含 present 媒体的组，显式默认组及成员播放编辑保留；可通过 playback-overrides/reset 撤销覆盖并在下次归纳恢复。实际播放和格式择一属于后续模块。
+播放组沿用 main/bonus/video/other、default/se/no_se；MP3/WAV 是组内格式，不要求名单对应。默认组优先选择含 present 媒体的组，显式默认组及成员播放编辑保留；可通过 playback-overrides/reset 撤销覆盖并在下次归纳恢复。实际播放与格式选择见[播放接口](playback.md)。
 
 ## 持久归纳任务
 
 POST /organize-jobs：source_id、scope_node_id（可省略）、apply（默认 false）。202 接受后不随请求断开取消；apply=true 明确授权按快照直接计算并应用；若提交时仍有新输入，该任务继续取最新快照直至追平或失败/取消，不另需预览 ETag。任务 result 的变化计数与 analysis 描述最后一轮，work_ids 是最终一轮结果，不累计中间轮次。预览 result 包含字符串 input_generation；应用 result 还包含 desired_generation、applied_generation、pending。GET /organize-jobs 支持分页，GET /organize-jobs/{job} 读详情，POST /organize-jobs/{job}/cancel 无正文取消，DELETE /organize-jobs/{job} 只清理终态历史。
 
-状态 queued/running/canceling/succeeded/failed/canceled/interrupted；phase 为 preparing/applying/finished。全服务同时一个归纳任务，忙碌为 409；重启标记 interrupted。取消与提交竞争可能成功完成，终态需再查询。追赶任务已成功提交的早先轮次会保留；失败或取消只回滚当轮发布，未处理输入代次仍保留。活动状态和取消信号不等待数据库写连接。阶段变化以 organize.progress 记录到认证日志接口，可按 job_id 检索；没有预知的节点总进度，不提供百分比。预览最多 500 部候选、总计 1000 个组，group_count/groups_truncated 提示截断；应用范围不受展示截断限制。
+状态 queued/running/canceling/succeeded/failed/canceled/interrupted；phase 为 preparing/applying/finished。`/organize-jobs` 同时接纳一个任务，忙碌为 409；其他来源处理入口可按[队列并发设置](library-jobs.md#独立队列和并发设置)执行；重启标记 interrupted。取消与提交竞争可能成功完成，终态需再查询。追赶任务已成功提交的早先轮次会保留；失败或取消只回滚当轮发布，未处理输入代次仍保留。阶段变化以 organize.progress 记录到认证日志接口，可按 job_id 检索；没有预知的节点总进度，不提供百分比。预览最多 500 部候选、总计 1000 个组，group_count/groups_truncated 提示截断；应用范围不受展示截断限制。
 
 资源关系接口见 [media-associations.md](media-associations.md)，扫描契约见 [scanning.md](scanning.md)。
 
@@ -85,4 +85,4 @@ POST /organize-jobs：source_id、scope_node_id（可省略）、apply（默认 
 
 预览和归纳任务的预览/应用结果包含 analysis：mode 为 full/incremental，computed_branches、reused_branches、computed_nodes 为本次计算统计，fallback_reason 说明 source_boundary、file_routing、invalid_tree 或 cache_capacity 等全量回退原因，正常为空。incremental 表示允许独立分支计算，首次或缓存淘汰时 reused_branches 可以为 0；这些计数不是扫描进度。缓存命中不改变边界、输入代次、人工覆盖或原子发布语义。
 
-目录决定接口是节点 boundary 属性的便捷表达；删除决定只解除这个字段的人工保护，保留其他人工语义属性，不维护第二份决定存储。
+目录决定接口是节点 boundary 属性的便捷表达；删除决定只解除这个字段的人工保护，保留其他人工语义属性，

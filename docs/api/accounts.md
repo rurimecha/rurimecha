@@ -10,9 +10,9 @@
 
 ## 权限
 
-所有账户共享媒体库和只读 DAV 来源目录。admin 管理用户、媒体来源、作品资料、扫描/归纳/刮削/探测、全局设置、日志和 MCP。member 只读浏览作品、目录、人物/社团/标签、资源/图片/字幕/媒体信息及播放协商，可以解析队列、播放、维护自己的账户/会话/偏好/播放列表/自定义收藏集/进度/书签。未明确列入普通用户允许范围的新管理路由默认要求管理员；拒绝返回 403 forbidden。
+所有账户共享媒体库和只读 DAV 来源目录。admin 管理用户、媒体来源、作品资料、扫描/归纳/刮削/探测、全局设置、日志。member 只读浏览作品、目录、人物/社团/标签、资源/图片/字幕/媒体信息及播放协商，可以解析队列、播放、维护自己的账户/会话/偏好/播放列表/自定义收藏集/进度/书签。未明确列入普通用户允许范围的新管理路由默认要求管理员；拒绝返回 403 forbidden。
 
-归档收藏集共享且只读；日常读取和播放中的个人记录按认证账户隔离。仅管理员可以使用[系统迁移包](migration.md)迁移所有账号的个人数据。公开数据库实体身份不因用户名改变。当前没有来源级可见范围、公开分享或注册。
+归档收藏集共享且只读；日常读取和播放中的个人记录按认证账户隔离。仅管理员可以使用[系统迁移包](migration.md)迁移所有账号的个人数据。资源 ID 不因用户名改变。当前没有来源级可见范围、公开分享或注册。
 
 ## 管理用户
 
@@ -27,15 +27,18 @@
 
 ## 自身账户及认证
 
-`POST /auth/login` 输入 username/password，可选 client_name；返回 user、access_token、token_type=Bearer、expires_at、session。浏览器同源响应设置 HttpOnly/SameSite=Strict Cookie，客户端不把令牌保存在网页存储或 URL。所有写 Cookie 请求必须有同源 Origin/Referer。原生/外部客户端使用 Authorization: Bearer。登录计算有界、限速，429 带 Retry-After。
+`POST /auth/login` 输入 username/password，可选 client_name 和 client_kind；返回 user、access_token、token_type=Bearer、expires_at、session。浏览器同源响应设置 HttpOnly/SameSite=Strict Cookie，客户端不把令牌保存在网页存储或 URL。所有写 Cookie 请求必须有同源 Origin/Referer。原生/外部客户端使用 Authorization: Bearer。登录计算有界、限速，429 带 Retry-After。
+
+
+`client_kind` 可选 `browser`、`android`、`desktop`、`other`，省略为 `other`。`client_name` 为客户端上报的显示名称，最多 160 UTF-8 字节，不含首尾空白或控制字符。浏览器可报告浏览器和系统名称，不能直接读取用户电脑的真实主机名；Android 可报告设备型号，桌面客户端可报告本机名称。服务器访问域名不代表客户端设备名称。这些信息仅供辨认，不用于认证。
+
+登录响应及 `GET /auth/sessions` 的每项包含 `id`、`client_kind`、`client_name`、`login_ip`、`created_at`、`expires_at`、`current`。`login_ip` 是服务端在登录时记录的 IP；配置可信代理后为代理转发的客户端 IP。它不是客户端可填写的请求字段，也不随后续网络切换而更新。列表只含当前有效会话，不提供已退出或过期的登录历史。WebDAV 密码直连不创建会话。
 
 `GET /auth/me` 返回当前真实用户及 ETag（ID 不固定为 admin）。`PUT /auth/me` 完整输入 username/current_password 并提供 ETag；`POST /auth/password` 输入 current_password/new_password 并提供相同 ETag。修改自身密码撤销自己的全部会话；改名保留会话。`POST /auth/logout` 撤销当前会话并清 Cookie。
 
 `GET /auth/sessions` 仅列出自身未过期会话（无令牌），标记 current。`DELETE /auth/sessions/{session}` 只撤销自己的一个会话；`POST /auth/sessions/revoke` 只撤销自身全部会话。会话固定有效 30 天，每账户最多 256 个，不自动挤掉其他设备。未授权访问 401；长媒体连接每分钟复查账号、会话和网络访问资格。
 
 未激活或授权失效时，只有内置管理员可以登录和访问。此规则覆盖此前签发的会话以及 WebDAV 密码直连。授权失效后重新激活，其他用户需重新登录。正确凭据的登录遇到停用、授权失效或远程访问限制时分别返回 403 `account_disabled`、`account_license_required` 或 `remote_access_denied`。既有令牌失效返回 401。客户端可以更换网络地址，仍须符合 [网络访问规则](network.md)。
-
-账户结构属于当前开发 v1；结构签名不同明确拒绝，没有迁移、历史单管理员协议分支或自动清库。
 
 ## 游客体验
 

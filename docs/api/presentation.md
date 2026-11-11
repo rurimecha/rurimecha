@@ -1,6 +1,6 @@
 # 用户界面配套接口
 
-以下路径省略 `/api/v1`。全部要求已登录账户；管理操作另需管理员角色。同源 Web 使用 Cookie，原生接口保留 Bearer。ID、修订和 ETag 均按字符串处理。所有写入仍验证来源；个人偏好、收藏集和列表按账户隔离，共享媒体库供各账户浏览。
+以下路径省略 `/api/v1`。全部要求已登录账户；管理操作另需管理员角色。同源 Web 使用 Cookie，原生接口保留 Bearer。ID、修订和 ETag 均按字符串处理。Cookie 写入仍验证同源；个人偏好、收藏集和列表按账户隔离，共享媒体库供各账户浏览。
 
 ## 外观与浏览偏好
 
@@ -54,7 +54,7 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 - `GET /filesystem?path=/&q=&limit=50&offset=0`：服务器目录选择器，返回 path/parent/items/total；不列文件或符号链接，不读取文件内容。Linux 默认从 `/` 浏览；Windows 未指定路径或传 `/` 时返回可用盘符，`path` 和 `parent` 均为空字符串。进入盘符根目录后，`parent` 为空字符串，表示返回盘符列表。普通目录仅接受服务器上的绝对路径。
 - 节点查询支持 sort=name/modified/size/duration 和 sort_order=asc/desc，默认名称自然升序，修改时间/大小未指定方向时默认降序；目录始终优先，未知资料后置。指定 parent_id 时 q 搜索名称，其他查询搜索路径及有效媒体标题。完整筛选及计数先于分页，见 [目录查询契约](scanning.md)。
 - `GET /works/{work}/resources?parent_id=&view=media&limit=50&offset=0`：仅投影当前作品的文件和真实祖先目录；手工组合从真实来源根进入。默认从作品根列子项，无作品根时列来源入口。view 为 media/all/audio/video/image/text，默认保留目录与音视频。条目同时返回原名与节点 alias；返回 items/total/parent_id/root_node_id。
-- `GET /nodes/{node}/file-information?force=false`：独立、按需读取文本预览或图片/PDF 属性。文本最多读取 2 MiB、预览 64 KiB；UTF-8/UTF-16，GB18030 回退标注推测。ExifTool 通过已打开描述符接收文件，输出和时间有界；失败保留说明。缓存校验实际文件属性、内容失效代次和当前工具配置，不更改扫描或归属。当前工具执行平台为 Linux，其余平台明确不可用。
+- `GET /nodes/{node}/file-information?force=false`：独立、按需读取文本预览或图片/PDF 属性。文本最多读取 2 MiB、预览 64 KiB；UTF-8/UTF-16，GB18030 回退标注推测。失败保留说明。缓存校验实际文件属性、内容失效代次和当前工具配置，不更改扫描或归属。工具可用性以接口返回为准。
 
 ## 图片与播放背景
 
@@ -74,13 +74,13 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_revision。最多 500 个不重复、可用的索引文件，必须全部同来源。separate 只接受音视频，并收纳同直接目录、完整媒体名追加扩展名的字幕。已有作品选择可用 `/works?source_id=...&q=...` 分页。
 
-复用当前作品创建、成员及节点决定用例，操作在同一个 Writer 事务内完成。相同目标下已经归属的文件也会保存人工指定；默认归属冲突整体失败；allow_reassign=true 明确允许转移，锁定仍保护。来源输入代次和已有目标修订必须有效；失败/取消不留下部分作品。返回 work_ids/file_count。不支持跨根目录组合，不改变 BFS 或扫描/刮削模型。完整归档会统一处理人工文件作品的 active 状态，全部文件被忽略时可停用，解除忽略后按原 ID 恢复；不完整输入保留受影响作品。
+操作整批生效。相同目标下已经归属的文件也会保存人工指定；默认归属冲突整体失败；allow_reassign=true 明确允许转移，锁定仍保护。来源输入代次和已有目标修订必须有效；失败/取消不留下部分作品。返回 work_ids/file_count。不支持跨根目录组合，不触发扫描或刮削。完整归档会统一处理人工文件作品的 active 状态，全部文件被忽略时可停用，解除忽略后按原 ID 恢复；不完整输入保留受影响作品。
 
 ## 解析设置与耗时
 
 `GET /settings/processing` 返回 ETag、settings/active/pending/active_jobs/validation/revision。设置为 metadata_workers（1..32）、ffmpeg_path、ffprobe_path、exiftool_path。`POST /settings/processing/test` 测试候选、不保存；`PUT` 携带 ETag，验证成功才持久保存。留空查找 PATH，也可填目录；FFprobe 留空优先使用指定 FFmpeg 同目录工具。活动任务保持旧快照，相关消费者空闲后自动应用；保存失败保留旧配置。启动选项只为尚无保存设置时提供初值。
 
-`POST /settings/processing/prepare-tools` 携带当前设置的 If-Match，管理员显式启动固定版本 Linux/Windows x64 LGPL FFmpeg/FFprobe 下载。服务器验证归档及程序哈希、许可证文本、所需编码器和安全文件输入后，在应用数据目录保存程序并替换 ffmpeg_path/ffprobe_path；活动任务结束后按现有空闲规则生效。失败不改当前设置或媒体，重试由管理员再次发起。并发请求返回 409 media_tools_busy；不支持的平台返回 422 media_tools_platform_unavailable；下载或工具检查失败分别返回 503 media_tools_download_failed、422 media_tools_unusable。下载包不进入 Ruri 发行物。ExifTool 是独立可选工具，缺失时文件详细信息返回提示，不阻止 FFmpeg/FFprobe 设置。
+`POST /settings/processing/prepare-tools` 携带当前设置的 If-Match，管理员显式启动固定版本 Linux/Windows x64 LGPL FFmpeg/FFprobe 下载。服务器验证归档及程序哈希、许可证文本、所需编码器和安全文件输入后，在应用数据目录保存程序并替换 ffmpeg_path/ffprobe_path；活动任务结束后按现有空闲规则生效。失败不改当前设置或媒体，重试由管理员再次发起。并发请求返回 409 media_tools_busy；不支持的平台返回 422 media_tools_platform_unavailable；下载或工具检查失败分别返回 503 media_tools_download_failed、422 media_tools_unusable。发行包已随附 FFmpeg/FFprobe；本接口供管理员按需重新准备工具。ExifTool 是独立可选工具，缺失时文件详细信息返回提示，不阻止 FFmpeg/FFprobe 设置。
 
 `GET /task-metrics/{kind}/{job}` 查询采集的并发、工具快照、elapsed_ms、phases_ms、steps 和 finished。kind 为任务接口名称（如 scan-jobs/media-probe-jobs）；未采集的历史返回 available=false，不伪造。步骤包含 calls/failures/total_ms/average_ms/max_ms；并行与包含关系下不得将它们相加作为墙钟耗时。
 
@@ -95,7 +95,7 @@ mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_r
 
 `GET /works/{work}/resource-summary` 返回所有当前可用音视频的 files/bytes/duration_seconds，以及按真实来源和直接父目录分组的 items（最多 200 组，另有 truncated）。总计不受分组展示上限影响，字节数为字符串；不同格式分别累计，不标为去重作品时长。人工时长优先，失效自动观察不计入。
 
-新增媒体探测任务还在独立观测存储保留原始输入；详情的可选 input 字段用于按原范围重试。未记录输入的历史任务不伪装为有原始快照。
+媒体探测任务详情的可选 input 字段表示创建时的范围，可用于按原范围重试；未提供该字段时，不推测原请求。
 
 新来源创建会拒绝媒体目录与应用数据目录的父子/相同重叠（media_data_overlap），避免将程序自己的数据库、日志和缓存纳入媒体自动监听。离线的其他路径仍允许登记。
 

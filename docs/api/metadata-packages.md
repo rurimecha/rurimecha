@@ -44,7 +44,7 @@ Ruri 接受独立工具产出的 `ruri-metadata` v1 JSON 包。一个包对应�
 - 默认 `replace=false`：已有商品缓存复用，不修改其内容或修订；已有有效图片保留，允许补齐缺图。`imported=false` 表示复用，`applied_works` 只计最终描述实际变化的已有作品。重复导入不推进未变化作品的修订。
 - `replace=true`：按既有商品缓存合并规则更新明确提供的字段/语言，保留未提供字段；同语言文本可更新。上游 fetched_at 早于已有缓存时返回 `412 stale_revision`，即使包含新译文也不覆盖新快照。已有缓存需要补入译文时，应在最新快照的包上编辑，再显式 replace。
 - 一次请求的商品缓存、图片指针和所有同号作品描述原子提交。人工字段、锁定、作品身份和媒体归属保持既有保护。缺少本地作品时只保存缓存，不凭空创建媒体作品；后续归纳/刮削可复用缓存。
-- 不发起网络、扫描或模型任务，不创建 scrape_jobs；同步响应即为本次提交结果。客户端取消在提交前使本次事务回滚；响应丢失时可默认重试，之前成功的其他包不回滚。
+- 不发起网络、扫描或模型任务，不创建刮削任务；同步响应即为本次提交结果。客户端取消在提交前使本次事务回滚；响应丢失时可默认重试，之前成功的其他包不回滚。
 - 接口没有分页或后台取消接口；每请求一包，批量客户端逐包发送并记录结果。
 
 错误包括 `400 invalid_argument`、`401 unauthorized`、`403 forbidden`、`409 scraper_busy`（等待刮削任务结束后重试）、`409 image_cache_capacity`（提高图片容量限制或清理缓存后重试，不自动淘汰图片）、`412 stale_revision`、`413 request_too_large`、`415 unsupported_media_type`、`503 unavailable`（此服务实例未提供刮削组件）。更多见 [协议](protocol.md) 和 [OpenAPI](openapi.json)。
@@ -53,7 +53,7 @@ Ruri 接受独立工具产出的 `ruri-metadata` v1 JSON 包。一个包对应�
 
 ## 独立服务生成数据包
 
-新 ruri-scrape 通过 `GET /api/v1/products/{code}/package` 提供当前包：本地命中直接返回，缺失时抓取并保存。该服务只提供文字包，images 为空；Core 仍接受其它合法来源提供的带图包。本轮服务不生成 AI 译文；包仍可携带显式提供的独立 locale 文本。详见 [服务协议](scrape-service.md)。
+新 ruri-scrape 通过 `GET /api/v1/products/{code}/package` 提供当前包：本地命中直接返回，缺失时抓取并保存。该服务只提供文字包，images 为空；Core 仍接受其它合法来源提供的带图包。该服务不生成 AI 译文；包仍可携带显式提供的独立 locale 文本。详见 [服务协议](scrape-service.md)。
 
 ## 多语言商品资料
 

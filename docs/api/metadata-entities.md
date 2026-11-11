@@ -1,6 +1,6 @@
 # 元数据别名及高级筛选
 
-`/metadata-entities` 支持 GET 分页（q、kind、limit、offset）和 POST 创建；`/metadata-entities/{entity}` 支持 GET、PUT 完整替换和 DELETE。读取/写入返回 ETag，更新/删除要求 If-Match。所有接口使用管理员会话。
+`/metadata-entities` 支持 GET 分页（q、kind、limit、offset）和 POST 创建；`/metadata-entities/{entity}` 支持 GET、PUT 完整替换和 DELETE。读取/写入返回 ETag，更新/删除要求 If-Match。读取允许普通已登录用户；创建、修改和删除需要管理员会话。
 
 ```json
 {"kind":"person","name":"规范显示名","aliases":[{"provider":"dlsite","external_id":"provider-person-id","name":"原名","locale":"ja"},{"provider":"manual","external_id":"","name":"另一名字","locale":"zh-Hant"}]}

@@ -3,19 +3,19 @@
   "info": {
     "title": "Ruri Cloud Authorization Center",
     "version": "1.0.0",
-    "description": "Single-tier product licensing, test applications, and email-verified authorization lookup. Administrative API requests require a bearer credential. Legacy /v1/self and /v1/release remain unavailable. This is the dev implementation contract; newly added website routes are local-only until an authorized deployment."
+    "description": "Single-tier product licensing, test applications, and email-verified authorization lookup. Administrative API requests require an independent bearer credential. /v1/self and /v1/release are unavailable. Confirm the supported routes with your service provider."
   },
   "servers": [
     {
       "url": "https://ruri-license.rurimecha-11c899c9.workers.dev",
-      "description": "Current deployed installation; new dev website routes are not yet deployed."
+      "description": "Service address from the release configuration."
     }
   ],
   "paths": {
     "/health": {
       "get": {
         "operationId": "health",
-        "description": "Checks the issuer key pair, current D1 schema, and presence of the public activation rate limit binding.",
+        "description": "Returns service readiness; an unavailable authorization service returns 503.",
         "responses": {
           "200": {
             "description": "Success",
@@ -108,7 +108,7 @@
     "/admin/customers": {
       "get": {
         "operationId": "listCustomers",
-        "description": "Literal name/email search and count in one D1 transaction.",
+        "description": "Literal name/email search; items and count describe the same committed snapshot.",
         "responses": {
           "200": {
             "description": "Success",
@@ -369,7 +369,7 @@
     "/admin/licenses": {
       "get": {
         "operationId": "listLicenses",
-        "description": "Paginated licenses, count and only their active bindings in one D1 transaction; inactive history is separate.",
+        "description": "Paginated licenses with their active bindings and total count from the same snapshot; inactive history is queried separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -1062,7 +1062,7 @@
     "/v1/activate": {
       "post": {
         "operationId": "activate",
-        "description": "Reuse one active binding for the same license and instance key; online rebinding changes host metadata without consuming another slot. D1 enforces status, expiry and quota atomically. Certificate grants product rurimecha with no feature list; see licensing.md.",
+        "description": "Reuse one active binding for the same license and instance key; online rebinding changes host metadata without consuming another slot. Status, expiry and activation quota are checked together. Certificate grants product rurimecha with no feature list; see licensing.md.",
         "responses": {
           "200": {
             "description": "Success",

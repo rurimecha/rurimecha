@@ -2,7 +2,7 @@
 
 当前资源关系服从节点唯一归属；编辑不会冻结目录成员。
 
-本模块只建立资源关系，不提供播放、字幕正文解析或容器内部音轨探测。所有路径相对 /api/v1，均需 Bearer 认证。身份为不透明字符串；所有写入使用父作品 ETag/If-Match，返回 work_revision 字符串；分页默认 limit=50，范围 1..500。PUT 是完整替换，字段省略取默认值，force=true 只用于明确处理锁定资源，不绕过范围/修订/命名约束。
+本模块只建立资源关系，不提供播放、字幕正文解析或容器内部音轨探测。所有路径相对 /api/v1，均需有效会话，网页使用同源 Cookie，原生和外部客户端使用 Bearer。读取允许普通已登录用户，编辑需要管理员。身份为不透明字符串；所有写入使用父作品 ETag/If-Match，返回 work_revision 字符串；分页默认 limit=50，范围 1..500。PUT 是完整替换，字段省略取默认值，force=true 只用于明确处理锁定资源，不绕过范围/修订/命名约束。
 
 ## 逻辑片段及视角版本
 
@@ -19,7 +19,7 @@
 
 Segment 输入：playback_group_id、name 必填，sort_order 默认 0。响应增加 id、work_id、work_revision。片段属于一个播放组；不跨组按相同编号推断同片段。名称保留用户原文，不强制翻译。
 
-Rendition 输入：segment_id、name 必填，sort_order 默认 0，is_default 默认 false。响应增加 id、work_id、work_revision。segment_id 更新时不可更换；同片段版本名唯一，最多一个默认版本，也允许暂未指定默认。切换默认需先取消原默认，再设置目标，或由后续更高层用例组合事务；当前不提供专用默认切换接口。
+Rendition 输入：segment_id、name 必填，sort_order 默认 0，is_default 默认 false。响应增加 id、work_id、work_revision。segment_id 更新时不可更换；同片段版本名唯一，最多一个默认版本，也允许暂未指定默认。切换默认需先取消原默认，再设置目标，；当前不提供专用默认切换接口。
 
 同作品文件当前最多绑定一个版本，PUT 到另一版本会重绑。一个版本可以有多个格式/文件，不要求 MP3/WAV 名单对应，也不限制每种格式只有一份资源。绑定要求已登记的文件节点、included 音视频成员，且成员播放组与片段组一致。返回 work_id、rendition_id、member_id、work_revision。改变已绑定成员的组/类型或排除成员前，须先解除绑定；更新绑定的段组同样要求先解绑。
 
@@ -34,7 +34,7 @@ Rendition 输入：segment_id、name 必填，sort_order 默认 0，is_default �
 | GET / POST | /works/{work}/subtitle-links | 字幕关联分页/创建 |
 | GET / PUT / DELETE | /works/{work}/subtitle-links/{link} | 字幕关联 CRUD |
 
-GET 分页支持 media_member_id、subtitle_member_id、state、origin 过滤。播放等后续模块可按媒体成员查询，避免读取整部作品的全部字幕关系。
+GET 分页支持 media_member_id、subtitle_member_id、state、origin 过滤。播放客户端可按媒体成员查询，避免读取整部作品的全部字幕关系。
 
 输入：media_member_id、subtitle_member_id 必填；locale 默认为 und，显式指定使用 BCP 47；origin 默认为 manual，也可 ai；state 默认为 included，也可 excluded。origin=rule 只由服务器自动生成，客户端不能冒充。一个媒体可以有多个字幕，一个字幕可以关联多个媒体，pair 在同作品内唯一；修改现有配对使用 PUT。
 
@@ -54,7 +54,7 @@ GET 分页支持 media_member_id、subtitle_member_id、state、origin 过滤。
 | 英文 | en、eng、en-US、en-GB、英文、英语、英語 | en |
 | 未注明简繁的中文 | zh、chi、zho、中文 | zh |
 
-语言后缀中的 `_` 可替代 `-`，如 zh_TW。未标注语言使用 und；不根据正文、作品语言或界面语言猜测。`01.fr.srt`、`01.en.sdh.srt`、任意标题标签不作为 `01.wav` 的自动字幕；本次不实现 default/forced/听障标记。`01.mp3.vtt` 也不会匹配 `01.wav`。
+语言后缀中的 `_` 可替代 `-`，如 zh_TW。未标注语言使用 und；不根据正文、作品语言或界面语言猜测。`01.fr.srt`、`01.en.sdh.srt`、任意标题标签不作为 `01.wav` 的自动字幕；不支持 default/forced/听障标记。`01.mp3.vtt` 也不会匹配 `01.wav`。
 
 人工/AI 关联仍要求同作品及上述可匹配命名，可跨目录。人工输入 locale 仍默认 und，显式值优先；归纳不会覆盖人工/AI 的语言或排除决定。force 不能越过范围和命名约束。
 

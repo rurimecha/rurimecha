@@ -3,7 +3,7 @@
   "info": {
     "title": "Rurimecha Core HTTP API",
     "version": "1.0.0-dev",
-    "description": "HTTP integration contract for the current single-owner directory-boundary service. Organization uses breadth-first root inheritance; explicit decisions are saved first and atomically applied through organization preview/apply. Reads use committed snapshots and may return the prior committed version while a mutation is pending; new snapshots see successful commits. Each multi-record response and its pagination count share a snapshot. Mutations still validate the current revision. Development APIs may change. Shared library, admin/member authorization, private listening state and per-node playback profile negotiation. See accounts.md and listening.md for access rules."
+    "description": "HTTP integration contract for Ruri media libraries, playback, accounts and administration. Browser clients use same-origin session cookies; native and external clients use Bearer tokens. Account roles and product authorization determine access. IDs and revisions are opaque strings; edits use ETag/If-Match. See README.md and the linked endpoint guides for supported behavior and limits."
   },
   "servers": [
     {
@@ -9185,7 +9185,7 @@
       "get": {
         "operationId": "getPlaybackStatus",
         "summary": "getPlaybackStatus",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected.",
         "tags": [
           "playback"
         ],
@@ -9252,7 +9252,7 @@
       "post": {
         "operationId": "resolvePlayback",
         "summary": "resolvePlayback",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected.",
         "tags": [
           "playback"
         ],
@@ -9329,7 +9329,7 @@
       "get": {
         "operationId": "listPlaybackSubtitles",
         "summary": "listPlaybackSubtitles",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected.",
         "tags": [
           "playback"
         ],
@@ -9405,7 +9405,7 @@
       "get": {
         "operationId": "getPlaybackSubtitle",
         "summary": "getPlaybackSubtitle",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected.",
         "tags": [
           "playback"
         ],
@@ -9573,7 +9573,7 @@
       "get": {
         "operationId": "listPlaylists",
         "summary": "listPlaylists",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
         "tags": [
           "playback"
         ],
@@ -9658,7 +9658,7 @@
       "post": {
         "operationId": "createPlaylist",
         "summary": "createPlaylist",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
         "tags": [
           "playback"
         ],
@@ -9744,7 +9744,7 @@
       "get": {
         "operationId": "getPlaylist",
         "summary": "getPlaylist",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
         "tags": [
           "playback"
         ],
@@ -9821,7 +9821,7 @@
       "put": {
         "operationId": "updatePlaylist",
         "summary": "updatePlaylist",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
         "tags": [
           "playback"
         ],
@@ -9917,7 +9917,7 @@
       "delete": {
         "operationId": "deletePlaylist",
         "summary": "deletePlaylist",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
         "tags": [
           "playback"
         ],
@@ -9995,7 +9995,7 @@
       "post": {
         "operationId": "appendPlaylist",
         "summary": "appendPlaylist",
-        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. All operations require bearer authentication; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected. Personal records are scoped to the authenticated account; another account cannot read or resolve them. Archive collections remain shared and read-only.",
         "tags": [
           "playback"
         ],
@@ -21309,7 +21309,7 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "rurimecha_session",
-        "description": "Same-origin browser session shared with Bearer. HttpOnly, SameSite=Strict, Path=/api/v1/, fixed 30-day expiry; Secure over direct TLS. Cookie writes require a matching Origin or Referer; cross-origin Cookie requests are rejected."
+        "description": "Same-origin browser session shared with Bearer. HttpOnly, SameSite=Strict, Path=/api/v1/, fixed 30-day expiry; Secure for HTTPS, including HTTPS restored from a trusted proxy. Cookie writes require a matching Origin or Referer; cross-origin Cookie requests are rejected."
       }
     },
     "headers": {
@@ -25118,7 +25118,7 @@
           "computed_nodes",
           "fallback_reason"
         ],
-        "description": "Calculation reuse only, not filesystem observation. Computed nodes excludes the shared source root in incremental mode. Full fallback preserves reference BFS semantics."
+        "description": "Calculation reuse only, not filesystem observation. Computed nodes excludes the shared source root in incremental mode. Full fallback preserves the same directory ownership rules."
       },
       "AutomationPolicy": {
         "type": "object",
@@ -26974,13 +26974,20 @@
           "client_kind": {
             "type": "string",
             "enum": [
+              "browser",
+              "android",
+              "desktop",
               "other"
             ],
-            "description": "Web/API bearer or Cookie session. DAV authenticates the current account password without issuing a session."
+            "description": "Client-reported display category; not an identity or access permission."
           },
           "client_name": {
             "type": "string",
             "maxLength": 160
+          },
+          "login_ip": {
+            "type": "string",
+            "description": "Server-observed login IP after trusted proxy processing; empty if unavailable. Fixed at login."
           }
         },
         "required": [
@@ -26989,7 +26996,8 @@
           "expires_at",
           "current",
           "client_kind",
-          "client_name"
+          "client_name",
+          "login_ip"
         ]
       },
       "AccountLogin": {
@@ -27007,7 +27015,19 @@
           "client_name": {
             "type": "string",
             "maxLength": 160,
-            "default": ""
+            "default": "",
+            "description": "Client-reported display label, at most 160 UTF-8 bytes, no surrounding whitespace or controls. Browsers should report browser/system, never the server hostname."
+          },
+          "client_kind": {
+            "type": "string",
+            "enum": [
+              "browser",
+              "android",
+              "desktop",
+              "other"
+            ],
+            "description": "Client-reported display category; not an identity or access permission.",
+            "default": "other"
           }
         },
         "required": [
@@ -31354,6 +31374,15 @@
             "type": "boolean",
             "default": false,
             "description": "Permit remote requests. Each account must also allow remote access."
+          },
+          "known_proxies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 128,
+            "default": [],
+            "description": "Trusted proxy IP addresses or CIDRs. Empty ignores X-Forwarded-For/Proto/Host. Whole-address-space ranges are rejected."
           }
         },
         "required": [
@@ -31479,6 +31508,15 @@
           },
           "discovery_available": {
             "type": "boolean"
+          },
+          "known_proxies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 128,
+            "default": [],
+            "description": "Trusted proxy IP addresses or CIDRs. Empty ignores X-Forwarded-For/Proto/Host. Whole-address-space ranges are rejected."
           }
         },
         "required": [
@@ -31497,7 +31535,8 @@
           "available_addresses",
           "urls",
           "effective_local_networks",
-          "discovery_available"
+          "discovery_available",
+          "known_proxies"
         ]
       },
       "WorkFamilySummary": {

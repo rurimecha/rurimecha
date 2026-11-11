@@ -1,6 +1,6 @@
 # 节点语义属性与字段规则
 
-以下路径省略 `/api/v1`，需 Bearer 认证。能力标识 `organize.node_attributes`。节点属性是归纳输入，作品归属、播放组和字幕关联仍是保存后的派生结果。
+以下路径省略 `/api/v1`，需有效会话，网页使用同源 Cookie，原生和外部客户端使用 Bearer。管理节点属性与规则需要管理员。能力标识 `organize.node_attributes`。节点属性是归纳输入，作品归属、播放组和字幕关联仍是保存后的派生结果。
 
 ## 属性字段与来源前缀
 
@@ -8,7 +8,7 @@
 
 | 字段 | 内容取值 | 含义 |
 | --- | --- | --- |
-| boundary | infer / root / not_work / exclude / assign | infer 交给固定结构算法；root 强制作品根；not_work 不在当前目录建根；exclude 排除节点/子树；assign 指定文件作品 |
+| boundary | infer / root / not_work / exclude / assign | infer 自动判断；root 强制作品根；not_work 不在当前目录建根；exclude 排除节点/子树；assign 指定文件作品 |
 | identifier | none 或大写字母数字编号，多个以逗号隔开 | 作品编号线索，不等于作品唯一身份 |
 | format | none 或 1..16 位小写字母数字 | 格式；例如 wav、mp3。目录是提示，文件是分类结果 |
 | media_kind | none / audio / video | 文件是否参与音视频分组；目录不能人工设置此字段 |
@@ -94,6 +94,6 @@ root/assign 必须配合已有目标 work_id；目标先用作品接口创建。
 
 同组按 priority 降序、id 升序，采用首个有效匹配；identifier 收集边界合法的匹配、转大写并去重排序。identifier、format 可展开捕获，枚举字段使用合法字面值。boundary 正则允许 infer/root/not_work/exclude，不允许 assign；assign 需要人工目标作品。规则值不写 auto: 前缀，由分类器添加。
 
-规则在配置加载或更新时统一编译成 Go RE2 对象，扫描/归纳复用；不支持反向引用和环视。无效正则、捕获引用、字段或枚举值在保存时拒绝，不替换旧配置。未启用的草稿规则也验证表达式，运行时跳过。规则只能识别本地线索；最近根继承、同号包装、子作品切分等仍由固定 BFS 结构算法完成。
+正则使用 RE2 语法，不支持反向引用和环视。无效正则、捕获引用、字段或枚举值在保存时拒绝，不替换旧配置。未启用的草稿规则也验证表达式，运行时跳过。规则只能识别本地线索；目录归属仍遵守最近作品根、同号包装及子作品边界规则。
 
 当前 FANZA 支持暂停；内置 `fanza-code` 规则保留定义但不生效。GET 返回其 `enabled=false`，PUT 中该内置规则同样规范化为关闭；其他规则保持原配置。不会删除既有作品编号或源目录。

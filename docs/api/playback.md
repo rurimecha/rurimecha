@@ -1,12 +1,12 @@
 # 音视频串流、队列和字幕
 
-所有路径相对于 `/api/v1`，请求都需要 `Authorization: Bearer <token>`。不接受 URL 令牌、媒体路径或工具参数。同源 Flutter Web 及内嵌网页使用 HttpOnly/SameSite Cookie；写请求验证 Origin/Referer。原生和外部客户端保留 Bearer。本文描述服务端契约，不使用 URL 登录令牌。
+所有路径相对于 `/api/v1`。同源网页使用 HttpOnly/SameSite Cookie，写请求验证 Origin/Referer；原生和外部客户端使用 `Authorization: Bearer <token>`。不接受 URL 令牌、媒体路径或工具参数。
 
 ## 开始播放
 
 1. `GET /playback/status` 查询本实例的处理能力。`original=true` 表示提供原文件接口；`transcode` 表示当前平台和配置能启动外部媒体处理，具体编码器仍取决于部署环境。`processes` 是共享处理上限，`active_processes` 是当前占用；`startup_seconds`、`stream_seconds` 是启动和单次串流上限。
 2. `POST /playback/resolve` 生成队列，或直接使用已知媒体节点 ID。
-3. `GET /nodes/{node}/stream` 默认返回原文件。媒体元素及其后续 Range 请求都必须携带认证头。原生客户端应在播放器网络数据源设置请求头；Web 客户端需选择支持认证请求的媒体加载方式。
+3. `GET /nodes/{node}/stream` 默认返回原文件。媒体元素及其后续 Range 请求都需要会话。同源网页由浏览器携带 Cookie；原生和外部客户端应在播放器网络数据源设置 Bearer 请求头。
 4. 字幕通过独立接口读取；转码不烧录字幕。`start` 跳转后，字幕仍使用原始媒体时间轴，需要客户端将响应中的起始秒数加到输出时间。
 
 ### 串流模式
@@ -97,7 +97,7 @@ Authorization: Bearer <token>
 
 外部字幕自动发现限定同来源、同直接父目录、区分大小写精确主体匹配；支持追加式 `track.mp3.srt`、替换式 `track.srt`，以及简繁日英后缀，如 `track.cht.srt`、`track.mp3.ja.vtt`；后缀及冲突规则见 [字幕关联](media-associations.md)。完整主体优先于剥离语言后缀，追加式对应媒体优先于同主体其他格式；同目录同时存在 `01.wav`、`01.wav.mp3` 时，`01.wav.srt` 不会出现在后者的自动轨道列表。有效人工关系可显式指定仍满足命名约束的配对。追加式轨道先排列。作品中现存、有效且纳入的人工字幕关联可跨目录；撤回/排除关联不继续提供正文。同名目录播放无需先归纳为作品。不按模糊前缀匹配。
 
-支持 SRT、WebVTT、LRC、ASS/SSA 及同名 TXT 纯文本。读取上限 2 MiB、5000 cues、32 轨，截断通过 `truncated=true` 明示。UTF-8、带 BOM 的 UTF-16LE/BE 可确定解码，非 UTF-8 兼容推测 GB18030，响应 `encoding` 明示推测；不自动猜测其他日文编码。字幕语言优先使用有效人工/AI 关联中的 locale（包括显式 und）；自动发现从受支持文件名后缀推导，内嵌轨使用流标签。没有信息为 `und` 或空值，不用界面语言推断。简繁日英的 UTF-8/UTF-16 正文均可读取；Big5、Shift-JIS 等旧编码选择未实现。
+支持 SRT、WebVTT、LRC、ASS/SSA 及同名 TXT 纯文本。读取上限 2 MiB、5000 cues、32 轨，截断通过 `truncated=true` 明示。UTF-8、带 BOM 的 UTF-16LE/BE 可确定解码，非 UTF-8 兼容推测 GB18030，响应 `encoding` 明示推测；不自动猜测其他日文编码。字幕语言优先使用有效人工/AI 关联中的 locale（包括显式 und）；自动发现从受支持文件名后缀推导，内嵌轨使用流标签。没有信息为 `und` 或空值，不用界面语言推断。简繁日英的 UTF-8/UTF-16 正文均可读取；不提供 Big5、Shift-JIS 等编码的手动选择；请先将文件转为 UTF-8。
 
 内嵌文本字幕通过外部工具按需提取；图形字幕列为 `unsupported`。歌词使用当前节点媒体标签中的 lyrics/unsyncedlyrics/lyrics-*，既可返回带时间歌词也可返回普通文本。没有当前媒体观察时不提供内嵌轨和歌词；已有可用的外部字幕不依赖媒体探测或 FFmpeg。
 

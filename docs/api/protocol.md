@@ -2,19 +2,19 @@
 
 ## 地址、认证与能力
 
-示例 Base URL 为 `http://127.0.0.1:8080/api/v1`，实际地址由部署者配置。除 `GET /health`、`POST /auth/login`、CORS 预检及下述同源 Cookie 认证外均使用：
+示例 Base URL 为 `http://127.0.0.1:8080/api/v1`，实际地址由部署者配置。认证前可访问 `GET /health`、首次设置和登录入口，以及游客开关查询；游客登录仅在管理员开启后可用。其他 API 需要有效会话。原生和外部客户端使用：
 
 ```http
 Authorization: Bearer <access-token>
 ```
 
-令牌是 `POST /auth/login` 返回的不透明会话凭据，不是 JWT，有效期 30 天。仅支持一个管理员账户，所有现有管理、浏览、日志和播放接口均要求其有效会话。登出或撤销后立即失效；修改密码撤销全部会话。不要放入 URL、日志或客户端报错内容。首次登录及管理接口见 [账户与会话](accounts.md)。前端通过独立能力判断使用功能：
+令牌是 `POST /auth/login` 返回的不透明会话凭据，不是 JWT，有效期 30 天。支持管理员和普通成员；管理操作要求管理员角色，普通成员可浏览播放并维护自己的个人资料，详见[账号权限](accounts.md#权限)。游客权限单独受限。登出或撤销后立即失效；修改密码撤销该账号的全部会话。不要放入 URL、日志或客户端报错内容。首次登录及管理接口见 [账户与会话](accounts.md)。前端通过独立能力判断使用功能：
 
 ```json
 {
   "api_version": "1",
   "version": "dev",
-  "capabilities": ["accounts.multi_user", "accounts.roles", "accounts.sessions", "playback.progress", "playback.bookmarks", "playback.profiles", "metadata.scrape", "catalog.crud", "catalog.i18n", "search.fts5", "scan.directory", "scan.jobs", "logs.query", "organize.directory_boundaries"]
+  "capabilities": ["accounts.multi_user", "accounts.roles", "accounts.sessions", "playback.progress", "playback.profiles", "metadata.scrape", "catalog.crud", "catalog.i18n", "search.fts5", "scan.directory", "scan.jobs", "logs.query", "organize.directory_boundaries"]
 }
 ```
 
@@ -22,17 +22,17 @@ Authorization: Bearer <access-token>
 
 `GET /health` 正常返回 `200 {"status":"ok"}`；必要子系统不可用返回 503。`GET /info` 需要认证。
 
-Flutter Web 跨域时，部署者须明确允许该页面 Origin，例如 `http://localhost:5173`。跨域 API 使用 Bearer，不开放 Cookie credentials；同源网页的全部 API、图片和媒体使用登录设置的 HttpOnly 会话 Cookie，写请求必须校验同源 Origin/Referer（详见 accounts.md）；允许 Authorization、Content-Type、If-Match，请读取服务暴露的 ETag、X-Request-ID、Location。未知 Origin 返回 403；浏览器预检无需令牌。原生 Android 无须人为添加 Origin。反向代理应转发这些头；客户端经公网访问时使用部署者提供的 HTTPS 地址。
+第三方网页跨域调用时，部署者须明确允许该页面 Origin。跨域 API 使用 Bearer，不开放 Cookie credentials；同源网页的全部 API、图片和媒体使用登录设置的 HttpOnly 会话 Cookie，写请求必须校验同源 Origin/Referer（详见 accounts.md）；允许 Authorization、Content-Type、If-Match，请读取服务暴露的 ETag、X-Request-ID、Location。未知 Origin 返回 403；浏览器预检无需令牌。原生客户端无须人为添加 Origin。反向代理需保留认证和来源信息。HTTPS 入口连接 HTTP 上游时，须在网络设置中配置可信代理，并由代理传递外部协议、主机和客户端 IP；配置要求见[反代教程](../USAGE.md#通过-nginx-访问-ruri)。
 
 ## JSON 与标识
 
-JSON 请求使用 `Content-Type: application/json`，上限 1 MiB，顶层必须是单个对象。未知字段、字段类型不符、未知或重复的 query 参数返回 400。PUT 是完整替换，不是 PATCH；本阶段不提供 PATCH。未指定可选字段会清空或恢复该字段默认值；PUT 作品的 default_playback_group_id 例外，省略或 null 保留当前值，显式字符串才更新。可选输入的 null 与省略等价，候选的 value 例外：必须提供，null 是明确清空的候选值。媒体字段编辑的条目 null 为重置、条目内 value:null 为明确清空，见 media-probe.md。必填字段不接受缺失或 null。
+普通 JSON 请求使用 `Content-Type: application/json`，上限 1 MiB，顶层必须是单个对象；资料包、台本及迁移上传等使用各自文档声明的类型和上限。未知字段、字段类型不符、未知或重复的 query 参数返回 400。PUT 一般为完整替换；`PATCH /works/{work}/metadata-editor` 按[资料编辑契约](metadata-scraping.md)只更新选定部分，不能套用 PUT 的替换规则。未指定可选字段会清空或恢复该字段默认值；PUT 作品的 default_playback_group_id 例外，省略或 null 保留当前值，显式字符串才更新。可选输入的 null 与省略等价，候选的 value 例外：必须提供，null 是明确清空的候选值。媒体字段编辑的条目 null 为重置、条目内 value:null 为明确清空，见 media-probe.md。必填字段不接受缺失或 null。
 
 不需要请求体的 DELETE、任务取消和索引重建不解析请求体，请不要为它们设计额外参数。查询参数的 true/false 只接受这两个小写值。
 
 所有资源 ID 都是不透明字符串。revision、work_revision、日志 id、before 也是字符串，避免 Web 浮点数损失精度；比较和传回时保留原值。数量、排序和分页为 JSON 数字。时间使用 UTC RFC3339，可能含小数秒。空字符串一般表示未知文本或未选择引用，数组响应为空时是 `[]`；具体允许 null 的输出见 OpenAPI。
 
-每个响应有服务生成的 `X-Request-ID`，不会采用客户端自填的同名头。所有响应使用 `Cache-Control: no-store`；ETag 在此主要用于编辑并发控制。
+每个响应有服务生成的 `X-Request-ID`，不会采用客户端自填的同名头。普通 JSON API 默认使用 `Cache-Control: no-store`；媒体、图片与静态页面使用各自的缓存和条件读取约定。ETag 在编辑接口中用于并发控制。
 
 ## 并发编辑
 
@@ -93,7 +93,7 @@ If-Match: "work-id:7"
 | 409 | conflict | 重复名称、采用决定或仍被引用的关系冲突 |
 | 409 | locked | 需要用户明确决定是否 force 覆盖 |
 | 409 | source_incomplete | 等待完整扫描成功后再整理，部分结果只作预览 |
-| 409 | busy | 当前扫描任务占用该操作，稍后查询再尝试 |
+| 409 | busy | 相同来源正被处理或已达到任务限制，稍后查询再尝试 |
 | 412 | stale_revision | 刷新并处理并发差异 |
 | 413 | request_too_large | 缩小 JSON 请求 |
 | 415 | unsupported_media_type | 使用 application/json |

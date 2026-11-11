@@ -8,7 +8,7 @@
 
 POST /auth/login：`{"username":"admin","password":"...","client_name":"管理工具"}`，返回 user/session/token，同时设置同源 HttpOnly、SameSite=Strict Cookie。浏览器写入校验 Origin/Referer；外部客户端使用 Bearer。会话30天，可 GET /auth/sessions、DELETE /auth/sessions/{id} 撤销；POST /auth/logout 注销。PUT /auth/me 带 If-Match 更新 username/current_password/password，账户修订变化撤销既有会话与绑定旧修订的密钥。
 
-POST /keys 创建 `{"name":"Ruri","scope":"lookup","days":365}`，token仅创建时显示，数据库保存摘要；GET /keys 不回显，DELETE /keys/{id} 撤销。权限：read 仅本地已有资料，lookup 允许缺失抓取及显式刷新，admin 允许完整管理。GET /auth/access 返回当前凭据的 read/lookup/refresh/manage 布尔能力，不触发抓取，可用于连接和权限验证。
+POST /keys 创建 `{"name":"Ruri","scope":"lookup","days":365}`，token仅创建时显示；GET /keys 不回显，DELETE /keys/{id} 撤销。权限：read 仅本地已有资料，lookup 允许缺失抓取及显式刷新，admin 允许完整管理。GET /auth/access 返回当前凭据的 read/lookup/refresh/manage 布尔能力，不触发抓取，可用于连接和权限验证。
 
 ## 本地优先与语言、字段选择
 
@@ -26,7 +26,7 @@ fields 最多64项，可选 metadata（该语言全部已知规范资料）、im
 
 source 保留提供者、编号、URL及时间；选择接口不返回原始响应。没有语言可满足条件时404。未取得的语言/字段组合缓存1小时，实际获取失败按 failure_seconds 缓存；refresh=true 绕过。成功的低优先级语言在同次请求中不重复抓取。文本按实际证据保存，证据不足时为 und；请求语言、音声语言和相同标题均不能证明文本为日文。没有自动翻译。
 
-简单字段查询允许跳过无需的介绍页。DLsite JSON/AJAX各字段单独验证，ASMR.one补充只在需要时使用；Core与缓存站共用提供者代码。现存完整资料优先；部分观察保留成功字段，只补取未完成且可重试的所需字段，并受次数及冷却限制。成功空简介不重复抓取，可选的未提供商品字段不导致无限重试。同编号/配置/语言/请求范围的并发抓取合并，单个等待者取消不终止其他等待者。
+简单字段查询允许跳过无需的介绍页。DLsite JSON/AJAX各字段单独验证，ASMR.one补充只在需要时使用。现存完整资料优先；部分观察保留成功字段，只补取未完成且可重试的所需字段，并受次数及冷却限制。成功空简介不重复抓取，可选的未提供商品字段不导致无限重试。同编号/配置/语言/请求范围的并发抓取合并，单个等待者取消不终止其他等待者。
 
 ## 自动采集与容量
 
@@ -39,11 +39,11 @@ GET /collection 返回 day/acquired/daily_limit/products/max_products。日期�
 
 同一时刻只接受一个采集任务。每日成功记录和作品写入原子提交，重启恢复游标，不重复消费成功额度；新的一天重新发现。正常运行时每15分钟检查是否有待补足额度，已有活动采集不叠加。修改额度后，发布前仍检查当前限额。
 
-容量满时按最早更新时间淘汰，暂不淘汰活动任务的待处理作品。正文、原始响应、搜索内容和索引一并释放，只保留轻量修订墓碑，阻止旧请求复活记录；SQLite会复用空页，文件不必立即缩小。降低容量若受活动任务阻挡则整体拒绝，不做部分修改。
+容量满时按最早更新时间淘汰，暂不淘汰活动任务的待处理作品。相关资料和搜索记录一并清除，数据文件占用不一定立即缩小。降低容量若受活动任务阻挡则整体拒绝，不做部分修改。
 
 ## 资料管理与交换
 
-不提供手工元数据编辑、字段保护或覆盖接口。POST /products 可导入单个当前格式文字包，已有作品409；有图片字节的包拒绝。DELETE /products/{code} 带 If-Match 删除，之后查询可重新获取。刷新、导入和上游合并负责更新资料；缺失或失败字段保留此前成功值，不保存重复的有效/自动副本。原始响应 gzip 压缩保存，读取/导出时恢复。
+不提供手工元数据编辑、字段保护或覆盖接口。POST /products 可导入单个当前格式文字包，已有作品409；有图片字节的包拒绝。DELETE /products/{code} 带 If-Match 删除，之后查询可重新获取。刷新、导入和上游合并负责更新资料；缺失或失败字段保留此前成功值，不保存重复的有效/自动副本。
 
 GET /export?limit=500&offset=0 返回 ruri-scrape-bundle v1，包含资料和来源，不含账户、配置、密钥或图片。POST /import：`{"mode":"skip","expected_revisions":{},"bundle":{...}}`，mode 为 skip/fail/replace；replace 对每个编号提供本地字符串修订（从未存在为"0"），任一过期整体回滚。最多1000条/64MiB，验证后原子提交；导出每页独立快照，完整导出应暂停写入。
 
@@ -51,12 +51,10 @@ GET /export?limit=500&offset=0 返回 ruri-scrape-bundle v1，包含资料和来
 
 POST /jobs：lookup 模式提交1–1000个不重复 codes，refresh 可选；collect 模式使用自动采集策略，不接受 codes。无图片参数或用户管理的发现来源/日历计划。
 
-GET /jobs、/jobs/{id}、/jobs/{id}/items、/jobs/{id}/events 查看持久进度，列表分页 limit 默认50、1–500，offset>=0。POST /jobs/{id}/cancel 请求取消；POST /jobs/{id}/retry 仅补未完成项和字段，成功项保留，网络配置取当前快照。主动 refresh=true 则重新获取所选完整资料，不能被已有部分成功的标题阻止；显式窄字段刷新仍只修改所请求字段。DELETE /jobs/{id} 仅删除终态任务及明细，不删除资料。重启后 running 恢复排队，canceling 变为 canceled；已保存单项和分页检查点不重复处理。网络不持有数据库事务，取消信号不等待写连接。
+GET /jobs、/jobs/{id}、/jobs/{id}/items、/jobs/{id}/events 查看持久进度，列表分页 limit 默认50、1–500，offset>=0。POST /jobs/{id}/cancel 请求取消；POST /jobs/{id}/retry 仅补未完成项和字段，成功项保留，网络配置取当前快照。主动 refresh=true 则重新获取所选完整资料，不能被已有部分成功的标题阻止；显式窄字段刷新仍只修改所请求字段。DELETE /jobs/{id} 仅删除终态任务及明细，不删除资料。重启后 running 恢复排队，canceling 变为 canceled；已保存单项和分页检查点不重复处理。
 
 ## 设置与错误
 
-providers 包含 dlsite/asmr.one 各一次，可分别启用；内部固定 DLsite 优先。metadata_locales 独立控制自动获取的简体中文、繁体中文、日文、英文，至少开启一种；默认仅日文。default_return_locale 设置未指定语言时的返回优先级，可选 zh-Hans 或 ja；timeout_seconds 默认30（5–120）；interval_ms 默认1000（100–60000）；failure_seconds 默认30（0–3600，0关闭实际获取失败的冷却）。proxy_url 写入专用，省略保留、空串清除，只返回 proxy_configured，不回显地址或认证。设置、删除和账户更新用字符串修订/If-Match，过期或缺失409。
+providers 包含 dlsite/asmr.one 各一次，可分别启用；DLsite 优先。metadata_locales 独立控制自动获取的简体中文、繁体中文、日文、英文，至少开启一种；默认仅日文。default_return_locale 设置未指定语言时的返回优先级，可选 zh-Hans 或 ja；timeout_seconds 默认30（5–120）；interval_ms 默认1000（100–60000）；failure_seconds 默认30（0–3600，0关闭实际获取失败的冷却）。proxy_url 写入专用，省略保留、空串清除，只返回 proxy_configured，不回显地址或认证。设置、删除和账户更新用字符串修订/If-Match，过期或缺失409。
 
-最终抓取失败及其失败缓存命中统一404 not_found，不向查询者区分上游失败原因；强制刷新可重试。已有成功数据仍可读取。语法错误400、未认证401、无权限403、容量413、忙429、内部错误500，不将这些服务管理错误当作不存在。所有业务响应 no-store，尚未实现 Cloudflare 边缘缓存或 R2 存储。
-
-本轮数据库结构不兼容既有签名，仍为开发v1；使用新的独立数据目录，拒绝旧结构，不迁移、不自动清库。没有部署、扫描媒体或调用翻译模型。
+最终抓取失败及其失败缓存命中统一404 not_found，不向查询者区分上游失败原因；强制刷新可重试。已有成功数据仍可读取。语法错误400、未认证401、无权限403、容量413、忙429、内部错误500，不将这些服务管理错误当作不存在。所有业务响应 no-store。
