@@ -4,7 +4,9 @@
 
 **Rurimecha（简称 Ruri）** 帮你整理和收听自己收藏的音声、ASMR 与视频。把存放媒体的文件夹添加进来，就能按封面找作品、选择音效版或不同格式、查看台本，并从上次的位置接着听。媒体原文件保留在原来的位置。
 
-[下载 Ruri](https://github.com/rurimecha/rurimecha/releases) · [安装与使用](docs/USAGE.md) · [功能一览](docs/FEATURES.md)
+[在线演示](https://asmr.rurimecha.top/) · [下载 Ruri](https://github.com/rurimecha/rurimecha/releases/latest) · [安装与使用](docs/USAGE.md) · [功能一览](docs/FEATURES.md)
+
+想先体验浏览和播放，可以打开[在线演示站](https://asmr.rurimecha.top/)，在登录页选择「游客体验」。游客不能修改作品，也不保存收藏和收听进度。
 
 ![Ruri 作品库，展示作品封面、标签和播放入口](docs/screenshots/library.webp)
 
