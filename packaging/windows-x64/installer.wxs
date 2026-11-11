@@ -28,10 +28,6 @@
       <Component Id="StartMenuShortcuts" Guid="{4257548F-9B8E-4DB3-8FE1-3CC8E520B2F7}">
         <Shortcut Id="RuriShortcut" Name="Rurimecha" Target="[INSTALLFOLDER]Rurimecha.exe"
                   WorkingDirectory="INSTALLFOLDER" />
-        <Shortcut Id="ResetAdminShortcut" Name="Reset Ruri administrator password"
-                  Target="[INSTALLFOLDER]reset-admin-password.cmd"
-                  Arguments="&quot;[LocalAppDataFolder]Rurimecha\data&quot;"
-                  WorkingDirectory="INSTALLFOLDER" />
         <RemoveFolder Id="RuriMenu" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="Installed"
                        Type="integer" Value="1" KeyPath="yes" />

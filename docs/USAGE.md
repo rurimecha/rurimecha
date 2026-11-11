@@ -183,7 +183,7 @@ Android 在隐私模式下准备使用扬声器时会先询问，选择「继续
 ## 重置管理员密码
 
 - **Linux** 服务安装运行 `sudo /opt/rurimecha/reset-admin-password.sh --service`。如果服务正在运行，脚本会在重置后重新启动。手动启动的安装请先停止 Ruri，在解压目录运行 `./reset-admin-password.sh`，如用了其他数据目录，将目录路径加在命令后，再重新启动 Ruri。
-- **Windows** 先关闭 Ruri，再从开始菜单选择「Reset Ruri administrator password」。完成后重新打开 Ruri。
+- **Windows** 先从托盘菜单选择「退出 Ruri」，再打开安装目录（默认是 `%LOCALAPPDATA%\Programs\Rurimecha`），双击 `reset-admin-password.cmd`。如使用了其他数据目录，在该安装目录的命令提示符中运行 `reset-admin-password.cmd "数据目录路径"`。完成后重新打开 Ruri。
 - **Docker** 在发行版 Compose 文件所在目录运行 `./reset-admin-password.sh`。如果 Ruri 正在运行，脚本会暂时停止它并在重置后重新启动。
 
 使用脚本显示的用户名和新密码登录。用户名和资料会保留，已用这个账号登录的设备需要重新登录。
