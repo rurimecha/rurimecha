@@ -15,7 +15,7 @@
 
 ### Windows 安装
 
-1. 下载 `.msi` 安装包，双击完成安装，再从开始菜单打开 **Rurimecha**。若曾安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。
+1. 下载 `.msi` 安装包并双击打开向导，点「下一步」，选择安装目录，再确认安装。默认装在 `%LOCALAPPDATA%\Programs\Rurimecha`，仅供当前 Windows 用户使用。安装完成后，从开始菜单打开 **Rurimecha**。若曾安装旧版 EXE 安装包，先在 Windows 设置中卸载旧版，再安装 MSI；媒体库资料会保留。
 2. 如提示缺少 WebView2，安装微软的 [Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) 后重新打开。
 3. 在窗口顶部点「Ruri → 打开数据文件夹」，用记事本打开 `setup-code` 文件，复制设置码，返回 Ruri 完成首次设置。
 

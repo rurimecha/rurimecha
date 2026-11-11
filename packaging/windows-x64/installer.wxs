@@ -8,6 +8,20 @@
     <MediaTemplate EmbedCab="yes" />
     <Icon Id="RuriIcon" SourceFile="$(var.PayloadDir)\Ruri.ico" />
     <Property Id="ARPPRODUCTICON" Value="RuriIcon" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="INSTALLFOLDER" Secure="yes">
+      <RegistrySearch Id="PreviousInstallFolder" Root="HKCU" Key="Software\Rurimecha"
+                      Name="InstallDir" Type="raw" Win64="yes" />
+    </Property>
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <UI>
+      <!-- Skip WiX's placeholder license agreement. -->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog"
+               Value="InstallDirDlg" Order="2">NOT Installed</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog"
+               Value="WelcomeDlg" Order="2">1</Publish>
+    </UI>
     <Property Id="LEGACY_INNO">
       <RegistrySearch Id="LegacyInnoInstall" Root="HKCU"
                       Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\Rurimecha.Desktop_is1"
@@ -32,6 +46,8 @@
         <RemoveFolder Id="RemoveProgramsDir" Directory="ProgramsDir" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="Installed"
                        Type="integer" Value="1" KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="InstallDir"
+                       Type="string" Value="[INSTALLFOLDER]" />
       </Component>
     </DirectoryRef>
     <Feature Id="Main" Title="Rurimecha" Level="1">
