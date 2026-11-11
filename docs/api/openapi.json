@@ -15026,7 +15026,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Absolute server directory; default /."
+            "description": "Absolute server directory. Empty or / lists drive roots on Windows; default / on Linux. The response parent is empty at a Windows drive root."
           },
           {
             "name": "q",
@@ -29005,7 +29005,8 @@
             "type": "string"
           },
           "parent": {
-            "type": "string"
+            "type": "string",
+            "description": "Parent directory; empty at a Windows drive root or drive list."
           },
           "total": {
             "type": "integer"

@@ -51,7 +51,7 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 ## 目录、资源和文件信息
 
-- `GET /filesystem?path=/&q=&limit=50&offset=0`：服务器目录选择器，返回 path/parent/items/total；不列文件或符号链接，不读取文件内容。仅接受绝对路径。
+- `GET /filesystem?path=/&q=&limit=50&offset=0`：服务器目录选择器，返回 path/parent/items/total；不列文件或符号链接，不读取文件内容。Linux 默认从 `/` 浏览；Windows 未指定路径或传 `/` 时返回可用盘符，`path` 和 `parent` 均为空字符串。进入盘符根目录后，`parent` 为空字符串，表示返回盘符列表。普通目录仅接受服务器上的绝对路径。
 - 节点查询支持 sort=name/modified/size/duration 和 sort_order=asc/desc，默认名称自然升序，修改时间/大小未指定方向时默认降序；目录始终优先，未知资料后置。指定 parent_id 时 q 搜索名称，其他查询搜索路径及有效媒体标题。完整筛选及计数先于分页，见 [目录查询契约](scanning.md)。
 - `GET /works/{work}/resources?parent_id=&view=media&limit=50&offset=0`：仅投影当前作品的文件和真实祖先目录；手工组合从真实来源根进入。默认从作品根列子项，无作品根时列来源入口。view 为 media/all/audio/video/image/text，默认保留目录与音视频。条目同时返回原名与节点 alias；返回 items/total/parent_id/root_node_id。
 - `GET /nodes/{node}/file-information?force=false`：独立、按需读取文本预览或图片/PDF 属性。文本最多读取 2 MiB、预览 64 KiB；UTF-8/UTF-16，GB18030 回退标注推测。ExifTool 通过已打开描述符接收文件，输出和时间有界；失败保留说明。缓存校验实际文件属性、内容失效代次和当前工具配置，不更改扫描或归属。当前工具执行平台为 Linux，其余平台明确不可用。
