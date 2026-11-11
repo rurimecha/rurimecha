@@ -20,7 +20,7 @@
 | --- | --- | --- |
 | Windows 64 位电脑 | 下载 MSI，安装后从开始菜单打开 Rurimecha | [Windows 安装](docs/USAGE.md#windows-安装) |
 | Linux x86-64 电脑或 NAS | 解压服务器包，运行 `sudo ./install.sh` | [Linux 安装](docs/USAGE.md#linux-安装) |
-| 已安装 Docker 的 x86-64 设备 | 下载 Compose 包，填写媒体路径，运行 `docker compose up -d` | [Docker 安装与端口设置](docs/USAGE.md#docker-安装) |
+| 已安装 Docker 的 x86-64 设备 | 按手册下载 Compose 文件，填写媒体路径，运行 `docker compose up -d` | [Docker 安装与端口设置](docs/USAGE.md#docker-安装) |
 | Android 手机 | 安装 APK，填写服务器地址并登录 | [在 Android 上收听](docs/USAGE.md#在-android-上收听) |
 
 Docker 示例初始只允许安装它的电脑访问。要让手机、平板或其他电脑连接，需要同时设置端口映射和 Ruri 的局域网范围，具体步骤见上表。手机里的 `127.0.0.1` 指手机自己，不能用来连接 NAS 或电脑。
