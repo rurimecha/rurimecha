@@ -32,6 +32,7 @@
     <CustomAction Id="RemoveUserData" BinaryKey="RuriInstallerActions" DllEntry="RemoveUserData"
                   Execute="deferred" Impersonate="yes" />
     <InstallUISequence>
+      <Show Dialog="PrepareDlg" Before="AppSearch">0</Show>
       <Custom Action="ReadNetwork" After="AppSearch">NOT (REMOVE~="ALL")</Custom>
       <Show Dialog="RuriRemoveDlg" Before="ProgressDlg">Installed AND REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE</Show>
     </InstallUISequence>
