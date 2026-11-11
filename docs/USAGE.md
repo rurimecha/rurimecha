@@ -51,9 +51,9 @@ sudo ./install.sh --listen-ip 192.168.1.20 --listen-port 18080
 
 ### Docker 安装
 
-以下以已安装 Docker 和 Docker Compose 的 Linux 电脑或 NAS 为例，使用发行版提供的 `compose.yaml`。NAS 的容器管理界面也可以填写相同的镜像、目录映射和端口。镜像需要 x86-64 设备，ARM 设备不能直接使用此包。
+以下以已安装 Docker 和 Docker Compose 的 Linux 电脑或 NAS 为例，使用公开仓库提供的 `compose.yaml`。NAS 的容器管理界面也可以填写相同的镜像、目录映射和端口。镜像需要 x86-64 设备，ARM 设备不能直接使用此包。
 
-**1. 准备文件和媒体目录。** 下载并解压 Compose 包。在 `compose.yaml` 旁新建一个名为 `.env` 的文本文件，填写：
+**1. 准备文件和媒体目录。** 下载 [compose.yaml](https://raw.githubusercontent.com/rurimecha/rurimecha/main/packaging/docker/compose.yaml) 和 [reset-admin-password.sh](https://raw.githubusercontent.com/rurimecha/rurimecha/main/packaging/docker/reset-admin-password.sh)，放在同一文件夹。在 `compose.yaml` 旁新建一个名为 `.env` 的文本文件，填写：
 
 ```dotenv
 RURI_IMAGE=docker.io/rurimecha/rurimecha:<版本号>
