@@ -322,13 +322,13 @@ Docker 还需增加 HTTPS 的端口映射，例如在原有 HTTP 映射下面添
 
 这部分适合已有 Nginx、域名和证书的用户。只想在家里用手机连接时，可以直接使用上一节的局域网地址。
 
-Nginx 可以提供 HTTPS 入口，再通过 HTTP 连接 Ruri；不需要把同一份证书再上传给 Ruri。在「网络设置 → 可信代理」填写 Nginx 连接 Ruri 时使用的 IP 后，Ruri 会按访客 IP 判断局域网及账号远程访问权限，并为 HTTPS 登录设置安全 Cookie。
+Nginx 可以提供 HTTPS 入口，再通过 HTTP 连接 Ruri；不需要把同一份证书再上传给 Ruri。同机 Nginx 按下面的示例连接时，无需填写「可信代理」，Ruri 使用 Docker 桥接部署时也一样。通过域名登录后，Ruri 按访客 IP 判断局域网及账号远程访问权限。
 
 | 连接方式 | 设置方法 |
 | --- | --- |
 | HTTPS 入口 → HTTP Ruri | 使用下面的示例，证书只配置在 Nginx 中 |
-| HTTP 入口 → HTTP Ruri | 同样填写可信代理；仅用于可信网络 |
-| HTTPS 入口 → HTTPS Ruri | 同样填写可信代理；另配置上游证书校验 |
+| HTTP 入口 → HTTP Ruri | 同机连接无需填写可信代理；仅用于可信网络 |
+| HTTPS 入口 → HTTPS Ruri | 同机连接无需填写可信代理；另配置上游证书校验 |
 | `https://域名/ruri/` 子目录 | 不支持，请使用独立域名的根路径，例如 `https://ruri.example.com/` |
 
 ### 示例：同机 Nginx 提供 HTTPS
@@ -336,7 +336,7 @@ Nginx 可以提供 HTTPS 入口，再通过 HTTP 连接 Ruri；不需要把同�
 以下假设 Nginx 和 Ruri 直接运行在同一台 Linux 电脑上，域名为 `ruri.example.com`，家庭网段为 `192.168.1.0/24`。
 
 1. 让域名解析到 Nginx 所在设备，准备与域名匹配、访问设备信任的证书。示例路径为 `/etc/nginx/certs/ruri-fullchain.pem` 和 `/etc/nginx/certs/ruri-key.pem`。
-2. 直接打开 Ruri 的「网络设置」，在「可信代理」填写 `127.0.0.1`，在「局域网范围」保留原有网段并加入 `192.168.1.0/24`。保存。只通过同机 Nginx 访问时，可让 Ruri 仅监听 `127.0.0.1`，HTTP 端口保留 `8080`。
+2. 同机 Nginx 无需填写「可信代理」。只通过同机 Nginx 访问时，可在 Ruri 的「网络设置」让 Ruri 仅监听 `127.0.0.1`，HTTP 端口保留 `8080`。若需调整局域网访问范围，在「局域网范围」保留原有网段并加入家庭网段，例如 `192.168.1.0/24`，然后保存。
 3. 在 Nginx 的配置目录新建 `ruri.conf`，例如 Debian/Ubuntu 的 `/etc/nginx/conf.d/ruri.conf`，填写：
 
 ```nginx
@@ -393,7 +393,7 @@ server {
 
 ### Docker 与 HTTPS 上游
 
-- **只有 Ruri 在 Docker 中**：保留 `127.0.0.1:8080:8080` 的端口映射，Nginx 仍连接 `http://127.0.0.1:8080`。Ruri 看到的连接可能来自 Docker 网桥网关；在 Compose 目录运行 `docker inspect "$(docker compose ps -q core)" --format '{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}'` 查看网关地址，将对应地址填入「可信代理」。容器重建后若网关变化，需重新核对。Ruri 的「局域网范围」填写家庭网段。
+- **只有 Ruri 在 Docker 中**：使用默认桥接网络并保留 `127.0.0.1:8080:8080` 的端口映射，宿主机 Nginx 连接 `http://127.0.0.1:8080`，无需填写「可信代理」，重建容器后也无需手动更新代理地址。Ruri 的「局域网范围」填写家庭网段。
 - **Nginx 和 Ruri 都在 Docker 中**：加入同一个专用 Docker 网络，上游改为 `http://core:8080`；`127.0.0.1` 指 Nginx 容器自身。可信代理填写 Nginx 容器的固定 IP，或该专用代理网络的网段；不要信任其他用户容器共用的网络。Ruri 无须向主机发布端口，访问设备使用 Nginx 的地址。
 - **需要 HTTPS 上游**：先在 Ruri 启用 HTTPS，上游改为 `https://127.0.0.1:8443`（容器间为 `https://core:8443`），另加以下设置。`ruri.example.com` 必须包含在 Ruri 上游证书中；家庭自建证书应改填其根证书文件，不关闭校验。
 
@@ -409,8 +409,8 @@ server {
 
 | 现象 | 先检查什么 |
 | --- | --- |
-| 登录或保存返回 403 | 可信代理是否为 Ruri 实际接收连接的代理 IP；外部域名、端口与协议是否传对；访客是否满足局域网及账号访问权限 |
-| 反复跳转或跳到 `8443` | HTTPS 入口是否传递了 `X-Forwarded-Proto`，代理是否已加入可信名单；只由 Nginx 提供 HTTPS 时，无需开启 Ruri 的强制跳转 |
+| 登录或保存返回 403 | 访客是否满足局域网及账号访问权限；是否按示例填写代理配置；其他设备或容器中的代理是否填写了可信地址 |
+| 反复跳转或跳到 `8443` | 是否按示例填写代理配置；其他设备或容器中的代理是否填写了可信地址；只由 Nginx 提供 HTTPS 时，无需开启 Ruri 的强制跳转 |
 | 502 | Ruri 是否运行、端口或容器地址是否正确；使用 HTTPS 上游时再检查证书名称与信任根 |
 | 页面能开，播放卡住或不能拖动 | 保留 `Range`，关闭媒体缓存和缓冲，并确认直连 Ruri 能播放 |
 | 上传迁移包报 413 | 核对 `client_max_body_size`；Ruri 也有包大小上限 |

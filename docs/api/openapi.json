@@ -31382,7 +31382,7 @@
             },
             "maxItems": 128,
             "default": [],
-            "description": "Trusted proxy IP addresses or CIDRs. Empty ignores X-Forwarded-For/Proto/Host. Whole-address-space ranges are rejected."
+            "description": "Additional trusted proxy IP addresses or CIDRs. Direct loopback peers and detected Linux Docker bridge default gateways are trusted automatically for one hop, even when empty. Further hops require this explicit list. Automatic addresses are not persisted or returned here. Whole-address-space ranges are rejected."
           }
         },
         "required": [
@@ -31516,7 +31516,7 @@
             },
             "maxItems": 128,
             "default": [],
-            "description": "Trusted proxy IP addresses or CIDRs. Empty ignores X-Forwarded-For/Proto/Host. Whole-address-space ranges are rejected."
+            "description": "Additional trusted proxy IP addresses or CIDRs. Direct loopback peers and detected Linux Docker bridge default gateways are trusted automatically for one hop, even when empty. Further hops require this explicit list. Automatic addresses are not persisted or returned here. Whole-address-space ranges are rejected."
           }
         },
         "required": [
