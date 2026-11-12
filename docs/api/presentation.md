@@ -35,17 +35,17 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 ## 归档与自定义收藏集
 
-收藏集是有序的作品/单曲组合，与设备当前播放队列独立。`GET /collections` 返回 `items`；每项包含 id、revision（字符串）、name、alias、origin、items、truncated、updated_at。`origin=archive` 为归档生成，带 source_id、node_id、source_name、path；其 alias 来自目录节点，仅用于显示。`origin=custom` 为自定义，alias 为空。名称允许相同，身份不由名称决定；客户端按归档/自定义区分并为归档项显示来源目录。
+收藏集保存整部作品引用和单独收录的音视频引用，用于资料浏览，不保存曲目编排。`GET /collections` 返回 `items`；每项包含 id、revision（字符串）、name、alias、origin、items、truncated、updated_at。`origin=archive` 为智能发现，带 source_id、node_id、source_name、path，alias 为目录显示别名；`origin=custom` 为账号私有收藏集。名称可相同，身份不由名称决定。
 
-`POST /collections` 接收 `{name,items:[...]}` 创建自定义收藏集。条目为 `{id?,kind:"work",work_id,group_id?,format?,node_ids?}` 或 `{id?,kind:"node",node_id}`。条目 id 是一次出现的独立身份，新条目省略时服务端生成，重排保留；作品条目按 work_id、直接单曲条目按 node_id 各只保留第一次出现。同一文件仍可同时出现在作品条目和直接单曲条目中。创建、完整替换、追加及读取自定义收藏集均采用此规则；归档收藏集不受影响。work 的 node_ids 可保存已设置过的曲目顺序及删减范围；未提供时，播放时使用作品当前默认播放组及默认视角，group_id/format 可覆盖。node_ids 中的节点须属于该作品。每集最多 5000 项，作品快照节点总数也最多 5000。
+`POST /collections` 接收 `{name,items:[...]}`。成员为 `{id?,kind:"work",work_id}` 或 `{id?,kind:"node",node_id}`，作品和直接资源分别按身份去重。所有直接资源在客户端的内置「拾音」虚拟目录中浏览；不创建索引目录或作品，也不改写原作品归属。作品成员是完整真实作品引用，资料和内容跟随当前作品。存储接口拒绝 node_ids、group_id、format、queue_group；这些仍可用于独立的播放选择器 entries。每集最多 5000 个成员。
 
-`GET /collections/{collection}` 返回 ETag，并为 items 增加 name、alias、available 及可选 work_revision、cover_ref；文件条目的 alias 来自节点，作品条目为空。作品不会在详情请求中展开。`PUT` 为完整替换名称和顺序；`POST /collections/{collection}/items` 原子追加条目；`DELETE` 删除自定义收藏集。三种写入都要求当前 If-Match，过期返回 412。归档收藏集写入返回 409/locked，可读取后另存为自定义。新引用须有效，已保存的不可用引用可以保留、排序或移除。
+`GET /collections/{collection}` 返回 ETag，成员增加 name、alias、available 及可选 work_revision、cover_ref。已知作品附加 `work`，结构与作品库的 WorkDisplay 相同，使用相同账号资料语言策略。详情不展开作品曲目。客户端按作品库的卡片/列表展示作品，「拾音」采用 ASMR 作品式封面卡片并打开文件列表。`PUT` 完整替换名称和成员；`POST /collections/{collection}/items` 原子追加；`DELETE` 删除账号自己的收藏集。写入要求 If-Match，过期为 412。新引用须有效，已保存失效引用允许保留或移除。成员数组的顺序只用于稳定展示，不承担播放顺序承诺。
 
-`POST /playback/resolve` 使用 `{collection_id}` 播放完整收藏集，或使用 `{entries:[...]}` 展开/播放指定条目。结果保留 selection_id、selection_kind、selection_work_id、selection_title、selection_group_id、selection_format，客户端为每次加入队列生成独立分组身份；作品作为可展开目录、单曲作为文件展示。最终展开最多 5000 首，超限请求失败，不截断当前队列。收藏集编辑、归档更新不会改写已生成的设备队列快照。
+`POST /collections/{collection}/copy` 接收 `{name}`，要求源收藏集当前 If-Match，原子另存为当前账号的自定义收藏集；返回 201、新身份和 ETag。保存当时的成员范围，保留不可用引用及 truncated 提示，后续智能发现更新不改变副本。引用作品的资料和内容仍跟随原作品。归档收藏集禁止直接修改/删除，可以使用此接口另存。其他账号的自定义收藏集不可读取、复制或修改。
 
-目录 `collection=true` 会在完整归档发布时同步生成对应的归档收藏集：包含后代独立作品，以及未被这些子作品覆盖的音视频文件，按自然顺序排列。平铺音频合集直接生成单曲条目。排除/忽略子树不纳入；不完整归档保留先前收藏集，完整结果撤销不再满足条件的归档收藏集。归档项最多 5000，省略部分以 truncated=true 明示。此投影不改变作品根、编号、元数据或文件归属。移除来源会删除对应归档收藏集，并只清理自定义收藏集中属于该来源的条目。
+目录 `collection=true` 在完整归档发布时更新对应智能发现合集：后代作品作为真实作品引用，其余音视频作为「拾音」文件；排除/忽略子树不纳入。不完整输入保留上一份发现结果，完整结果撤回失效合集。最多收录 5000 项，截取时 truncated=true，另存也只保存这些已列出的成员。移除来源会删除其智能发现合集，并只清理自定义收藏集中属于该来源的引用。
 
-不再支持智能收藏集、filter/work_ids 收藏集正文或 works 查询的 collection 参数。作品库仍有独立的搜索和筛选。
+显式 `POST /playback/resolve` 的 collection_id 选择器仍能将当前成员展开为临时播放结果（最多 5000 首，超限失败），但收藏集不保存该结果。用户界面通过作品或「拾音」文件发起播放，队列编排使用播放列表。智能过滤收藏集正文、filter/work_ids 正文及 works 的 collection 查询参数继续拒绝。
 
 `GET /works` 与分面支持 sort=newest/title/code/relevance、tags（全部满足）、exclude_tags（任意命中即排除）、kind=audio/video/image/text、has_subtitle、source_id。分面 credit_roles 与 tag_categories 含 value/count 和 role/category，最多 500 组，超限标记 truncated。
 
