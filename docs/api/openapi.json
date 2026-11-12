@@ -17022,7 +17022,7 @@
         "tags": [
           "catalog"
         ],
-        "summary": "Browse tags, voice actors or circles with distinct active-work counts",
+        "summary": "Browse tags, circles, voice actors or illustrators",
         "responses": {
           "200": {
             "description": "Success",
@@ -17066,7 +17066,8 @@
               "enum": [
                 "tag",
                 "voice_actor",
-                "circle"
+                "circle",
+                "illustrator"
               ]
             }
           },
@@ -21397,6 +21398,177 @@
             "description": "Current resource ETag from GET."
           }
         ]
+      }
+    },
+    "/creator-discovery": {
+      "get": {
+        "operationId": "discoverCreator",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read one fresh public DLsite creator catalog/search page",
+        "description": "Authenticated read-only discovery. Supports members and guests. Uses metadata proxy/timeout settings, without applying metadata or importing works/media. Names may match other people or roles. No persistent catalog or automatic refresh. work_id optionally resolves a matching DLsite circle reference. RJ works only, from the selected doujin floor. A failed/changed/challenge page returns 502; it does not mean an empty catalog. Pagination is provider dependent.",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "circle",
+                "voice_actor",
+                "illustrator"
+              ]
+            },
+            "required": true
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "required": true
+          },
+          {
+            "name": "site",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "maniax",
+                "home",
+                "girls"
+              ],
+              "default": "maniax"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1
+            }
+          },
+          {
+            "name": "work_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fresh page; follow has_next to request another page. No guaranteed complete catalog.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatorDiscoveryPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/creator-discovery/{code}/cover": {
+      "get": {
+        "operationId": "creatorDiscoveryCover",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read a DLsite work thumbnail",
+        "description": "Authenticated read, including members and guests. Only a validated RJ code determines the fixed DLsite image address. No arbitrary URL input. Preserves supported image bytes; no persistent cache.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^RJ(?:[0-9]{6}|[0-9]{8})$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Work thumbnail; private cache for 300 seconds.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
       }
     }
   },
@@ -29934,7 +30106,9 @@
           "name",
           "count",
           "entity_id",
-          "aliases"
+          "aliases",
+          "work_id",
+          "cover_work_id"
         ],
         "properties": {
           "name": {
@@ -29956,6 +30130,14 @@
               "type": "string"
             },
             "description": "Distinct explicit alias names except the display name; empty for raw names."
+          },
+          "work_id": {
+            "type": "string",
+            "description": "A newest associated active work, for opening or resolving a source circle identifier."
+          },
+          "cover_work_id": {
+            "type": "string",
+            "description": "Newest associated active work with a cover, or empty. Only works matching this entry and role are eligible."
           }
         }
       },
@@ -32901,6 +33083,53 @@
             "description": "Nonempty, at most 240 UTF-8 bytes. Names are not identities and may repeat."
           }
         }
+      },
+      "CreatorDiscoveryWork": {
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "url",
+          "cover_url"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "cover_url": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatorDiscoveryPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "page",
+          "has_next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatorDiscoveryWork"
+            }
+          },
+          "page": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
       }
     }
   },

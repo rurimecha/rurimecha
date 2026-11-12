@@ -377,3 +377,8 @@ Administrators can enable Guest experience in User management. Guests enter from
 Use the language button on the connection/login page or account menu to select 简体中文, 繁體中文, 日本語, English, or Follow system. Signed-in choices are also in Appearance & browsing preferences and saved with your account for other devices. Signed-out choices stay on this device and return after signing out. Offline local playback uses the most recently used language.
 
 Follow system uses a supported device language, choosing Traditional Chinese for Traditional Chinese regions and Simplified Chinese for other Chinese regions, or English if none match. Switching the interface does not rename works, files, or collections, or change metadata, audio, or subtitle languages; choose those independently in their menus. Installers currently use Simplified Chinese. Management/CLI tools primarily use English; historical release notes are Chinese and English.
+
+
+## Circles, voice actors and illustrators
+
+Search a name in Circles, Voice actors or Illustrators, then open an entry to browse library works. Entry images use associated work covers. Select a work to open its details. Under Works from, choose a DLsite floor to discover more works and open their DLsite pages. Discover works also accepts names absent from your library; configured compatible sources provide another search option. Name searches may miss works or match another person; illustrator searches in compatible sources depend on their indexed credits. Refresh reads from page one again. Failed refreshes retain the current results; Retry tries again. Discovery does not add works or download media automatically.
