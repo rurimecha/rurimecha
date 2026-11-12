@@ -28908,6 +28908,18 @@
               "type": "string"
             },
             "description": "Ordered concrete product-edition languages. Empty order prefers an explicitly declared original."
+          },
+          "ui_locale": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "default": "auto",
+            "description": "Interface language. auto follows each client device. Independent from metadata, audio and subtitle language."
           }
         },
         "required": [
@@ -28919,7 +28931,8 @@
           "directory_browse",
           "resource_browse",
           "version_mode",
-          "edition_language_order"
+          "edition_language_order",
+          "ui_locale"
         ],
         "description": "Personal preferences scoped to the current account. directory_browse and resource_browse are required objects in the current format; PUT fully replaces the object with the current ETag."
       },

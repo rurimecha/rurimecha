@@ -1429,6 +1429,17 @@
                   "message": {
                     "type": "string",
                     "maxLength": 1000
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "zh-Hans",
+                      "zh-Hant",
+                      "ja",
+                      "en"
+                    ],
+                    "default": "zh-Hans",
+                    "description": "Language used for license and lookup emails."
                   }
                 }
               }
@@ -1486,6 +1497,17 @@
                     "type": "string",
                     "format": "email",
                     "maxLength": 254
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "zh-Hans",
+                      "zh-Hant",
+                      "ja",
+                      "en"
+                    ],
+                    "default": "zh-Hans",
+                    "description": "Language used for license and lookup emails."
                   }
                 }
               }
@@ -2079,7 +2101,8 @@
           "message",
           "status",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "ui_locale"
         ],
         "properties": {
           "id": {
@@ -2114,6 +2137,16 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "ui_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "description": "Language selected when the application was submitted."
           }
         }
       },
