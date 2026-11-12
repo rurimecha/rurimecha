@@ -58,6 +58,8 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 ## 图片与播放背景
 
+`GET/HEAD /works/{work}/cover` 一次返回优先封面：先取本地作品图片，读取失败或没有本地图片时取所选资料版本中已下载的商品封面；无封面或作品不存在时返回 404，不触发外网下载。接受 `size=thumbnail`（最长边 512 像素 JPEG，省略取原图）及 `metadata_locale`（省略遵循账户资料显示偏好）；保留底层图片的认证、根限制、Range、ETag 和私有缓存规则。明确的 node 封面引用仍可直接读取节点图片/内嵌封面。
+
 `GET /works/{work}/artwork` 返回本地图片；`GET /nodes/{node}/artwork` 返回当前音视频的播放图片。响应 items 的 path 是相对 `/api/v1/` 的认证读取地址。专属图片要求同来源、同直接父目录，匹配完整媒体文件名或不含扩展名的前缀，后续必须是明确分隔符；01 不匹配 010。专属图片优先，否则回退作品图片、缓存商品图片或附近图片，最后尝试已有观察中的内嵌封面；不抽取视频帧。
 
 `GET /nodes/{node}/image-roles` 返回 ETag 与 roles；`PUT` 带 ETag 和 `{roles:[cover,track,other],reset:false}`。分类可重叠；reset 恢复自动分类。人工分类独立存储，重扫不删除。封面引用继续使用现有作品 cover_ref 手工修改接口。

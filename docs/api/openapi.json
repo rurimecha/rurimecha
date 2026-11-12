@@ -21724,6 +21724,292 @@
           }
         }
       }
+    },
+    "/works/{work}/cover": {
+      "get": {
+        "operationId": "getWorkCover",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read the preferred local or cached work cover",
+        "description": "Authenticated read. Resolves the first local work artwork, then the first downloaded cover in the selected metadata view, without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Existing image authorization, Range, ETag and private cache rules apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "thumbnail requests a JPEG scaled to fit 512 pixels; omitted returns the original image.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional exact metadata language; omitted follows account display preferences."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "206": {
+            "description": "Partial image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "416": {
+            "description": "Range not satisfiable"
+          }
+        }
+      },
+      "head": {
+        "operationId": "headWorkCover",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read the preferred local or cached work cover",
+        "description": "Authenticated read. Resolves the first local work artwork, then the first downloaded cover in the selected metadata view, without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Existing image authorization, Range, ETag and private cache rules apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "thumbnail requests a JPEG scaled to fit 512 pixels; omitted returns the original image.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional exact metadata language; omitted follows account display preferences."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image headers only"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "206": {
+            "description": "Partial headers only"
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "416": {
+            "description": "Range not satisfiable"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -30265,7 +30551,8 @@
           "entity_id",
           "aliases",
           "work_id",
-          "cover_work_id"
+          "cover_work_id",
+          "cover_work"
         ],
         "properties": {
           "name": {
@@ -30295,6 +30582,33 @@
           "cover_work_id": {
             "type": "string",
             "description": "Newest associated active work with a cover, or empty. Only works matching this entry and role are eligible."
+          },
+          "cover_work": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Selected cover work from the same snapshot. Pass this object to the work cover loader; null when cover_work_id is empty. Revision and metadata_locale distinguish cache entries.",
+            "required": [
+              "id",
+              "revision",
+              "metadata_locale",
+              "cover_ref"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "revision": {
+                "type": "string"
+              },
+              "metadata_locale": {
+                "type": "string"
+              },
+              "cover_ref": {
+                "$ref": "#/components/schemas/CoverRef"
+              }
+            }
           }
         }
       },
