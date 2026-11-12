@@ -22010,6 +22010,326 @@
           }
         }
       }
+    },
+    "/account/works/{work}/rating": {
+      "get": {
+        "operationId": "workRatingGet",
+        "summary": "workRatingGet",
+        "tags": [
+          "playback"
+        ],
+        "description": "Private whole-work rating, independent of metadata. Active work required. Missing rating has stars=0, revision=1. Guest accounts cannot access.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkRating"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "workRatingPut",
+        "summary": "workRatingPut",
+        "tags": [
+          "playback"
+        ],
+        "description": "Replace the current account rating. Integer 1–5; zero cancels rating and retains a new revision. 412 preserves newer edits. Does not rate files, clips or collections.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkRating"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong rating-<work>:<revision> ETag from GET."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkRatingInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/listening/report": {
+      "post": {
+        "operationId": "reportListening",
+        "summary": "reportListening",
+        "tags": [
+          "playback"
+        ],
+        "description": "Add an online playback interval for the current account. Additive, best effort, no retry after an ambiguous result. Server resolves media ownership; clips count toward their original work. Unarchived media count in daily totals. The first UTC offset becomes the account reporting offset. Guests are rejected.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "204": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListeningReport"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/listening/statistics": {
+      "get": {
+        "operationId": "listeningStats",
+        "summary": "listeningStats",
+        "tags": [
+          "playback"
+        ],
+        "description": "Private daily totals and top ten current works, voices, circles and tags in the selected range. Work count requires at least 60 seconds within the range. Categories overlap. Removed works leave daily totals intact. No statistics deletion endpoint.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListeningStatistics"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "30d",
+                "12m",
+                "year",
+                "all"
+              ],
+              "default": "30d"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1970
+            },
+            "description": "For range=year; defaults to the current reporting year."
+          }
+        ]
+      }
+    },
+    "/listening/recommendations": {
+      "get": {
+        "operationId": "listeningRecommendations",
+        "summary": "listeningRecommendations",
+        "tags": [
+          "playback"
+        ],
+        "description": "Private rule-based shelves with up to eight works each. Current available audio only; deduplicated by declared product family. Explicit ratings take priority over bounded listening feedback. Featureless ratings never affect preference. Current account metadata and playback-version choices apply. Does not query remote catalogs or download media.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListeningRecommendations"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "description": "Stable reshuffle seed."
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -32020,6 +32340,12 @@
               }
             ],
             "nullable": true
+          },
+          "user_rating": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5,
+            "description": "Current account whole-work rating; zero means unrated. Independent of provider ratings."
           }
         },
         "required": [
@@ -33613,6 +33939,239 @@
         },
         "required": [
           "diagnostics_enabled"
+        ],
+        "additionalProperties": false
+      },
+      "WorkRating": {
+        "type": "object",
+        "properties": {
+          "work_id": {
+            "type": "string"
+          },
+          "stars": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_id",
+          "stars",
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "WorkRatingInput": {
+        "type": "object",
+        "properties": {
+          "stars": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          }
+        },
+        "required": [
+          "stars"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningReport": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120
+          },
+          "utc_offset_minutes": {
+            "type": "integer",
+            "minimum": -840,
+            "maximum": 840
+          }
+        },
+        "required": [
+          "node_id",
+          "seconds",
+          "utc_offset_minutes"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "day",
+          "seconds"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningRank": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "seconds"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningStatistics": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "active_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "work_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningDay"
+            }
+          },
+          "works": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          },
+          "voices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          },
+          "circles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "seconds",
+          "active_days",
+          "work_count",
+          "days",
+          "works",
+          "voices",
+          "circles",
+          "tags"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningRecommendation": {
+        "type": "object",
+        "properties": {
+          "work": {
+            "$ref": "#/components/schemas/WorkDisplay"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "voice_actor",
+              "circle",
+              "tag",
+              "again",
+              "explore",
+              "random"
+            ]
+          },
+          "feature": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "work",
+          "reason",
+          "feature"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningShelf": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "like",
+              "explore",
+              "again"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRecommendation"
+            }
+          }
+        },
+        "required": [
+          "kind",
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningRecommendations": {
+        "type": "object",
+        "properties": {
+          "shelves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningShelf"
+            }
+          }
+        },
+        "required": [
+          "shelves"
         ],
         "additionalProperties": false
       }

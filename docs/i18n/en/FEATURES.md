@@ -56,3 +56,10 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Browsers cannot read a computer's real hostname. Session names help identify sign-ins but do not prove device identity.
 
 [Installation and user guide](USAGE.md)
+
+
+## Listening statistics and recommendations
+
+- Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. Playback from the server library is recorded; the phone’s local library is excluded.
+- In work details, select My rating and choose one to five stars. Open it again to change or remove your rating. Your account rates the whole archived work across its formats and playback groups. Cards show your rating separately from the public rating.
+- For you offers You might like, Try something different and Listen again. Open a work or play it directly, and use Refresh picks to change the selection. Deleting a resume record keeps your statistics and ratings.
