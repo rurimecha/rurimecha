@@ -23991,7 +23991,8 @@
           },
           "index_revision": {
             "type": "string",
-            "pattern": "^[0-9]+$"
+            "pattern": "^[0-9]+$",
+            "description": "Directory observation inputs or coverage revision. An unchanged rescan refreshes its checkpoint without advancing this revision."
           },
           "config_revision": {
             "type": "string",
@@ -24435,7 +24436,8 @@
             "minimum": 0
           },
           "index_revision": {
-            "type": "string"
+            "type": "string",
+            "description": "Directory observation inputs or coverage revision. An unchanged rescan refreshes its checkpoint without advancing this revision."
           },
           "analysis": {
             "$ref": "#/components/schemas/AnalysisStats"

@@ -382,3 +382,8 @@ Follow system uses a supported device language, choosing Traditional Chinese for
 ## Circles, voice actors and illustrators
 
 Search a name in Circles, Voice actors or Illustrators, then open an entry to browse library works. Entry images use associated work covers. Select a work to open its details. Under Works from, choose a DLsite floor to discover more works and open their DLsite pages. Discover works also accepts names absent from your library; configured compatible sources provide another search option. Name searches may miss works or match another person; illustrator searches in compatible sources depend on their indexed credits. Refresh reads from page one again. Failed refreshes retain the current results; Retry tries again. Discovery does not add works or download media automatically.
+
+
+## Automatic checks without changes
+
+A periodic check that finds no changes does not repeat organization, metadata fetching or media information extraction. Existing pending work and scheduled retries continue.
