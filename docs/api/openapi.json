@@ -4476,7 +4476,7 @@
           "logs"
         ],
         "summary": "queryLogs",
-        "description": "Newest first over latest 5000 retained entries. before is an exclusive string cursor. Successful log queries do not log themselves.",
+        "description": "Administrator only. Newest first over latest 5000 retained entries. before is exclusive. Successful log queries and health checks do not log themselves. Normal progress and successful reads are recorded only when detailed diagnostics are enabled.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4538,11 +4538,14 @@
             "schema": {
               "type": "string",
               "enum": [
+                "attention",
+                "debug",
                 "info",
                 "warn",
                 "error"
               ]
-            }
+            },
+            "description": "Exact level, or attention for warn and error together. Omit for all retained records."
           },
           {
             "name": "q",
@@ -21570,6 +21573,157 @@
           }
         }
       }
+    },
+    "/logs/settings": {
+      "get": {
+        "operationId": "getLogSettings",
+        "tags": [
+          "logs"
+        ],
+        "summary": "Get log recording settings",
+        "description": "Administrator only. Persisted server-wide preference, initially disabled. Changes apply immediately. ETag identifies the current settings revision.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setLogSettings",
+        "tags": [
+          "logs"
+        ],
+        "summary": "Update log recording settings",
+        "description": "Administrator only. Persisted server-wide preference, initially disabled. Changes apply immediately. Requires If-Match from GET /logs/settings; stale updates return 412. A failed save leaves the active setting unchanged.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current resource ETag from GET."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogSettings"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -23246,6 +23400,7 @@
           "level": {
             "type": "string",
             "enum": [
+              "debug",
               "info",
               "warn",
               "error"
@@ -33131,6 +33286,20 @@
             "type": "boolean"
           }
         },
+        "additionalProperties": false
+      },
+      "LogSettings": {
+        "type": "object",
+        "properties": {
+          "diagnostics_enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Record detailed diagnostics immediately and across restarts. Disabling stops new diagnostic records without deleting retained entries."
+          }
+        },
+        "required": [
+          "diagnostics_enabled"
+        ],
         "additionalProperties": false
       }
     }

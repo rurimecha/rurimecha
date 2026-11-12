@@ -387,3 +387,9 @@ Search a name in Circles, Voice actors or Illustrators, then open an entry to br
 ## Automatic checks without changes
 
 A periodic check that finds no changes does not repeat organization, metadata fetching or media information extraction. Existing pending work and scheduled retries continue.
+
+## Problems and detailed diagnostics
+
+Administrators can open System logs in Settings. Needs attention shows problems first; choose All records for operation results and expand details when reporting an issue. Task details contain progress, failed items, and retry options.
+
+To investigate a problem, open Detailed diagnostics in Settings, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.

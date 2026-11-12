@@ -45,6 +45,9 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Export system data, all work details, or one work; restore with new media paths. Missing media can retain details until files return and are scanned again.
 - Enable/disable guests for password-free demo browsing/playback. Guests cannot save personal content; disabling ends guest access.
 
+- Administrators can review problems and operation results, and enable detailed diagnostics in Settings while investigating an issue.
+
+
 ## Scope and limits
 
 - Server packages support Linux/Windows x64 and Docker Linux x86-64; no ARM package is provided.
