@@ -21296,6 +21296,108 @@
           }
         }
       }
+    },
+    "/collections/{collection}/copy": {
+      "post": {
+        "operationId": "copyCollection",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Save the currently visible membership as a private collection",
+        "description": "Requires the source ETag in If-Match. Atomically copies membership into a new private collection, preserving unavailable references and truncation notice. Later discovery changes do not modify the saved collection. Work metadata continues to follow the referenced work.",
+        "responses": {
+          "201": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Present for independently created collection resources."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionCopyInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "collection",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Opaque identity, retained as text."
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current resource ETag from GET."
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -26542,7 +26644,7 @@
           "name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 100
+            "maxLength": 300
           },
           "revision": {
             "type": "string",
@@ -26571,6 +26673,13 @@
               "$ref": "#/components/schemas/NullableQueueGroup"
             },
             "description": "Parallel to node_ids: each element labels that exact occurrence or is null. Omitted/empty input means no groups. Nonempty array must match node_ids length. IDs must be contiguous, descriptors identical within each group. Replace both arrays atomically."
+          },
+          "migration_notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Read-only notes about collections converted into this playlist; empty for ordinary lists."
           }
         },
         "required": [
@@ -26580,7 +26689,8 @@
           "node_ids",
           "created_at",
           "updated_at",
-          "groups"
+          "groups",
+          "migration_notes"
         ],
         "additionalProperties": false
       },
@@ -26590,7 +26700,7 @@
           "name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 100
+            "maxLength": 300
           },
           "node_ids": {
             "type": "array",
@@ -26738,7 +26848,7 @@
           "name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 100
+            "maxLength": 300
           },
           "revision": {
             "type": "string",
@@ -26772,6 +26882,13 @@
               "$ref": "#/components/schemas/NullableQueueGroup"
             },
             "description": "Parallel to node_ids: each element labels that exact occurrence or is null. Omitted/empty input means no groups. Nonempty array must match node_ids length. IDs must be contiguous, descriptors identical within each group. Replace both arrays atomically."
+          },
+          "migration_notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Read-only notes about collections converted into this playlist; empty for ordinary lists."
           }
         },
         "required": [
@@ -26782,7 +26899,8 @@
           "created_at",
           "updated_at",
           "items",
-          "groups"
+          "groups",
+          "migration_notes"
         ],
         "additionalProperties": false
       },
@@ -28790,6 +28908,18 @@
               "type": "string"
             },
             "description": "Ordered concrete product-edition languages. Empty order prefers an explicitly declared original."
+          },
+          "ui_locale": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "default": "auto",
+            "description": "Interface language. auto follows each client device. Independent from metadata, audio and subtitle language."
           }
         },
         "required": [
@@ -28801,7 +28931,8 @@
           "directory_browse",
           "resource_browse",
           "version_mode",
-          "edition_language_order"
+          "edition_language_order",
+          "ui_locale"
         ],
         "description": "Personal preferences scoped to the current account. directory_browse and resource_browse are required objects in the current format; PUT fully replaces the object with the current ETag."
       },
@@ -28818,7 +28949,7 @@
             "type": "array",
             "maxItems": 5000,
             "items": {
-              "$ref": "#/components/schemas/CollectionEntry"
+              "$ref": "#/components/schemas/CollectionMember"
             }
           }
         },
@@ -28873,7 +29004,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CollectionEntry"
+              "$ref": "#/components/schemas/CollectionMember"
             }
           },
           "alias": {
@@ -29938,7 +30069,7 @@
         "required": [
           "kind"
         ],
-        "description": "work requires work_id and may choose group_id/format or ordered node_ids; node requires node_id and rejects work-only fields. Entry occurrence IDs are unique inside one collection. Custom collections keep only the first work entry per work_id and the first direct node entry per node_id; a media file may still appear inside a work and as a direct node."
+        "description": "Transient playback selection: work requires work_id and may choose group_id/format or an ordered node_ids snapshot; node requires node_id and rejects work-only fields. Occurrence IDs are unique within the request. Stored collection membership uses CollectionMember and does not accept playback settings."
       },
       "CollectionEntryView": {
         "type": "object",
@@ -29963,24 +30094,6 @@
           "node_id": {
             "type": "string",
             "description": "Opaque identity, retained as text."
-          },
-          "node_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "description": "Opaque identity, retained as text."
-            },
-            "maxItems": 5000,
-            "description": "Optional ordered work-track snapshot, including duplicates; all nodes must belong to this work.",
-            "minItems": 1
-          },
-          "group_id": {
-            "type": "string",
-            "description": "Opaque identity, retained as text."
-          },
-          "format": {
-            "type": "string",
-            "maxLength": 16
           },
           "name": {
             "type": "string"
@@ -30010,12 +30123,13 @@
             "additionalProperties": false,
             "nullable": true
           },
-          "queue_group": {
-            "$ref": "#/components/schemas/QueueGroup"
-          },
           "alias": {
             "type": "string",
             "description": "Display-only alias, empty when unset. Original name and path remain unchanged."
+          },
+          "work": {
+            "$ref": "#/components/schemas/WorkDisplay",
+            "description": "Current work summary with the same display policy as the library. Present for known work references."
           }
         },
         "required": [
@@ -30025,7 +30139,7 @@
           "available",
           "alias"
         ],
-        "description": "work requires work_id and may choose group_id/format or ordered node_ids; node requires node_id and rejects work-only fields. Entry occurrence IDs are unique inside one collection. Custom collections keep only the first work entry per work_id and the first direct node entry per node_id; a media file may still appear inside a work and as a direct node."
+        "description": "Whole-work or loose playable-resource membership. Work references follow current work data. Direct resources are browsed under the collection-local Shiyin virtual directory. Playback snapshots, format choices and queue metadata are rejected. Works and direct resources are deduplicated separately."
       },
       "CollectionDetail": {
         "type": "object",
@@ -32741,6 +32855,50 @@
         "properties": {
           "enabled": {
             "type": "boolean"
+          }
+        }
+      },
+      "CollectionMember": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Membership identity; generated on new membership and retained while editing."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "work",
+              "node"
+            ]
+          },
+          "work_id": {
+            "type": "string",
+            "description": "Opaque identity, retained as text."
+          },
+          "node_id": {
+            "type": "string",
+            "description": "Opaque identity, retained as text."
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "description": "Whole-work or loose playable-resource membership. Work references follow current work data. Direct resources are browsed under the collection-local Shiyin virtual directory. Playback snapshots, format choices and queue metadata are rejected. Works and direct resources are deduplicated separately."
+      },
+      "CollectionCopyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 240,
+            "description": "Nonempty, at most 240 UTF-8 bytes. Names are not identities and may repeat."
           }
         }
       }
