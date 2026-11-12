@@ -1,14 +1,22 @@
-# 🤖 Rurimecha · 琉璃音声管家
+# Rurimecha · 你的私人 ASMR 与同人音声作品库
+
+[简体中文](README.md) · [繁體中文](README.zh-Hant.md) · [日本語](README.ja.md) · [English](README.en.md)
 
 > *「主人，音声库我已经整理好了。今晚想从哪一部接着听？」*
 
-**Rurimecha（简称 Ruri）** 帮你整理和收听自己收藏的音声、ASMR 与视频。把存放媒体的文件夹添加进来，就能按封面找作品、选择音效版或不同格式、查看台本，并从上次的位置接着听。媒体原文件保留在原来的位置。
+**Rurimecha（简称 Ruri）** 帮你整理和收听自己收藏的 ASMR、同人音声与视频。添加自己的媒体文件夹，按封面、声优、社团或 RJ 编号找到作品，选择音效版或无音效版，边看台本边听，下次从上次的位置继续。媒体原文件保留在原来的位置。
 
 [在线演示](https://asmr.rurimecha.top/) · [下载 Ruri](https://github.com/rurimecha/rurimecha/releases/latest) · [安装与使用](docs/USAGE.md) · [功能一览](docs/FEATURES.md)
 
 想先体验浏览和播放，可以打开[在线演示站](https://asmr.rurimecha.top/)，在登录页选择「游客体验」。游客不能修改作品，也不保存收藏和收听进度。
 
 ![Ruri 作品库，展示作品封面、标签和播放入口](docs/screenshots/library.webp)
+
+**选择适合你的方式：** [先体验演示](https://asmr.rurimecha.top/) · [Windows 安装](docs/USAGE.md#windows-安装) · [Linux / Docker 安装](docs/USAGE.md#安装与首次登录) · [Android 收听](docs/USAGE.md#在-android-上收听)
+
+内置管理员无需授权即可在网页和 WebDAV 整理、搜索和播放。Android 在线播放、下载和珍藏片段需要有效服务器授权；Android 客户端还需连接已运行的 Ruri 服务器。
+
+测试期间免费。未来收费暂定人民币 **10 元／月、60 元／年或 90 元永久授权**，可绑定 **3 台服务器**，Android 等客户端不单独占用绑定名额；最终方案以正式公布为准。已有免费功能不会改为付费。当前免费测试授权需申请审核，发放后须在 7 天内首次激活，首次激活后可使用 31 天。
 
 ## 从这里开始
 

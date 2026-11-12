@@ -1,5 +1,11 @@
 # Rurimecha user guide
 
+**Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
+
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android connects to an already running Ruri server. The built-in administrator can use the web app and WebDAV without a license; Android online playback, downloads, and saved clips need an active server license. Completed downloads can be played offline on the phone.
+
+**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Current free trial licenses require an application and review, first activation within 7 days of issue, and last 31 days after first activation.
+
 ## Installation and first sign-in
 
 Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux x86-64, Docker Linux x86-64, and Windows x64. Install the Android APK separately and connect it to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
