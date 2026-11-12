@@ -1,12 +1,12 @@
 # Ruri Scrape 文字元数据服务
 
-服务使用独立账号和数据目录，默认地址 http://127.0.0.1:8091。当前为文字元数据缓存，不下载、存储或提供图片文件；封面、样图地址可以作为文字引用保留。所有路径以 `/api/v1` 为前缀，机器契约见 [OpenAPI](scrape-service.openapi.json)。只维护当前格式，不提供旧接口或旧数据库兼容。
+服务使用独立账号和数据目录，默认地址 http://127.0.0.1:8091。当前为文字元数据缓存，不下载、存储或提供图片文件；封面、样图地址可以作为文字引用保留。所有路径以 `/api/v1` 为前缀，机器契约见 [OpenAPI](scrape-service.openapi.json)。服务与 Core 分别运行，Core 不提供本服务的采集、语料库或密钥管理接口。支持已识别的前一版数据库原地升级；未知结构和更高版本拒绝打开并保留原数据。
 
 ## 认证与连接测试
 
 首次启动生成数据目录中的 initial-password（0600），用户名 admin。它是登录密码，不是 API 密钥。
 
-POST /auth/login：`{"username":"admin","password":"...","client_name":"管理工具"}`，返回 user/session/token，同时设置同源 HttpOnly、SameSite=Strict Cookie。浏览器写入校验 Origin/Referer；外部客户端使用 Bearer。会话30天，可 GET /auth/sessions、DELETE /auth/sessions/{id} 撤销；POST /auth/logout 注销。PUT /auth/me 带 If-Match 更新 username/current_password/password，账户修订变化撤销既有会话与绑定旧修订的密钥。
+POST /auth/login：`{"username":"admin","password":"...","client_name":"管理工具","client_kind":"browser"}`，返回 user/session/token，同时设置同源 HttpOnly、SameSite=Strict Cookie。浏览器写入校验 Origin/Referer；外部客户端使用 Bearer。client_kind 可省略（默认 other），支持 browser/android/desktop/other。会话响应含 client_kind 和 login_ip；后者为登录时的连接对端地址，不信任转发头，反向代理下可能是代理地址，不作设备身份。会话30天，可 GET /auth/sessions、DELETE /auth/sessions/{id} 撤销；POST /auth/logout 注销。PUT /auth/me 带 If-Match 更新 username/current_password/password，账户修订变化撤销既有会话与绑定旧修订的密钥。
 
 POST /keys 创建 `{"name":"Ruri","scope":"lookup","days":365}`，token仅创建时显示；GET /keys 不回显，DELETE /keys/{id} 撤销。权限：read 仅本地已有资料，lookup 允许缺失抓取及显式刷新，admin 允许完整管理。GET /auth/access 返回当前凭据的 read/lookup/refresh/manage 布尔能力，不触发抓取，可用于连接和权限验证。
 
@@ -58,3 +58,17 @@ GET /jobs、/jobs/{id}、/jobs/{id}/items、/jobs/{id}/events 查看持久进度
 providers 包含 dlsite/asmr.one 各一次，可分别启用；DLsite 优先。metadata_locales 独立控制自动获取的简体中文、繁体中文、日文、英文，至少开启一种；默认仅日文。default_return_locale 设置未指定语言时的返回优先级，可选 zh-Hans 或 ja；timeout_seconds 默认30（5–120）；interval_ms 默认1000（100–60000）；failure_seconds 默认30（0–3600，0关闭实际获取失败的冷却）。proxy_url 写入专用，省略保留、空串清除，只返回 proxy_configured，不回显地址或认证。设置、删除和账户更新用字符串修订/If-Match，过期或缺失409。
 
 最终抓取失败及其失败缓存命中统一404 not_found，不向查询者区分上游失败原因；强制刷新可重试。已有成功数据仍可读取。语法错误400、未认证401、无权限403、容量413、忙429、内部错误500，不将这些服务管理错误当作不存在。所有业务响应 no-store。
+
+## 日志与详细诊断
+
+管理员在独立管理页的「设置」中开启「详细诊断」并保存，重现问题后关闭并保存。`GET/PUT /settings` 增加布尔 `diagnostics_enabled`，默认 false，持久化且保存成功后立即生效；仍使用完整设置替换与现有 If-Match 规则，缺失/过期返回 409。并发保存串行持久化与激活，失败不改变活动开关。关闭后停止新增诊断记录，已有记录按上限保留。
+
+`GET /logs` 仅允许管理员会话或 admin 密钥，read/lookup 密钥返回 403。支持 level（debug/info/warn/error，或 attention 同时匹配 warn/error）、q（事件/字段忽略大小写子串）、request_id（精确关联）、before（排他正十进制字符串游标）、limit（1–200，默认100）。最新在前，返回 items/next_before/has_more，过滤在分页之前执行，非法或重复参数返回400。机器结构见 LogEntry/LogPage。前端默认 attention，可查看全部或诊断记录，原始字段收进详情。
+
+普通成功访问、轮询、缺失资料和过期会话只在诊断开启时记录；登录失败、权限问题、实际失败及任务结果保留必要摘要。相同任务的失败项目按原因汇总，具体项目仍在任务页；持续调度/队列存储故障记录首次、最多每五分钟一次累计摘要和恢复。成功日志/健康查询不记录自身。请求记录含关联ID、模板路由、状态及耗时，不记录认证头、查询串、请求正文或密钥。
+
+记录同时写入有界内存、标准错误和独立服务数据目录内的 logs/scrape.jsonl。最近5000条可查询，磁盘当前文件及3份备份每份约4MiB；保留期间跨重启恢复，不是无限审计历史。沿用凭据字段脱敏与截断。日志写入或数据库健康异常使健康检查失败，故障期间的内存记录不保证重启后仍在。
+
+## 数据目录升级
+
+当前数据库版本为2。首次使用当前程序打开已识别的v1库时，先生成包含已提交WAL内容的独立备份，再在一个事务中升级。账号、原登录会话、API密钥、设置、资料、任务和关联记录保留；既有会话的新增登录地址为空，不补猜历史信息。升级失败回滚，保留旧库和备份；再次启动可重试。未知签名或更高版本拒绝，不自动清空或创建替代库。升级后继续使用原数据目录即可。
