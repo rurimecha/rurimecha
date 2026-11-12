@@ -10249,6 +10249,14 @@
               "type": "string"
             },
             "description": "Version pin for an authorized virtual clip. Ordinary files reject this parameter."
+          },
+          {
+            "name": "video_quality",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only mode=mp4: auto or an id from this node playback.video_qualities. Unknown or no longer permitted ids are rejected. Missing means auto."
           }
         ],
         "responses": {
@@ -10779,6 +10787,14 @@
               "type": "string"
             },
             "description": "Version pin for an authorized virtual clip. Ordinary files reject this parameter."
+          },
+          {
+            "name": "video_quality",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only mode=mp4: auto or an id from this node playback.video_qualities. Unknown or no longer permitted ids are rejected. Missing means auto."
           }
         ],
         "responses": {
@@ -30247,6 +30263,27 @@
           },
           "exiftool_path": {
             "type": "string"
+          },
+          "max_video_height": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4320,
+            "default": 0,
+            "description": "Maximum transcoded video height. 0 is unrestricted; otherwise 144..4320. Direct originals are unaffected."
+          },
+          "max_video_bitrate_kbps": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120000,
+            "default": 0,
+            "description": "Maximum encoded video bitrate in kbps. 0 is unrestricted; otherwise 128..120000. Audio is budgeted separately."
+          },
+          "transcode_threads": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64,
+            "default": 0,
+            "description": "Maximum workers per codec/filter pool per job. 0 preserves the single-worker default. Does not bound the total OS thread count."
           }
         },
         "required": [
@@ -31421,6 +31458,13 @@
                 "start_seconds"
               ]
             }
+          },
+          "video_qualities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoQuality"
+            },
+            "description": "Only supported video transcodes, filtered by input and administrator limits. Empty for unavailable/unsupported video processing."
           }
         },
         "required": [
@@ -34174,6 +34218,31 @@
           "shelves"
         ],
         "additionalProperties": false
+      },
+      "VideoQuality": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "max_height": {
+            "type": "integer"
+          },
+          "bitrate_kbps": {
+            "type": "integer",
+            "description": "Total audio/video media bitrate budget."
+          },
+          "video_bitrate_kbps": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "max_height",
+          "bitrate_kbps",
+          "video_bitrate_kbps"
+        ]
       }
     }
   },

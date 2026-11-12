@@ -13,7 +13,7 @@
 
 进度写入不修改队列、作品资料和收藏集。删除账户级联清理个人数据；移除来源删除对应节点状态，媒体文件不变。客户端每约 10 秒及播放切换/暂停时尽力同步进度。遇到 412 停止本次曲目出现的自动写入，不自动刷新 ETag 后覆盖；重选曲目建立新同步周期。本机 Android 队列恢复仍独立，进程退出后以服务端最后成功同步的位置为准，未宣称离线或后台持续同步。
 
-`GET /nodes/{node}/playback` 返回具体节点的 profiles：mode、byte_ranges、start_seconds、可选 default_bitrate_kbps；duration_seconds 未知为 null。支持原文件及适用的 mp3、opus、mp4。工具缺失只返回原文件；存在工具不保证该构建包含所有可选编码器。
+`GET /nodes/{node}/playback` 返回具体节点的 profiles：mode、byte_ranges、start_seconds、可选 default_bitrate_kbps；duration_seconds 未知为 null。支持原文件及适用的 mp3、opus、mp4；视频额外返回按源信息和管理员限制生成的 video_qualities，详见 playback.md。视频无法探测或缺少所需编解码器时只提供原文件。
 
 `GET/HEAD /nodes/{node}/stream` 新增 `mode=opus` 与 `bitrate_kbps=48..320`。原文件不接受码率参数；MP3 默认 192、Opus 默认 96、MP4 音频默认 128 kbps。首次生成仍渐进输出。默认缓存 512 MiB，启动参数 `-transcode-cache-mib` 范围 0..16384，0 关闭。
 

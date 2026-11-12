@@ -187,7 +187,7 @@ Administrators can create, edit, or convert transcripts from the player menu and
 
 ### Preparing media tools
 
-Linux, Windows, and Docker releases include FFmpeg/FFprobe for compatible transcoding, loudness normalization, previews, audio track selection, and embedded subtitles for supported local files. Availability depends on format and extracted information. Compatible remote sources play originals without these operations. Keep Linux's `media-tools` beside the program and extract the complete archive.
+Linux, Windows, and Docker releases include FFmpeg/FFprobe for compatible transcoding, loudness normalization, previews, audio track selection, and embedded subtitles for supported local files. Availability depends on format and extracted information. Readable compatible-source videos also offer supported transcoding qualities. Keep Linux's `media-tools` beside the program and extract the complete archive.
 
 Check availability under Parsing tools. Custom tools must support `fd` input; enter both executable paths, test, then save. Clear both paths to restore defaults. Automatic download requires internet access and about 500 MB free on the server.
 
@@ -402,3 +402,10 @@ Open Listening & recommendations from the sidebar or account menu. Listening sta
 In work details, select My rating and choose one to five stars. Open it again to change or remove your rating. Your account rates the whole archived work across its formats and playback groups. Cards show your rating separately from the public rating.
 
 For you offers You might like, Try something different and Listen again. Open a work or play it directly, and use Refresh picks to change the selection. Deleting a resume record keeps your statistics and ratings.
+
+
+### Video quality and transcoding limits
+
+Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices; switching resumes at the current position after buffering. Unsupported videos offer only Original format. This applies to local sources and readable kikoeru-compatible videos. Direct playback depends on your device. Compatible Auto uses a default quality budget; it does not continuously adapt to network speed.
+
+Administrators can set maximum transcoded height, video bitrate and worker threads per task in Processing settings. Use 0 for no height/bitrate limit. Threads accept 1–64; 0 uses one worker. Limits apply to new transcoding tasks and do not restrict original-format direct playback. Transcoding preserves source files, does not upscale the picture and retains the source frame rate.

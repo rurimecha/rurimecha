@@ -80,7 +80,7 @@ mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_r
 
 ## 解析设置与耗时
 
-`GET /settings/processing` 返回 ETag、settings/active/pending/active_jobs/validation/revision。设置为 metadata_workers（1..32）、ffmpeg_path、ffprobe_path、exiftool_path。`POST /settings/processing/test` 测试候选、不保存；`PUT` 携带 ETag，验证成功才持久保存。留空查找 PATH，也可填目录；FFprobe 留空优先使用指定 FFmpeg 同目录工具。活动任务保持旧快照，相关消费者空闲后自动应用；保存失败保留旧配置。启动选项只为尚无保存设置时提供初值。
+`GET /settings/processing` 返回 ETag、settings/active/pending/active_jobs/validation/revision。设置为 metadata_workers（1..32）、ffmpeg_path、ffprobe_path、exiftool_path，以及 max_video_height、max_video_bitrate_kbps、transcode_threads（范围及默认值见 playback.md）。`POST /settings/processing/test` 测试候选、不保存；`PUT` 携带 ETag，验证成功才持久保存。留空查找 PATH，也可填目录；FFprobe 留空优先使用指定 FFmpeg 同目录工具。媒体工具和解析并发配置等待相关消费者空闲后自动应用；视频转码上限保存后对新任务生效，运行中的任务保持原参数；保存失败保留旧配置。启动选项只为尚无保存设置时提供初值。
 
 `POST /settings/processing/prepare-tools` 携带当前设置的 If-Match，管理员显式启动固定版本 Linux/Windows x64 LGPL FFmpeg/FFprobe 下载。服务器验证归档及程序哈希、许可证文本、所需编码器和安全文件输入后，在应用数据目录保存程序并替换 ffmpeg_path/ffprobe_path；活动任务结束后按现有空闲规则生效。失败不改当前设置或媒体，重试由管理员再次发起。并发请求返回 409 media_tools_busy；不支持的平台返回 422 media_tools_platform_unavailable；下载或工具检查失败分别返回 503 media_tools_download_failed、422 media_tools_unusable。发行包已随附 FFmpeg/FFprobe；本接口供管理员按需重新准备工具。ExifTool 是独立可选工具，缺失时文件详细信息返回提示，不阻止 FFmpeg/FFprobe 设置。
 
