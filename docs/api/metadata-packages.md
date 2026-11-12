@@ -29,9 +29,9 @@ Ruri 接受独立工具产出的 `ruri-metadata` v1 JSON 包。一个包对应�
 }
 ```
 
-`metadata` 还支持 `product_info`、`release_date`、`release_date_precision`、`languages`、`credits`、`tags`、`cover_ref`，形状与作品描述一致。它不含 work_id、node_id、成员、播放组或人工覆盖。标准化后元数据最多 8 MiB；原始 `raw` 为 JSON，最多 12 MiB。`source.provider` 支持 dlsite、asmr.one，编号必须与 identifiers 一致，source.url 必须为允许的 HTTPS 提供者 URL。未知字段、版本、重复或非法语言、无有效标题、错号均拒绝。
+`metadata` 还支持 `product_info`、`release_date`、`release_date_precision`、`languages`、`credits`、`tags`、`cover_ref`，形状与作品描述一致。它不含 work_id、node_id、成员、播放组或人工覆盖。标准化后元数据最多 8 MiB；旧包可选的 `raw` 为 JSON，最多 12 MiB，导入后舍弃；新导出包不再包含原始响应。`source.provider` 支持 dlsite、asmr.one，编号必须与 identifiers 一致，source.url 必须为允许的 HTTPS 提供者 URL。未知字段、版本、重复或非法语言、无有效标题、错号均拒绝。
 
-`translations` 是本地翻译的独立文本集合，按 BCP 47 保存。不能使用 und 或与 metadata.texts 重复的语言，包括规范化后重复；保留 metadata.original_locale、原文及 source.raw。翻译结构化介绍时按语言提供整份 description_parts，不将译文写回原文。接口不调用翻译模型。
+`translations` 是本地翻译的独立文本集合，按 BCP 47 保存。不能使用 und 或与 metadata.texts 重复的语言，包括规范化后重复；保留 metadata.original_locale、原文及来源信息。翻译结构化介绍时按语言提供整份 description_parts，不将译文写回原文。接口不调用翻译模型。
 
 `images` 每项形状为 `{"url":"https://img.dlsite.jp/...jpg","data":"<base64原始图片字节>"}`。URL 必须是包中实际引用且属于允许提供者图片域的地址，不能是路径。支持 JPEG/PNG/GIF/WebP，每图最多 16 MiB、每包解码后总计最多 32 MiB，至多 1024 个不同引用。省略图片可以导入文字，但对应图片无法离线显示；空图片集合不清空已存在图片。
 

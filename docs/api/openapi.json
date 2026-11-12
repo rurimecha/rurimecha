@@ -4003,7 +4003,7 @@
           "scan"
         ],
         "summary": "listScanJobs",
-        "description": "listScanJobs",
+        "description": "listScanJobs Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4167,7 +4167,7 @@
           "scan"
         ],
         "summary": "getScanJob",
-        "description": "getScanJob",
+        "description": "getScanJob Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4380,7 +4380,7 @@
           "scan"
         ],
         "summary": "listScanIssues",
-        "description": "listScanIssues",
+        "description": "listScanIssues Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -5299,7 +5299,7 @@
           "scan"
         ],
         "summary": "Page organization history; result is null in summaries",
-        "description": "Page organization history; result is null in summaries",
+        "description": "Page organization history; result is null in summaries Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -5386,7 +5386,7 @@
           "scan"
         ],
         "summary": "Read organization task status and result",
-        "description": "Read organization task status and result",
+        "description": "Read organization task status and result Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -8842,7 +8842,7 @@
           "media-probe"
         ],
         "summary": "listMediaProbeJobs",
-        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。",
+        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。 Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "source_id",
@@ -8920,7 +8920,7 @@
           "media-probe"
         ],
         "summary": "getMediaProbeJob",
-        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。",
+        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。 Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "job",
@@ -9097,7 +9097,7 @@
           "media-probe"
         ],
         "summary": "listMediaProbeItems",
-        "description": "仅列出实际提取、失败及未完成的文件明细。缓存复用仅累计任务 skipped 总数，不保留完成后的逐文件复用明细。不保存 skipped 明细，state=skipped 查询返回 invalid_argument。明细 total 是过滤后记录数，可小于任务 total/processed。检查中的文件仍显示 running，状态筛选、total 和分页采用同一有效状态。见 media-probe.md。",
+        "description": "仅列出实际提取、失败及未完成的文件明细。缓存复用仅累计任务 skipped 总数，不保留完成后的逐文件复用明细。不保存 skipped 明细，state=skipped 查询返回 invalid_argument。明细 total 是过滤后记录数，可小于任务 total/processed。检查中的文件仍显示 running，状态筛选、total 和分页采用同一有效状态。见 media-probe.md。 Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately. After termination only unfinished items are listed; succeeded/reused items remain in job summary counts. Item-page total counts retained details, not all processed objects.",
         "parameters": [
           {
             "name": "job",
@@ -12028,7 +12028,7 @@
           "metadata-scraper"
         ],
         "summary": "listScrapeJobs",
-        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md.",
+        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "limit",
@@ -12182,7 +12182,7 @@
           "metadata-scraper"
         ],
         "summary": "getScrapeJob",
-        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md.",
+        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "job",
@@ -12377,7 +12377,7 @@
           "metadata-scraper"
         ],
         "summary": "listScrapeItems",
-        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md.",
+        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately. After termination only unfinished items are listed; succeeded/reused items remain in job summary counts. Item-page total counts retained details, not all processed objects.",
         "parameters": [
           {
             "name": "job",
@@ -13837,7 +13837,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "description": "Newest 100 jobs, including terminal jobs. No query parameters."
+        "description": "Newest 100 jobs, including terminal jobs. No query parameters. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately."
       }
     },
     "/library-jobs/{job}": {
@@ -13895,7 +13895,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": " Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately."
       },
       "delete": {
         "operationId": "deleteLibraryJob",
@@ -21079,7 +21080,7 @@
           "scan"
         ],
         "summary": "getRemoteDownload",
-        "description": "Read save progress.",
+        "description": "Read save progress. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "job",
@@ -29007,7 +29008,8 @@
           },
           "raw": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "description": "Empty object for compatibility; upstream responses are not persisted."
           },
           "fetched_at": {
             "type": "string",
@@ -30406,7 +30408,8 @@
           "finished": {
             "type": "boolean"
           }
-        }
+        },
+        "description": "Ephemeral diagnostics for active tasks; finished tasks return available=false."
       },
       "FileInformation": {
         "type": "object",
@@ -30776,8 +30779,7 @@
           "provider",
           "code",
           "url",
-          "fetched_at",
-          "raw"
+          "fetched_at"
         ],
         "properties": {
           "provider": {
@@ -30801,7 +30803,7 @@
             "format": "date-time"
           },
           "raw": {
-            "description": "Original upstream JSON evidence, at most 12 MiB. Not replaced by local translations."
+            "description": "Optional legacy input only; discarded after import. New exports omit upstream responses."
           }
         }
       },
