@@ -122,7 +122,7 @@ mark_missing=true 明确要求核对缺失；只有某个根完整成功时，�
 | `modified_from`, `modified_to` | RFC3339 时间，含边界，仅已知文件修改时间 |
 | `min_duration`, `max_duration` | 非负有限秒数，含边界；使用有效已有资料，人工时长优先，自动时长必须来自当前有效观察 |
 | `include_unknown_duration` | 默认 false；有时长范围时可同时包含未知时长，不将未知视为 0 |
-| `has_subtitle` | yes / no / unknown；自动同目录匹配遵循名称优先级，显式同作品关联仍须有效；有效内嵌字幕/歌词也计入。有外部关联为 yes；无有效观察、观察被截断或所在目录尚未完整读取且无已知字幕时为 unknown，只有确认资料完整且没有已知字幕时为 no |
+| `has_subtitle` | yes / no / unknown；筛选最近保存的字幕状态。扫描、归档、媒体探测完成或人工编辑后更新；软件外增删文件要等重新扫描/归档。yes 表示已知外置、应用内或内嵌字幕/歌词；资料不完整且没有已知字幕为 unknown，资料完整且没有字幕为 no。查询不重新匹配或验证文件 |
 | `language` | 音视频流的 BCP-47 语言，归一化 ISO 语言代码；und 表示未知；不使用字幕、界面或作品资料语言推断 |
 | `listening_state` | unstarted / in_progress / completed，仅当前账户的个人进度 |
 | `credit`, `role`, `tags`, `exclude_tags`, `released_from`, `released_to` | 按所属作品过滤；署名/角色、全部包含标签、任一排除标签和发行日期沿用作品查询语义；标签为逗号分隔，日期为 YYYY-MM-DD |

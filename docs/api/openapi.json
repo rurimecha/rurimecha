@@ -431,7 +431,7 @@
             "schema": {
               "type": "boolean"
             },
-            "description": "Included, present subtitle links or observed subtitle streams/nonempty lyrics on available work media. Excluded links, missing resources and unrelated lyric tags do not count; decoding is not guaranteed."
+            "description": "Filter the saved work subtitle flag, refreshed after scans, organization, probes and explicit subtitle edits. Includes linked external, application and embedded subtitles or nonempty lyrics. Out-of-app file changes appear after a rescan/organization. Exact counts use the saved flags; files are not matched or verified during this query."
           },
           {
             "name": "source_id",
@@ -3838,7 +3838,7 @@
                 "unknown"
               ]
             },
-            "description": "Valid indexed sidecars/manual associations or current embedded subtitles/lyrics. No valid observation, truncated observations or an incompletely read parent directory leave absence unknown; no requires complete information."
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
           },
           {
             "name": "language",
@@ -13372,7 +13372,7 @@
             "schema": {
               "type": "boolean"
             },
-            "description": "Included, present subtitle links or observed subtitle streams/nonempty lyrics on available work media. Excluded links, missing resources and unrelated lyric tags do not count; decoding is not guaranteed."
+            "description": "Filter the saved work subtitle flag, refreshed after scans, organization, probes and explicit subtitle edits. Includes linked external, application and embedded subtitles or nonempty lyrics. Out-of-app file changes appear after a rescan/organization. Exact counts use the saved flags; files are not matched or verified during this query."
           },
           {
             "name": "source_id",
@@ -14332,7 +14332,7 @@
                 "unknown"
               ]
             },
-            "description": "Valid indexed sidecars/manual associations or current embedded subtitles/lyrics. No valid observation, truncated observations or an incompletely read parent directory leave absence unknown; no requires complete information."
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
           },
           {
             "name": "language",
@@ -23620,7 +23620,8 @@
               "yes",
               "no",
               "unknown"
-            ]
+            ],
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
           },
           "languages": {
             "type": "array",
@@ -29784,7 +29785,8 @@
                 "type": "string"
               },
               "has_subtitle": {
-                "type": "string"
+                "type": "string",
+                "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
               },
               "language": {
                 "type": "string"
@@ -31832,7 +31834,7 @@
           },
           "has_subtitle": {
             "type": "string",
-            "description": "yes/no/unknown; absence is unknown without a current complete observation and an indexed completely read parent directory.",
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files.",
             "minLength": 1
           },
           "language": {
@@ -32112,7 +32114,7 @@
           },
           "has_subtitle": {
             "type": "string",
-            "description": "yes/no/unknown; absence is unknown without a current complete observation and an indexed completely read parent directory.",
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files.",
             "minLength": 1
           },
           "language": {
