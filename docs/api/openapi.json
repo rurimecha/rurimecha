@@ -185,7 +185,7 @@
           "catalog"
         ],
         "summary": "listWorks",
-        "description": "Whitespace-separated literal terms (max 16) must each match adopted metadata or explicit entity aliases. Terms may match different fields/locales. Unicode normalization does not modify source text. sort=relevance requires nonempty q and prioritizes exact code, recognized code prefix, title, credits, then other matches. search_scope=title matches saved titles only and ranks whole title, title prefix, then other title matches; ties by creation descending and identity. Default reads select one metadata version per work using the account language order and personal work override. In family mode, filters select local works and q also searches related cached product texts/credits/tags. Family totals are computed before pagination; relevance puts local matches before cache-only matches. Other sorts order by the first matching local representative. Unidentified or conflicting identifiers remain independent; contradictory original declarations isolate each product. family mode rejects include_inactive=true; retained records remain queryable in ordinary work mode.",
+        "description": "Whitespace-separated literal terms (max 16) must each match adopted metadata or explicit entity aliases. Terms may match different fields/locales. Unicode normalization does not modify source text. sort=relevance requires nonempty q and prioritizes exact code, recognized code prefix, title, credits, then other matches. search_scope=title matches saved titles only and ranks whole title, title prefix, then other title matches; ties by creation descending and identity. Default reads select one metadata version per work using the account language order and personal work override. In family mode, filters select local works and q also searches related cached product texts/credits/tags. Family totals are computed before pagination; relevance puts local matches before cache-only matches. Other sorts order by the first matching local representative. Unidentified or conflicting identifiers remain independent; contradictory original declarations isolate each product. family mode rejects include_inactive=true; retained records remain queryable in ordinary work mode. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3526,7 +3526,7 @@
           "scan"
         ],
         "summary": "listNodes",
-        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted.",
+        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "responses": {
           "200": {
             "description": "Success",
@@ -13180,7 +13180,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "description": "Same filters as works, full filtered set counts; limit/offset do not change counts. At most 100 values per facet; truncated indicates omitted values. Default reads select one metadata version per work using the account language order and personal work override.",
+        "description": "Same filters as works, full filtered set counts; limit/offset do not change counts. At most 100 values per facet; truncated indicates omitted values. Default reads select one metadata version per work using the account language order and personal work override. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "parameters": [
           {
             "name": "search_scope",
@@ -14029,7 +14029,7 @@
           "scan"
         ],
         "summary": "Browse indexed nodes across sources",
-        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted.",
+        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "responses": {
           "200": {
             "description": "Success",
@@ -17141,7 +17141,7 @@
             "description": "Select this exact saved metadata locale for this request. Work lists and counts omit works without that language. A single work or its images return 404 when it is unavailable."
           }
         ],
-        "description": "Page distinct names from the active work display versions. Counts use distinct works. Tag and credit names are counted separately even when an entity associates them."
+        "description": "Page distinct names from the active work display versions. Counts use distinct works. Tag and credit names are counted separately even when an entity associates them. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued."
       }
     },
     "/settings/queues/{kind}": {

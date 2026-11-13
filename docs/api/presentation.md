@@ -47,6 +47,8 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 显式 `POST /playback/resolve` 的 collection_id 选择器仍能将当前成员展开为临时播放结果（最多 5000 首，超限失败），但收藏集不保存该结果。用户界面通过作品或「拾音」文件发起播放，队列编排使用播放列表。智能过滤收藏集正文、filter/work_ids 正文及 works 的 collection 查询参数继续拒绝。
 
+作品资料语言选择和标签/人物目录在写入侧维护。人工修改资料或账户偏好成功后，相关浏览结果立即生效；后台处理任务发布结果时也同步更新。
+
 `GET /works` 与分面支持 sort=newest/title/code/relevance、tags（全部满足）、exclude_tags（任意命中即排除）、kind=audio/video/image/text、has_subtitle、source_id。分面 credit_roles 与 tag_categories 含 value/count 和 role/category，最多 500 组，超限标记 truncated。
 
 ## 目录、资源和文件信息

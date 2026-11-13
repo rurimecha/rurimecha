@@ -131,6 +131,8 @@ mark_missing=true 明确要求核对缺失；只有某个根完整成功时，�
 | `sort_order` | asc / desc；目录始终优先，未知时长/未知文件属性始终后置；等值按自然名称、原名、路径和身份稳定排序 |
 | `matching_directories` | 默认 false；非递归时只保留有符合上述文件条件的后代文件夹，matched_file_count 返回真实命中文件数 |
 
+递归范围和目录后代关系在索引发布时维护，查询直接读取，不现场遍历目录树。人工索引操作在成功返回前更新相关范围；扫描任务发布结果时同步更新。任意组合筛选仍在分页前执行，total/file_total/directory_total 和 matched_file_count 精确统计本次读取的数据。
+
 不同条件组同时满足。非递归查询中的文件属性和所属作品条件保留导航目录；kind=file 可隐藏目录，kind=directory 只显示目录。q 默认也匹配当前层目录名；matching_directories=true 时按后代文件命中决定目录是否显示。递归条件不受目录名称影响。unarchived 视图仍保持其仅可用未归档媒体的既有语义。
 
 分页响应在 `{items,total,limit,offset}` 外增加 `file_total`、`directory_total`，分别是本次完整结果的文件/导航目录数；total 还可能包含符号链接等其他节点类型。两项计数不是当前页数量。
