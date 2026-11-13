@@ -173,6 +173,10 @@ Smart discovery uses works and Sound drawer too, and updates with your library. 
 
 Playlists retain exact tracks, clip ranges, duplicates, and order. Save as playlist preserves the queue; adding to a collection gathers works and individual media. Old custom collections become playlists during upgrade, splitting long lists in order. Works without saved tracks expand using their contents at upgrade time. Unrecoverable entries show a note; temporarily missing saved files show as unavailable.
 
+Open a playlist and select **Play all** to start at the beginning. Tap an audio or video item to start there and continue through the full list in order; earlier items remain available with **Previous**. Open **More playback options** to shuffle the full list or add it to the queue. After searching, you can also play only the results. Tapping a search result still plays the full list from that item.
+
+An item's menu lets you play only that item, play it next, add it to the queue, view its file or work details, or choose **Add from here…** to place that item and the following items next or at the end of the queue. A group heading only expands the group; use its menu to play the group. Unavailable items cannot be tapped to play. Editing a playlist leaves the current queue alone.
+
 ## Playback and resuming
 
 Play from a work or folder, choosing available editions/formats such as sound effects or WAV. Use Listening history to resume. Add favorites to queues, playlists, or collections.
