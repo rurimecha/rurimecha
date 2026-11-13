@@ -1189,6 +1189,208 @@
           }
         }
       }
+    },
+    "/api/v1/logs": {
+      "get": {
+        "operationId": "queryScrapeLogs",
+        "tags": [
+          "logs"
+        ],
+        "summary": "queryLogs",
+        "description": "Admin session or admin API key only. Bounded retained diagnostics, newest first. Successful log and health reads do not log themselves; normal accesses require diagnostics_enabled. attention filters warn/error before cursor pagination.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "attention",
+                "debug",
+                "info",
+                "warn",
+                "error"
+              ]
+            },
+            "description": "Exact level, or attention for warn and error together. Omit for all retained records."
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "description": "Decimal revision string. Preserve precision; do not convert through a floating-point number."
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1846,6 +2048,20 @@
           },
           "current": {
             "type": "boolean"
+          },
+          "client_kind": {
+            "type": "string",
+            "enum": [
+              "browser",
+              "android",
+              "desktop",
+              "other"
+            ],
+            "default": "other"
+          },
+          "login_ip": {
+            "type": "string",
+            "description": "Connection peer IP at login. Forwarded headers are not trusted."
           }
         },
         "required": [
@@ -1853,7 +2069,9 @@
           "client_name",
           "created_at",
           "expires_at",
-          "current"
+          "current",
+          "client_kind",
+          "login_ip"
         ],
         "additionalProperties": false
       },
@@ -1869,6 +2087,16 @@
           },
           "client_name": {
             "type": "string"
+          },
+          "client_kind": {
+            "type": "string",
+            "enum": [
+              "browser",
+              "android",
+              "desktop",
+              "other"
+            ],
+            "default": "other"
           }
         },
         "required": [
@@ -2273,6 +2501,11 @@
               "ja"
             ],
             "description": "查询未指定语言时优先返回的资料语言。"
+          },
+          "diagnostics_enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Server-wide detailed diagnostics. Persists across restart and applies after a successful settings save."
           }
         },
         "required": [
@@ -2285,7 +2518,8 @@
           "daily_new_limit",
           "proxy_configured",
           "metadata_locales",
-          "default_return_locale"
+          "default_return_locale",
+          "diagnostics_enabled"
         ],
         "additionalProperties": false
       },
@@ -2359,6 +2593,11 @@
               "ja"
             ],
             "description": "查询未指定语言时优先返回的资料语言。"
+          },
+          "diagnostics_enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Server-wide detailed diagnostics. Persists across restart and applies after a successful settings save."
           }
         },
         "required": [
@@ -3018,6 +3257,78 @@
           }
         },
         "additionalProperties": false
+      },
+      "LogEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$",
+            "description": "Decimal revision string. Preserve precision; do not convert through a floating-point number."
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "debug",
+              "info",
+              "warn",
+              "error"
+            ]
+          },
+          "event": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "time",
+          "level",
+          "event",
+          "fields"
+        ],
+        "additionalProperties": false
+      },
+      "LogPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogEntry"
+            }
+          },
+          "next_before": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$",
+            "description": "Decimal revision string. Preserve precision; do not convert through a floating-point number.",
+            "nullable": true
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "next_before",
+          "has_more"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "headers": {
+      "RequestID": {
+        "description": "Opaque request correlation identifier.",
+        "schema": {
+          "type": "string"
+        }
       }
     }
   }

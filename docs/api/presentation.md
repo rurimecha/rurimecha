@@ -47,6 +47,8 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 显式 `POST /playback/resolve` 的 collection_id 选择器仍能将当前成员展开为临时播放结果（最多 5000 首，超限失败），但收藏集不保存该结果。用户界面通过作品或「拾音」文件发起播放，队列编排使用播放列表。智能过滤收藏集正文、filter/work_ids 正文及 works 的 collection 查询参数继续拒绝。
 
+作品资料语言选择和标签/人物目录在写入侧维护。人工修改资料或账户偏好成功后，相关浏览结果立即生效；后台处理任务发布结果时也同步更新。
+
 `GET /works` 与分面支持 sort=newest/title/code/relevance、tags（全部满足）、exclude_tags（任意命中即排除）、kind=audio/video/image/text、has_subtitle、source_id。分面 credit_roles 与 tag_categories 含 value/count 和 role/category，最多 500 组，超限标记 truncated。
 
 ## 目录、资源和文件信息
@@ -57,6 +59,8 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 - `GET /nodes/{node}/file-information?force=false`：独立、按需读取文本预览或图片/PDF 属性。文本最多读取 2 MiB、预览 64 KiB；UTF-8/UTF-16，GB18030 回退标注推测。失败保留说明。缓存校验实际文件属性、内容失效代次和当前工具配置，不更改扫描或归属。工具可用性以接口返回为准。
 
 ## 图片与播放背景
+
+`GET/HEAD /works/{work}/cover` 一次返回优先封面：先取本地作品图片，读取失败或没有本地图片时取所选资料版本中已下载的商品封面；无封面或作品不存在时返回 404，不触发外网下载。接受 `size=thumbnail`（最长边 512 像素 JPEG，省略取原图）及 `metadata_locale`（省略遵循账户资料显示偏好）；保留底层图片的认证、根限制、Range、ETag 和私有缓存规则。明确的 node 封面引用仍可直接读取节点图片/内嵌封面。
 
 `GET /works/{work}/artwork` 返回本地图片；`GET /nodes/{node}/artwork` 返回当前音视频的播放图片。响应 items 的 path 是相对 `/api/v1/` 的认证读取地址。专属图片要求同来源、同直接父目录，匹配完整媒体文件名或不含扩展名的前缀，后续必须是明确分隔符；01 不匹配 010。专属图片优先，否则回退作品图片、缓存商品图片或附近图片，最后尝试已有观察中的内嵌封面；不抽取视频帧。
 
@@ -78,7 +82,7 @@ mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_r
 
 ## 解析设置与耗时
 
-`GET /settings/processing` 返回 ETag、settings/active/pending/active_jobs/validation/revision。设置为 metadata_workers（1..32）、ffmpeg_path、ffprobe_path、exiftool_path。`POST /settings/processing/test` 测试候选、不保存；`PUT` 携带 ETag，验证成功才持久保存。留空查找 PATH，也可填目录；FFprobe 留空优先使用指定 FFmpeg 同目录工具。活动任务保持旧快照，相关消费者空闲后自动应用；保存失败保留旧配置。启动选项只为尚无保存设置时提供初值。
+`GET /settings/processing` 返回 ETag、settings/active/pending/active_jobs/validation/revision。设置为 metadata_workers（1..32）、ffmpeg_path、ffprobe_path、exiftool_path，以及 max_video_height、max_video_bitrate_kbps、transcode_threads（范围及默认值见 playback.md）。`POST /settings/processing/test` 测试候选、不保存；`PUT` 携带 ETag，验证成功才持久保存。留空查找 PATH，也可填目录；FFprobe 留空优先使用指定 FFmpeg 同目录工具。媒体工具和解析并发配置等待相关消费者空闲后自动应用；视频转码上限保存后对新任务生效，运行中的任务保持原参数；保存失败保留旧配置。启动选项只为尚无保存设置时提供初值。
 
 `POST /settings/processing/prepare-tools` 携带当前设置的 If-Match，管理员显式启动固定版本 Linux/Windows x64 LGPL FFmpeg/FFprobe 下载。服务器验证归档及程序哈希、许可证文本、所需编码器和安全文件输入后，在应用数据目录保存程序并替换 ffmpeg_path/ffprobe_path；活动任务结束后按现有空闲规则生效。失败不改当前设置或媒体，重试由管理员再次发起。并发请求返回 409 media_tools_busy；不支持的平台返回 422 media_tools_platform_unavailable；下载或工具检查失败分别返回 503 media_tools_download_failed、422 media_tools_unusable。发行包已随附 FFmpeg/FFprobe；本接口供管理员按需重新准备工具。ExifTool 是独立可选工具，缺失时文件详细信息返回提示，不阻止 FFmpeg/FFprobe 设置。
 
@@ -112,7 +116,7 @@ mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_r
 
 资源汇总的 `playback_formats` 按格式和直接父目录返回可播放文件数，使用作品播放的可用性及默认版本筛选，不受目录汇总 200 项限制。未标注格式时按已支持的文件扩展名回退；仍无法判断时为 `__unclassified`。
 
-`has_subtitle=true` 只统计有效成员中、当前存在且来源可用的 included 字幕关联，或这些媒体已观察到的内嵌字幕流/非空歌词标签；排除关联、缺失资源与无关的歌词作者标签不计入。该筛选反映索引和观察信息，不保证字幕已成功解码。`false` 为相反集合，作品查询与分面共用此条件。
+`has_subtitle=true` 按作品最近保存的字幕标记筛选：有效关联的外置字幕、应用内字幕、内嵌字幕流或非空歌词均可计入。扫描、归档、媒体探测完成及人工字幕编辑更新标记，查询不重新匹配文件。软件外增删文件在下一次扫描/归档后反映；标记不保证字幕可以解码。`false` 为相反集合，作品查询与分面共用此条件，total 精确统计当前保存的标记。
 
 
 ### 封面缩略图

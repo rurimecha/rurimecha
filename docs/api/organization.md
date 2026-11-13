@@ -86,3 +86,7 @@ POST /organize-jobs：source_id、scope_node_id（可省略）、apply（默认 
 预览和归纳任务的预览/应用结果包含 analysis：mode 为 full/incremental，computed_branches、reused_branches、computed_nodes 为本次计算统计，fallback_reason 说明 source_boundary、file_routing、invalid_tree 或 cache_capacity 等全量回退原因，正常为空。incremental 表示允许独立分支计算，首次或缓存淘汰时 reused_branches 可以为 0；这些计数不是扫描进度。缓存命中不改变边界、输入代次、人工覆盖或原子发布语义。
 
 目录决定接口是节点 boundary 属性的便捷表达；删除决定只解除这个字段的人工保护，保留其他人工语义属性，
+
+## 记录保留
+
+已结束任务及其重试输入最多保留 48 小时；过期详情返回不存在。刮削／媒体探测任务结束后，明细仅保留未完成项，成功与复用项计入任务汇总；明细分页 total 为实际保留的明细数。性能指标仅在任务执行期间可用。日志同时受 48 小时与总容量限制。作品资料、人工修改、字幕草稿和收听记录不受影响。

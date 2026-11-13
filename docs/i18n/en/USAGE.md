@@ -173,6 +173,10 @@ Smart discovery uses works and Sound drawer too, and updates with your library. 
 
 Playlists retain exact tracks, clip ranges, duplicates, and order. Save as playlist preserves the queue; adding to a collection gathers works and individual media. Old custom collections become playlists during upgrade, splitting long lists in order. Works without saved tracks expand using their contents at upgrade time. Unrecoverable entries show a note; temporarily missing saved files show as unavailable.
 
+Open a playlist and select **Play all** to start at the beginning. Tap an audio or video item to start there and continue through the full list in order; earlier items remain available with **Previous**. Open **More playback options** to shuffle the full list or add it to the queue. After searching, you can also play only the results. Tapping a search result still plays the full list from that item.
+
+An item's menu lets you play only that item, play it next, add it to the queue, view its file or work details, or choose **Add from here…** to place that item and the following items next or at the end of the queue. A group heading only expands the group; use its menu to play the group. Unavailable items cannot be tapped to play. Editing a playlist leaves the current queue alone.
+
 ## Playback and resuming
 
 Play from a work or folder, choosing available editions/formats such as sound effects or WAV. Use Listening history to resume. Add favorites to queues, playlists, or collections.
@@ -187,7 +191,7 @@ Administrators can create, edit, or convert transcripts from the player menu and
 
 ### Preparing media tools
 
-Linux, Windows, and Docker releases include FFmpeg/FFprobe for compatible transcoding, loudness normalization, previews, audio track selection, and embedded subtitles for supported local files. Availability depends on format and extracted information. Compatible remote sources play originals without these operations. Keep Linux's `media-tools` beside the program and extract the complete archive.
+Linux, Windows, and Docker releases include FFmpeg/FFprobe for compatible transcoding, loudness normalization, previews, audio track selection, and embedded subtitles for supported local files. Availability depends on format and extracted information. Readable compatible-source videos also offer supported transcoding qualities. Keep Linux's `media-tools` beside the program and extract the complete archive.
 
 Check availability under Parsing tools. Custom tools must support `fd` input; enter both executable paths, test, then save. Clear both paths to restore defaults. Automatic download requires internet access and about 500 MB free on the server.
 
@@ -377,3 +381,37 @@ Administrators can enable Guest experience in User management. Guests enter from
 Use the language button on the connection/login page or account menu to select 简体中文, 繁體中文, 日本語, English, or Follow system. Signed-in choices are also in Appearance & browsing preferences and saved with your account for other devices. Signed-out choices stay on this device and return after signing out. Offline local playback uses the most recently used language.
 
 Follow system uses a supported device language, choosing Traditional Chinese for Traditional Chinese regions and Simplified Chinese for other Chinese regions, or English if none match. Switching the interface does not rename works, files, or collections, or change metadata, audio, or subtitle languages; choose those independently in their menus. Installers currently use Simplified Chinese. Management/CLI tools primarily use English; historical release notes are Chinese and English.
+
+
+## Circles, voice actors and illustrators
+
+Search a name in Circles, Voice actors or Illustrators, then open an entry to browse library works. Entry images use associated work covers. Select a work to open its details. Under Works from, choose a DLsite floor to discover more works and open their DLsite pages. Discover works also accepts names absent from your library; configured compatible sources provide another search option. Name searches may miss works or match another person; illustrator searches in compatible sources depend on their indexed credits. Refresh reads from page one again. Failed refreshes retain the current results; Retry tries again. Discovery does not add works or download media automatically.
+
+
+## Automatic checks without changes
+
+A periodic check that finds no changes does not repeat organization, metadata fetching or media information extraction. Existing pending work and scheduled retries continue.
+
+## Problems and detailed diagnostics
+
+Administrators can open System logs in Settings. Needs attention shows problems first; choose All records for operation results and expand details when reporting an issue. Task details contain progress, failed items, and retry options.
+
+To investigate a problem, open Detailed diagnostics in Settings, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.
+
+
+## Listening statistics and recommendations
+
+Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. Playback from the server library is recorded; the phone’s local library is excluded.
+
+In work details, select My rating and choose one to five stars. Open it again to change or remove your rating. Your account rates the whole archived work across its formats and playback groups. Cards show your rating separately from the public rating.
+
+For you offers You might like, Try something different and Listen again. Open a work or play it directly, and use Refresh picks to change the selection. Deleting a resume record keeps your statistics and ratings.
+
+
+### Video quality and transcoding limits
+
+Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices; switching resumes at the current position after buffering. Unsupported videos offer only Original format. This applies to local sources and readable kikoeru-compatible videos. Direct playback depends on your device. Compatible Auto uses a default quality budget; it does not continuously adapt to network speed.
+
+Administrators can set maximum transcoded height, video bitrate and worker threads per task in Processing settings. Use 0 for no height/bitrate limit. Threads accept 1–64; 0 uses one worker. Limits apply to new transcoding tasks and do not restrict original-format direct playback. Transcoding preserves source files, does not upscale the picture and retains the source frame rate.
+
+Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.

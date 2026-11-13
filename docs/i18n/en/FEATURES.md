@@ -9,6 +9,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## Organizing your library
 
+- Browse circles, voice actors and illustrators with associated work covers; manually discover related works on DLsite or compatible sources and refresh results.
 - Browse original media folders or organize files into works. Enable scanning, archiving, metadata fetching, and media information extraction independently, and adjust work membership manually.
 - Add kikoeru-compatible libraries, search works, browse/filter circles, tags, and voice actors, and save selected works or files to your server as needed.
 - Search titles, voice actors, circles, tags, or work numbers. Partial RJ numbers show suggestions; title-only search narrows the scope.
@@ -21,7 +22,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Play from works/folders, choosing available editions and formats such as sound effects, MP3, or WAV.
 - Follow subtitles and transcripts, set a sleep timer, resume progress, and organize collections/playlists. Administrators can create, edit, and convert transcripts.
 - Browse collections by work cards or lists. Individual audio/video files and clips are grouped in Soundbox. Smart discovery uses the same organization and saves directly as a collection.
-- Playlists preserve exact tracks, duplicates, and order. Older custom collections become playlists on upgrade.
+- Playlists preserve exact tracks, duplicates, and order. Start at any item and continue through the full list, play one item or search results, shuffle, or add following items to the queue. Older custom collections become playlists on upgrade.
 - Audio pages, bottom controls, transcript windows, and local playback provide 10-second back/forward buttons; seeking while paused keeps playback paused.
 - Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles remain visible over other apps.
 - Open Windows from Start and install updates from Ruri → Check for updates. Windows/Linux installers select and validate listen IP/port. Windows uninstall can retain data or explicitly clear it while keeping original media.
@@ -44,6 +45,9 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Export system data, all work details, or one work; restore with new media paths. Missing media can retain details until files return and are scanned again.
 - Enable/disable guests for password-free demo browsing/playback. Guests cannot save personal content; disabling ends guest access.
 
+- Administrators can review problems and operation results, and enable detailed diagnostics in Settings while investigating an issue.
+
+
 ## Scope and limits
 
 - Server packages support Linux/Windows x64 and Docker Linux x86-64; no ARM package is provided.
@@ -52,3 +56,17 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Browsers cannot read a computer's real hostname. Session names help identify sign-ins but do not prove device identity.
 
 [Installation and user guide](USAGE.md)
+
+
+## Listening statistics and recommendations
+
+- Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. Playback from the server library is recorded; the phone’s local library is excluded.
+- In work details, select My rating and choose one to five stars. Open it again to change or remove your rating. Your account rates the whole archived work across its formats and playback groups. Cards show your rating separately from the public rating.
+- For you offers You might like, Try something different and Listen again. Open a work or play it directly, and use Refresh picks to change the selection. Deleting a resume record keeps your statistics and ratings.
+
+
+### Video quality and transcoding limits
+
+Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices; switching resumes at the current position after buffering. Unsupported videos offer only Original format. This applies to local sources and readable kikoeru-compatible videos. Direct playback depends on your device. Compatible Auto uses a default quality budget; it does not continuously adapt to network speed.
+
+Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.

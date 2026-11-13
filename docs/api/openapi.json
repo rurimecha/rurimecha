@@ -185,7 +185,7 @@
           "catalog"
         ],
         "summary": "listWorks",
-        "description": "Whitespace-separated literal terms (max 16) must each match adopted metadata or explicit entity aliases. Terms may match different fields/locales. Unicode normalization does not modify source text. sort=relevance requires nonempty q and prioritizes exact code, recognized code prefix, title, credits, then other matches. search_scope=title matches saved titles only and ranks whole title, title prefix, then other title matches; ties by creation descending and identity. Default reads select one metadata version per work using the account language order and personal work override. In family mode, filters select local works and q also searches related cached product texts/credits/tags. Family totals are computed before pagination; relevance puts local matches before cache-only matches. Other sorts order by the first matching local representative. Unidentified or conflicting identifiers remain independent; contradictory original declarations isolate each product. family mode rejects include_inactive=true; retained records remain queryable in ordinary work mode.",
+        "description": "Whitespace-separated literal terms (max 16) must each match adopted metadata or explicit entity aliases. Terms may match different fields/locales. Unicode normalization does not modify source text. sort=relevance requires nonempty q and prioritizes exact code, recognized code prefix, title, credits, then other matches. search_scope=title matches saved titles only and ranks whole title, title prefix, then other title matches; ties by creation descending and identity. Default reads select one metadata version per work using the account language order and personal work override. In family mode, filters select local works and q also searches related cached product texts/credits/tags. Family totals are computed before pagination; relevance puts local matches before cache-only matches. Other sorts order by the first matching local representative. Unidentified or conflicting identifiers remain independent; contradictory original declarations isolate each product. family mode rejects include_inactive=true; retained records remain queryable in ordinary work mode. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "responses": {
           "200": {
             "description": "Success",
@@ -431,7 +431,7 @@
             "schema": {
               "type": "boolean"
             },
-            "description": "Included, present subtitle links or observed subtitle streams/nonempty lyrics on available work media. Excluded links, missing resources and unrelated lyric tags do not count; decoding is not guaranteed."
+            "description": "Filter the saved work subtitle flag, refreshed after scans, organization, probes and explicit subtitle edits. Includes linked external, application and embedded subtitles or nonempty lyrics. Out-of-app file changes appear after a rescan/organization. Exact counts use the saved flags; files are not matched or verified during this query."
           },
           {
             "name": "source_id",
@@ -3526,7 +3526,7 @@
           "scan"
         ],
         "summary": "listNodes",
-        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted.",
+        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3838,7 +3838,7 @@
                 "unknown"
               ]
             },
-            "description": "Valid indexed sidecars/manual associations or current embedded subtitles/lyrics. No valid observation, truncated observations or an incompletely read parent directory leave absence unknown; no requires complete information."
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
           },
           {
             "name": "language",
@@ -4003,7 +4003,7 @@
           "scan"
         ],
         "summary": "listScanJobs",
-        "description": "listScanJobs",
+        "description": "listScanJobs Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4167,7 +4167,7 @@
           "scan"
         ],
         "summary": "getScanJob",
-        "description": "getScanJob",
+        "description": "getScanJob Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4380,7 +4380,7 @@
           "scan"
         ],
         "summary": "listScanIssues",
-        "description": "listScanIssues",
+        "description": "listScanIssues Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4476,7 +4476,7 @@
           "logs"
         ],
         "summary": "queryLogs",
-        "description": "Newest first over latest 5000 retained entries. before is an exclusive string cursor. Successful log queries do not log themselves.",
+        "description": "Administrator only. Newest first over latest 5000 retained entries. before is exclusive. Successful log queries and health checks do not log themselves. Normal progress and successful reads are recorded only when detailed diagnostics are enabled.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4538,11 +4538,14 @@
             "schema": {
               "type": "string",
               "enum": [
+                "attention",
+                "debug",
                 "info",
                 "warn",
                 "error"
               ]
-            }
+            },
+            "description": "Exact level, or attention for warn and error together. Omit for all retained records."
           },
           {
             "name": "q",
@@ -5296,7 +5299,7 @@
           "scan"
         ],
         "summary": "Page organization history; result is null in summaries",
-        "description": "Page organization history; result is null in summaries",
+        "description": "Page organization history; result is null in summaries Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -5383,7 +5386,7 @@
           "scan"
         ],
         "summary": "Read organization task status and result",
-        "description": "Read organization task status and result",
+        "description": "Read organization task status and result Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "responses": {
           "200": {
             "description": "Success",
@@ -8839,7 +8842,7 @@
           "media-probe"
         ],
         "summary": "listMediaProbeJobs",
-        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。",
+        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。 Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "source_id",
@@ -8917,7 +8920,7 @@
           "media-probe"
         ],
         "summary": "getMediaProbeJob",
-        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。",
+        "description": "独立的只读音视频信息探测，任务与作品归纳分离。详见 media-probe.md。 Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "job",
@@ -9094,7 +9097,7 @@
           "media-probe"
         ],
         "summary": "listMediaProbeItems",
-        "description": "仅列出实际提取、失败及未完成的文件明细。缓存复用仅累计任务 skipped 总数，不保留完成后的逐文件复用明细。不保存 skipped 明细，state=skipped 查询返回 invalid_argument。明细 total 是过滤后记录数，可小于任务 total/processed。检查中的文件仍显示 running，状态筛选、total 和分页采用同一有效状态。见 media-probe.md。",
+        "description": "仅列出实际提取、失败及未完成的文件明细。缓存复用仅累计任务 skipped 总数，不保留完成后的逐文件复用明细。不保存 skipped 明细，state=skipped 查询返回 invalid_argument。明细 total 是过滤后记录数，可小于任务 total/processed。检查中的文件仍显示 running，状态筛选、total 和分页采用同一有效状态。见 media-probe.md。 Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately. After termination only unfinished items are listed; succeeded/reused items remain in job summary counts. Item-page total counts retained details, not all processed objects.",
         "parameters": [
           {
             "name": "job",
@@ -10246,6 +10249,14 @@
               "type": "string"
             },
             "description": "Version pin for an authorized virtual clip. Ordinary files reject this parameter."
+          },
+          {
+            "name": "video_quality",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only mode=mp4: auto or an id from this node playback.video_qualities. Unknown or no longer permitted ids are rejected. Missing means auto."
           }
         ],
         "responses": {
@@ -10776,6 +10787,14 @@
               "type": "string"
             },
             "description": "Version pin for an authorized virtual clip. Ordinary files reject this parameter."
+          },
+          {
+            "name": "video_quality",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only mode=mp4: auto or an id from this node playback.video_qualities. Unknown or no longer permitted ids are rejected. Missing means auto."
           }
         ],
         "responses": {
@@ -12009,7 +12028,7 @@
           "metadata-scraper"
         ],
         "summary": "listScrapeJobs",
-        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md.",
+        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "limit",
@@ -12163,7 +12182,7 @@
           "metadata-scraper"
         ],
         "summary": "getScrapeJob",
-        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md.",
+        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "job",
@@ -12358,7 +12377,7 @@
           "metadata-scraper"
         ],
         "summary": "listScrapeItems",
-        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md.",
+        "description": "Opt-in RJ scraping with shared persistent successful cache. Default requests reuse cache; explicit force refreshes upstream. Global work concurrency and per-RJ request coalescing. See metadata-scraping.md. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately. After termination only unfinished items are listed; succeeded/reused items remain in job summary counts. Item-page total counts retained details, not all processed objects.",
         "parameters": [
           {
             "name": "job",
@@ -13161,7 +13180,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "description": "Same filters as works, full filtered set counts; limit/offset do not change counts. At most 100 values per facet; truncated indicates omitted values. Default reads select one metadata version per work using the account language order and personal work override.",
+        "description": "Same filters as works, full filtered set counts; limit/offset do not change counts. At most 100 values per facet; truncated indicates omitted values. Default reads select one metadata version per work using the account language order and personal work override. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "parameters": [
           {
             "name": "search_scope",
@@ -13353,7 +13372,7 @@
             "schema": {
               "type": "boolean"
             },
-            "description": "Included, present subtitle links or observed subtitle streams/nonempty lyrics on available work media. Excluded links, missing resources and unrelated lyric tags do not count; decoding is not guaranteed."
+            "description": "Filter the saved work subtitle flag, refreshed after scans, organization, probes and explicit subtitle edits. Includes linked external, application and embedded subtitles or nonempty lyrics. Out-of-app file changes appear after a rescan/organization. Exact counts use the saved flags; files are not matched or verified during this query."
           },
           {
             "name": "source_id",
@@ -13818,7 +13837,7 @@
             "$ref": "#/components/responses/Error"
           }
         },
-        "description": "Newest 100 jobs, including terminal jobs. No query parameters."
+        "description": "Newest 100 jobs, including terminal jobs. No query parameters. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately."
       }
     },
     "/library-jobs/{job}": {
@@ -13876,7 +13895,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": " Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately."
       },
       "delete": {
         "operationId": "deleteLibraryJob",
@@ -14009,7 +14029,7 @@
           "scan"
         ],
         "summary": "Browse indexed nodes across sources",
-        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted.",
+        "description": "Browse indexed nodes with combined directory, file, current-media and owning-work filters. File-specific filters preserve navigation directories in nonrecursive browsing. Counts, directory match counts, ordering and pagination use one read snapshot; browsing never opens media or starts extraction. Supplied empty filter values are invalid; omit a condition to leave it unrestricted. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued.",
         "responses": {
           "200": {
             "description": "Success",
@@ -14312,7 +14332,7 @@
                 "unknown"
               ]
             },
-            "description": "Valid indexed sidecars/manual associations or current embedded subtitles/lyrics. No valid observation, truncated observations or an incompletely read parent directory leave absence unknown; no requires complete information."
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
           },
           {
             "name": "language",
@@ -17022,7 +17042,7 @@
         "tags": [
           "catalog"
         ],
-        "summary": "Browse tags, voice actors or circles with distinct active-work counts",
+        "summary": "Browse tags, circles, voice actors or illustrators",
         "responses": {
           "200": {
             "description": "Success",
@@ -17066,7 +17086,8 @@
               "enum": [
                 "tag",
                 "voice_actor",
-                "circle"
+                "circle",
+                "illustrator"
               ]
             }
           },
@@ -17120,7 +17141,7 @@
             "description": "Select this exact saved metadata locale for this request. Work lists and counts omit works without that language. A single work or its images return 404 when it is unavailable."
           }
         ],
-        "description": "Page distinct names from the active work display versions. Counts use distinct works. Tag and credit names are counted separately even when an entity associates them."
+        "description": "Page distinct names from the active work display versions. Counts use distinct works. Tag and credit names are counted separately even when an entity associates them. Browsing reads saved directory/family relationships, metadata-language choices and facet entries. Human edits update affected results before returning success; background jobs maintain them when publishing results. Reads never rebuild summaries. Arbitrary filters, ordering, pagination and exact counts remain supported. Edits requiring organization save immediately and coalesce into one global pending organization request; at most one organization job may be queued."
       }
     },
     "/settings/queues/{kind}": {
@@ -21059,7 +21080,7 @@
           "scan"
         ],
         "summary": "getRemoteDownload",
-        "description": "Read save progress.",
+        "description": "Read save progress. Completed task history is retained for up to 48 hours after termination; expired tasks return not found. Library data and user drafts are retained separately.",
         "parameters": [
           {
             "name": "job",
@@ -21395,6 +21416,934 @@
               "type": "string"
             },
             "description": "Current resource ETag from GET."
+          }
+        ]
+      }
+    },
+    "/creator-discovery": {
+      "get": {
+        "operationId": "discoverCreator",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read one fresh public DLsite creator catalog/search page",
+        "description": "Authenticated read-only discovery. Supports members and guests. Uses metadata proxy/timeout settings, without applying metadata or importing works/media. Names may match other people or roles. No persistent catalog or automatic refresh. work_id optionally resolves a matching DLsite circle reference. RJ works only, from the selected doujin floor. A failed/changed/challenge page returns 502; it does not mean an empty catalog. Pagination is provider dependent.",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "circle",
+                "voice_actor",
+                "illustrator"
+              ]
+            },
+            "required": true
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "required": true
+          },
+          {
+            "name": "site",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "maniax",
+                "home",
+                "girls"
+              ],
+              "default": "maniax"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1
+            }
+          },
+          {
+            "name": "work_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fresh page; follow has_next to request another page. No guaranteed complete catalog.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatorDiscoveryPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/creator-discovery/{code}/cover": {
+      "get": {
+        "operationId": "creatorDiscoveryCover",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read a DLsite work thumbnail",
+        "description": "Authenticated read, including members and guests. Only a validated RJ code determines the fixed DLsite image address. No arbitrary URL input. Preserves supported image bytes; no persistent cache.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^RJ(?:[0-9]{6}|[0-9]{8})$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Work thumbnail; private cache for 300 seconds.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/logs/settings": {
+      "get": {
+        "operationId": "getLogSettings",
+        "tags": [
+          "logs"
+        ],
+        "summary": "Get log recording settings",
+        "description": "Administrator only. Persisted server-wide preference, initially disabled. Changes apply immediately. ETag identifies the current settings revision.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setLogSettings",
+        "tags": [
+          "logs"
+        ],
+        "summary": "Update log recording settings",
+        "description": "Administrator only. Persisted server-wide preference, initially disabled. Changes apply immediately. Requires If-Match from GET /logs/settings; stale updates return 412. A failed save leaves the active setting unchanged.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current resource ETag from GET."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogSettings"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/works/{work}/cover": {
+      "get": {
+        "operationId": "getWorkCover",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read the preferred local or cached work cover",
+        "description": "Authenticated read. Resolves the first local work artwork, then the first downloaded cover in the selected metadata view, without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Existing image authorization, Range, ETag and private cache rules apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "thumbnail requests a JPEG scaled to fit 512 pixels; omitted returns the original image.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional exact metadata language; omitted follows account display preferences."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "206": {
+            "description": "Partial image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "416": {
+            "description": "Range not satisfiable"
+          }
+        }
+      },
+      "head": {
+        "operationId": "headWorkCover",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read the preferred local or cached work cover",
+        "description": "Authenticated read. Resolves the first local work artwork, then the first downloaded cover in the selected metadata view, without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Existing image authorization, Range, ETag and private cache rules apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Range",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "thumbnail requests a JPEG scaled to fit 512 pixels; omitted returns the original image.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional exact metadata language; omitted follows account display preferences."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image headers only"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "206": {
+            "description": "Partial headers only"
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "416": {
+            "description": "Range not satisfiable"
+          }
+        }
+      }
+    },
+    "/account/works/{work}/rating": {
+      "get": {
+        "operationId": "workRatingGet",
+        "summary": "workRatingGet",
+        "tags": [
+          "playback"
+        ],
+        "description": "Private whole-work rating, independent of metadata. Active work required. Missing rating has stars=0, revision=1. Guest accounts cannot access.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkRating"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "workRatingPut",
+        "summary": "workRatingPut",
+        "tags": [
+          "playback"
+        ],
+        "description": "Replace the current account rating. Integer 1–5; zero cancels rating and retains a new revision. 412 preserves newer edits. Does not rate files, clips or collections.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkRating"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong rating-<work>:<revision> ETag from GET."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkRatingInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/listening/report": {
+      "post": {
+        "operationId": "reportListening",
+        "summary": "reportListening",
+        "tags": [
+          "playback"
+        ],
+        "description": "Add an online playback interval for the current account. Additive, best effort, no retry after an ambiguous result. Server resolves media ownership; clips count toward their original work. Unarchived media count in daily totals. The first UTC offset becomes the account reporting offset. Guests are rejected.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "204": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListeningReport"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/listening/statistics": {
+      "get": {
+        "operationId": "listeningStats",
+        "summary": "listeningStats",
+        "tags": [
+          "playback"
+        ],
+        "description": "Private daily totals and top ten current works, voices, circles and tags in the selected range. Work count requires at least 60 seconds within the range. Categories overlap. Removed works leave daily totals intact. No statistics deletion endpoint.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListeningStatistics"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "30d",
+                "12m",
+                "year",
+                "all"
+              ],
+              "default": "30d"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1970
+            },
+            "description": "For range=year; defaults to the current reporting year."
+          }
+        ]
+      }
+    },
+    "/listening/recommendations": {
+      "get": {
+        "operationId": "listeningRecommendations",
+        "summary": "listeningRecommendations",
+        "tags": [
+          "playback"
+        ],
+        "description": "Private rule-based shelves with up to eight works each. Current available audio only; deduplicated by declared product family. Explicit ratings take priority over bounded listening feedback. Featureless ratings never affect preference. Current account metadata and playback-version choices apply. Does not query remote catalogs or download media.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListeningRecommendations"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "description": "Stable reshuffle seed."
           }
         ]
       }
@@ -22671,7 +23620,8 @@
               "yes",
               "no",
               "unknown"
-            ]
+            ],
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
           },
           "languages": {
             "type": "array",
@@ -23074,6 +24024,7 @@
           "level": {
             "type": "string",
             "enum": [
+              "debug",
               "info",
               "warn",
               "error"
@@ -23819,7 +24770,8 @@
           },
           "index_revision": {
             "type": "string",
-            "pattern": "^[0-9]+$"
+            "pattern": "^[0-9]+$",
+            "description": "Directory observation inputs or coverage revision. An unchanged rescan refreshes its checkpoint without advancing this revision."
           },
           "config_revision": {
             "type": "string",
@@ -24263,7 +25215,8 @@
             "minimum": 0
           },
           "index_revision": {
-            "type": "string"
+            "type": "string",
+            "description": "Directory observation inputs or coverage revision. An unchanged rescan refreshes its checkpoint without advancing this revision."
           },
           "analysis": {
             "$ref": "#/components/schemas/AnalysisStats"
@@ -28056,7 +29009,8 @@
           },
           "raw": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "description": "Empty object for compatibility; upstream responses are not persisted."
           },
           "fetched_at": {
             "type": "string",
@@ -28831,7 +29785,8 @@
                 "type": "string"
               },
               "has_subtitle": {
-                "type": "string"
+                "type": "string",
+                "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files."
               },
               "language": {
                 "type": "string"
@@ -29312,6 +30267,27 @@
           },
           "exiftool_path": {
             "type": "string"
+          },
+          "max_video_height": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4320,
+            "default": 0,
+            "description": "Maximum transcoded video height. 0 is unrestricted; otherwise 144..4320. Direct originals are unaffected."
+          },
+          "max_video_bitrate_kbps": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120000,
+            "default": 0,
+            "description": "Maximum encoded video bitrate in kbps. 0 is unrestricted; otherwise 128..120000. Audio is budgeted separately."
+          },
+          "transcode_threads": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64,
+            "default": 0,
+            "description": "Maximum workers per codec/filter pool per job. 0 preserves the single-worker default. Does not bound the total OS thread count."
           }
         },
         "required": [
@@ -29434,7 +30410,8 @@
           "finished": {
             "type": "boolean"
           }
-        }
+        },
+        "description": "Ephemeral diagnostics for active tasks; finished tasks return available=false."
       },
       "FileInformation": {
         "type": "object",
@@ -29804,8 +30781,7 @@
           "provider",
           "code",
           "url",
-          "fetched_at",
-          "raw"
+          "fetched_at"
         ],
         "properties": {
           "provider": {
@@ -29829,7 +30805,7 @@
             "format": "date-time"
           },
           "raw": {
-            "description": "Original upstream JSON evidence, at most 12 MiB. Not replaced by local translations."
+            "description": "Optional legacy input only; discarded after import. New exports omit upstream responses."
           }
         }
       },
@@ -29934,7 +30910,10 @@
           "name",
           "count",
           "entity_id",
-          "aliases"
+          "aliases",
+          "work_id",
+          "cover_work_id",
+          "cover_work"
         ],
         "properties": {
           "name": {
@@ -29956,6 +30935,41 @@
               "type": "string"
             },
             "description": "Distinct explicit alias names except the display name; empty for raw names."
+          },
+          "work_id": {
+            "type": "string",
+            "description": "A newest associated active work, for opening or resolving a source circle identifier."
+          },
+          "cover_work_id": {
+            "type": "string",
+            "description": "Newest associated active work with a cover, or empty. Only works matching this entry and role are eligible."
+          },
+          "cover_work": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Selected cover work from the same snapshot. Pass this object to the work cover loader; null when cover_work_id is empty. Revision and metadata_locale distinguish cache entries.",
+            "required": [
+              "id",
+              "revision",
+              "metadata_locale",
+              "cover_ref"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "revision": {
+                "type": "string"
+              },
+              "metadata_locale": {
+                "type": "string"
+              },
+              "cover_ref": {
+                "$ref": "#/components/schemas/CoverRef"
+              }
+            }
           }
         }
       },
@@ -30448,6 +31462,13 @@
                 "start_seconds"
               ]
             }
+          },
+          "video_qualities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VideoQuality"
+            },
+            "description": "Only supported video transcodes, filtered by input and administrator limits. Empty for unavailable/unsupported video processing."
           }
         },
         "required": [
@@ -30813,7 +31834,7 @@
           },
           "has_subtitle": {
             "type": "string",
-            "description": "yes/no/unknown; absence is unknown without a current complete observation and an indexed completely read parent directory.",
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files.",
             "minLength": 1
           },
           "language": {
@@ -31093,7 +32114,7 @@
           },
           "has_subtitle": {
             "type": "string",
-            "description": "yes/no/unknown; absence is unknown without a current complete observation and an indexed completely read parent directory.",
+            "description": "Saved yes/no/unknown subtitle availability, refreshed after scans, organization, probes and explicit subtitle edits. Out-of-app file changes appear after a rescan/organization; this query does not match or verify files.",
             "minLength": 1
           },
           "language": {
@@ -31367,6 +32388,12 @@
               }
             ],
             "nullable": true
+          },
+          "user_rating": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5,
+            "description": "Current account whole-work rating; zero means unrated. Independent of provider ratings."
           }
         },
         "required": [
@@ -32901,6 +33928,325 @@
             "description": "Nonempty, at most 240 UTF-8 bytes. Names are not identities and may repeat."
           }
         }
+      },
+      "CreatorDiscoveryWork": {
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "url",
+          "cover_url"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "cover_url": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatorDiscoveryPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "page",
+          "has_next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatorDiscoveryWork"
+            }
+          },
+          "page": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LogSettings": {
+        "type": "object",
+        "properties": {
+          "diagnostics_enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Record detailed diagnostics immediately and across restarts. Disabling stops new diagnostic records without deleting retained entries."
+          }
+        },
+        "required": [
+          "diagnostics_enabled"
+        ],
+        "additionalProperties": false
+      },
+      "WorkRating": {
+        "type": "object",
+        "properties": {
+          "work_id": {
+            "type": "string"
+          },
+          "stars": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_id",
+          "stars",
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "WorkRatingInput": {
+        "type": "object",
+        "properties": {
+          "stars": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          }
+        },
+        "required": [
+          "stars"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningReport": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120
+          },
+          "utc_offset_minutes": {
+            "type": "integer",
+            "minimum": -840,
+            "maximum": 840
+          }
+        },
+        "required": [
+          "node_id",
+          "seconds",
+          "utc_offset_minutes"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "day",
+          "seconds"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningRank": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "seconds"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningStatistics": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "active_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "work_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningDay"
+            }
+          },
+          "works": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          },
+          "voices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          },
+          "circles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRank"
+            }
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "seconds",
+          "active_days",
+          "work_count",
+          "days",
+          "works",
+          "voices",
+          "circles",
+          "tags"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningRecommendation": {
+        "type": "object",
+        "properties": {
+          "work": {
+            "$ref": "#/components/schemas/WorkDisplay"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "voice_actor",
+              "circle",
+              "tag",
+              "again",
+              "explore",
+              "random"
+            ]
+          },
+          "feature": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "work",
+          "reason",
+          "feature"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningShelf": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "like",
+              "explore",
+              "again"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningRecommendation"
+            }
+          }
+        },
+        "required": [
+          "kind",
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "ListeningRecommendations": {
+        "type": "object",
+        "properties": {
+          "shelves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListeningShelf"
+            }
+          }
+        },
+        "required": [
+          "shelves"
+        ],
+        "additionalProperties": false
+      },
+      "VideoQuality": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "max_height": {
+            "type": "integer"
+          },
+          "bitrate_kbps": {
+            "type": "integer",
+            "description": "Total audio/video media bitrate budget."
+          },
+          "video_bitrate_kbps": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "max_height",
+          "bitrate_kbps",
+          "video_bitrate_kbps"
+        ]
       }
     }
   },

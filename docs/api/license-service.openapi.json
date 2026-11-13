@@ -1481,7 +1481,7 @@
     "/public/lookup": {
       "post": {
         "operationId": "requestAuthorizationLookup",
-        "description": "Send a short-lived lookup link when the email has licenses; the response does not reveal whether the address exists.",
+        "description": "Send a one-use lookup link valid for 15 minutes when the email has licenses. Successful responses do not reveal whether the address exists. Trim surrounding whitespace and lowercase the email before all lookups and limits. Each normalized email has a 60-second cooldown, 3 requests per UTC clock hour and 10 per UTC day; each IP has 10 requests per fixed 10-minute window, in addition to the edge per-route limit. Unknown addresses share the same request limits. When human verification is configured, turnstile_token is required and verified for this hostname and the license_lookup action before any email quota is consumed. Query mail and administrator delivery share a daily send-attempt budget (default 100, reset at 00:00 UTC); failed send attempts also consume that budget. A public request checks budget availability before looking up the address.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1508,6 +1508,11 @@
                     ],
                     "default": "zh-Hans",
                     "description": "Language used for license and lookup emails."
+                  },
+                  "turnstile_token": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "description": "Required when human verification is enabled. Obtain a fresh Turnstile token for the license_lookup action on the same hostname."
                   }
                 }
               }
@@ -1542,6 +1547,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "403": {
+            "description": "verification_required; complete or refresh human verification before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -2246,7 +2261,7 @@
         }
       },
       "RateLimited": {
-        "description": "rate_limited; wait one minute before retrying",
+        "description": "rate_limited; wait for the applicable cooldown or IP/email request window to reset. Lookup limits may require waiting until the next UTC hour or day.",
         "content": {
           "application/json": {
             "schema": {
@@ -2256,7 +2271,7 @@
         }
       },
       "Unavailable": {
-        "description": "license_not_configured, license_schema_mismatch or self_service_unavailable",
+        "description": "license_not_configured, license_schema_mismatch, self_service_unavailable, mail_unavailable, mail_daily_limit or verification_unavailable. mail_daily_limit requires waiting until the daily send allowance resets.",
         "content": {
           "application/json": {
             "schema": {
