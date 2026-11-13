@@ -179,7 +179,7 @@ mark_missing=true 只核对被扫描子树的缺失，兄弟节点不改变 pres
 
 ## 前端媒体与未归档视图
 
-`GET /nodes` 跨来源分页，参数与 `/sources/{source}/nodes` 相同。两者提供 `view=all|media|unarchived`（默认 all）和上述完整筛选。media 保留目录和音视频文件；unarchived 仅返回 present 音视频文件，并排除已移除或正在移除的来源、拥有 active 作品 included 归属的文件、任一祖先或自身 ignored=true / boundary=exclude 的节点。该视图不创建作品、不触发探测，以有效已有观察及节点属性/扩展名作为类型线索，不保证媒体可解码。过滤在分页前执行，total/items 在同一只读快照取得。已归档展示仍使用 `/works`，不以 identification_state 区分归档。
+`GET /nodes` 跨来源分页，参数与 `/sources/{source}/nodes` 相同。两者提供 `view=all|media|unarchived`（默认 all）和上述完整筛选。media 保留目录和音视频文件；unarchived 仅返回 present 音视频文件，并排除已移除或正在移除的来源、拥有 active 作品 included 归属的文件、任一祖先或自身 ignored=true / boundary=exclude 的节点。被假删除作品的直属文件及普通子目录同样排除，独立子作品不受父作品假删除影响。该视图不创建作品、不触发探测，以有效已有观察及节点属性/扩展名作为类型线索，不保证媒体可解码。过滤在分页前执行，total/items 在同一只读快照取得。已归档展示仍使用 `/works`，不以 identification_state 区分归档。
 
 ## 新增路径的默认自动处理
 

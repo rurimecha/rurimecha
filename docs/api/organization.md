@@ -61,6 +61,8 @@ works 每项为 root_node_id、work_id、identifier、title、member_count、gro
 
 `desired_generation` 是当前输入代次，`applied_generation` 是已应用代次，均为字符串。两者不一致表示仍有变化待处理；输入停止变化且成功处理后两者相等。归纳不覆盖受保护的人工或 AI 字段。
 
+作品假删除与目录忽略不同：假删除根阻断上级继承、忽略直属文件及普通后代，但继续识别独立子作品根；它不复用 exclude 的整子树阻断，也不复用 not_work 的上级继承。原目录以及编号黑名单在输入快照中参与同一 BFS 和分支缓存。详情与解除见 [作品假删除](catalog.md#作品假删除与排除管理)。
+
 ## 解除与数据保护
 
 POST /works/{work}/release，正文 {}，使用作品 If-Match：删除指向该作品的 root/assign 决定。它不清空成员、分组、视角或字幕，不立即切换 active，也不会删除不带 work_id 的 exclude/not_work 决定。随后归纳才重算；取消人工根后，默认规则可能仍将同目录识别为作品。要禁止独立成作品使用 not_work，要完全排除使用 exclude。

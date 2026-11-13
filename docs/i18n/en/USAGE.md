@@ -415,3 +415,9 @@ Open Player settings → Video quality while watching a video. Supported videos 
 Administrators can set maximum transcoded height, video bitrate and worker threads per task in Processing settings. Use 0 for no height/bitrate limit. Threads accept 1–64; 0 uses one worker. Limits apply to new transcoding tasks and do not restrict original-format direct playback. Transcoding preserves source files, does not upscale the picture and retains the source frame rate.
 
 Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.
+
+## Deleting works and managing exclusions
+
+Administrators can open a work’s More actions → Delete work. This clears its information, fetched metadata, manual edits, and all users’ whole-work collection and playlist references. Original media and downloaded files remain. Its files and ordinary subfolders are ignored and do not join a parent work or appear as unarchived files; independent child works remain. Product codes such as RJ prevent re-registration across all sources. Without a code, only the original folder is excluded; moving or renaming it can allow registration again.
+
+Open Settings → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.
