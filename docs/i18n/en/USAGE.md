@@ -4,7 +4,7 @@
 
 **Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android connects to an already running Ruri server. The built-in administrator can use the web app and WebDAV without a license; Android online playback, downloads, and saved clips need an active server license. Completed downloads can be played offline on the phone.
 
-**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Current free trial licenses require an application and review, first activation within 7 days of issue, and last 31 days after first activation.
+**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
 
 ## Installation and first sign-in
 
