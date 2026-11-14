@@ -30311,6 +30311,11 @@
           },
           "size": {
             "type": "string"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "nullable": true,
+            "description": "Current indexed duration in seconds, as in node browsing; null when unknown."
           }
         }
       },
