@@ -30316,6 +30316,11 @@
             "type": "number",
             "nullable": true,
             "description": "Current indexed duration in seconds, as in node browsing; null when unknown."
+          },
+          "subtitle_state": {
+            "type": "string",
+            "enum": ["yes", "no", "unknown"],
+            "description": "Published subtitle availability, including eligible subtitles shared by audio versions."
           }
         }
       },

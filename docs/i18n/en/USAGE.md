@@ -179,6 +179,8 @@ An item's menu lets you play only that item, play it next, add it to the queue, 
 
 ## Playback and resuming
 
+When a track has no subtitles of its own, Ruri can use subtitles from another version in the same work and source. It prefers MP3/WAV alternatives in the same playback group, then versions with/without sound effects. Audio filenames must match exactly except for the final extension. Equally suitable subtitle sources are not selected automatically. Scan and archive the files first. Subtitles keep their original timing; adjust transcript timing if they appear early or late. Saving an edit creates a subtitle in the current audio folder and leaves the borrowed original unchanged.
+
 Play from a work or folder, choosing available editions/formats such as sound effects or WAV. Use Listening history to resume. Add favorites to queues, playlists, or collections.
 
 Audio pages, bottom controls, transcript windows, and local playback have Back 10 seconds and Forward 10 seconds. Seeking while paused stays paused. Wait if duration is unknown or media is loading. Drag the progress bar to see target time and available previews; Playback options select subtitles, tracks, and chapters. Extract media information if tracks/chapters are missing.
