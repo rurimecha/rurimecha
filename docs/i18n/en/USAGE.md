@@ -149,6 +149,8 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 ### Fetching from DLsite
 
+Administrators can enable DLsite smart routing in metadata settings to try fetching metadata, including region-restricted works, without a proxy. If direct access fails, Ruri tries the configured proxy. An active server license is required; retrieval is not guaranteed for every work. Save the setting, then force a metadata refresh to try again. Turning it off keeps saved metadata.
+
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
 
 ### Viewing, editing, and refreshing languages
