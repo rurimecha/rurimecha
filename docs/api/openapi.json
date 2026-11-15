@@ -28646,10 +28646,6 @@
               "ja"
             ],
             "description": "自动获取时逐一尝试的资料语言。"
-          },
-          "dlsite_smart_routing": {
-            "type": "boolean",
-            "description": "Enable DLsite smart routing to attempt metadata retrieval without a proxy and retrieve region-restricted work information. Requires an active product license. Omission on update preserves the saved value."
           }
         },
         "required": [
@@ -28669,8 +28665,7 @@
           "active_jobs",
           "scrape_url",
           "scrape_token_configured",
-          "metadata_locales",
-          "dlsite_smart_routing"
+          "metadata_locales"
         ],
         "additionalProperties": false,
         "description": "Independently enabled sources ordered by priority. Unknown/duplicate source IDs are rejected."
@@ -28779,10 +28774,6 @@
             "maxItems": 4,
             "uniqueItems": true,
             "description": "自动获取时逐一尝试的资料语言。"
-          },
-          "dlsite_smart_routing": {
-            "type": "boolean",
-            "description": "Enable DLsite smart routing to attempt metadata retrieval without a proxy and retrieve region-restricted work information. Requires an active product license. Omission on update preserves the saved value."
           }
         },
         "required": [
@@ -30839,10 +30830,6 @@
             "maxItems": 4,
             "uniqueItems": true,
             "description": "自动获取时逐一尝试的资料语言。"
-          },
-          "dlsite_smart_routing": {
-            "type": "boolean",
-            "description": "Enable DLsite smart routing to attempt metadata retrieval without a proxy and retrieve region-restricted work information. Requires an active product license. Omission on update preserves the saved value."
           }
         },
         "required": [
@@ -30859,8 +30846,7 @@
           "image_cache_max_bytes",
           "scrape_url",
           "scrape_token_configured",
-          "metadata_locales",
-          "dlsite_smart_routing"
+          "metadata_locales"
         ],
         "additionalProperties": false,
         "description": "Independently enabled sources ordered by priority. Unknown/duplicate source IDs are rejected."
@@ -31716,10 +31702,6 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 180
-          },
-          "dlsite_smart_routing": {
-            "type": "boolean",
-            "description": "Test using this draft choice. Requires an active product license when true."
           }
         },
         "required": [

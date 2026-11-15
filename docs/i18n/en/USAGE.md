@@ -149,7 +149,7 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 ### Fetching from DLsite
 
-Administrators can enable DLsite smart routing in metadata settings to try fetching metadata, including region-restricted works, without a proxy. If direct access fails, Ruri tries the configured proxy. An active server license is required; retrieval is not guaranteed for every work. Save the setting, then force a metadata refresh to try again. Turning it off keeps saved metadata.
+Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
 
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
 
