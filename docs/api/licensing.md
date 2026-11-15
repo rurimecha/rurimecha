@@ -12,7 +12,7 @@
 | `POST /license/activate` | `{"license_key":"…","device_name":"我的服务器"}`，密钥 32..256 字节，名称 1..80 个 Unicode 字符；成功返回当前状态 |
 | `POST /license/deactivate` | 必须提交空对象 `{}`；返回 `{"ok":true}` |
 
-状态 `active` 表示有效；其余为对应 `license_*` 代码。`capabilities.android_playback` 和 `capabilities.treasured_clips` 是当前程序的能力状态，允许增加其他键；未知键忽略。它用于展示当前可用的功能。
+状态 `active` 表示有效；其余为对应 `license_*` 代码。`capabilities.android_playback`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 是当前程序的能力状态，允许增加其他键；未知键忽略。它用于展示当前可用的功能。
 
 激活及续期需要 Core 连接发行方激活服务。同一许可证、同一实例密钥重复激活复用绑定名额，可在线更新期限和宿主机信息；到期日由云端许可证决定，重新激活不会重置期限。激活密钥只用于本次请求，不在 Core 持久保存或写入日志。超时后可安全重试。
 

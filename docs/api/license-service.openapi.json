@@ -1404,7 +1404,7 @@
     "/public/applications": {
       "post": {
         "operationId": "submitTestApplication",
-        "description": "Submit one test application per email address. Duplicate submissions return the same generic success response.",
+        "description": "Automatically issue and email one free trial per normalized email address. Repeated requests resend the original trial without extending its deadlines; existing manually issued trials are reused. Declined applications are not automatically reopened. Success is generic and never returns a license key or application status. Requires a license_trial Turnstile token when configured. Limits: 60 seconds between requests, 3 per hour and 10 per UTC day per email, 10 per hour per IP. Shares the daily mail budget with lookup and admin delivery. Mail failures return mail_unavailable and retain an issued trial for a later retry or email lookup. No automatic background retry.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1440,6 +1440,11 @@
                     ],
                     "default": "zh-Hans",
                     "description": "Language used for license and lookup emails."
+                  },
+                  "turnstile_token": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "description": "Turnstile response for action license_trial; required when verification is configured."
                   }
                 }
               }
@@ -1474,6 +1479,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
         }
       }

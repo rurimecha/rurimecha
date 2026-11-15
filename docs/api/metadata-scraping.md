@@ -20,7 +20,7 @@
 
 `download_extras` 控制默认下载样图和介绍插图，默认 false；PUT 省略/null 保留原值。封面在普通刮削任务中始终参与补图。开关本身不启动任务；download_extras 同其他设置一样可随时保存，活动任务结束后启用。
 
-并发是整个服务共享的**作品**数量；一部作品的 DLsite 商品 JSON/AJAX 发现、按当前商品语言抓取 HTML/必要的本地化 JSON，或者缓存站请求均在同一个槽位执行。同一作品不能同时进入多个任务；同 RJ 的网络请求还会合并，异 RJ 可并发。运行期间允许保存全部配置；顶层字段和 ETag/revision 表示已保存值，`active` 是当前生效的公开快照，`pending` 表示待生效，`active_jobs` 为当前任务数。原任务（包括图片读取与发布）继续使用启动快照；关闭开关也不自动取消原任务，需停止时使用任务取消接口。全部当前任务结束后启用最新保存值；待生效期间新任务返回 `409 scraper_settings_pending`，串联自动流程按忙时策略等待，避免新任务持续延后配置生效。空闲保存立即生效，重启时直接采用保存值。多次保存最后一次生效，过期 ETag 仍为 412，非法输入保留旧配置。关闭保留已有成功元数据和人工值；再次开启不会自动重跑历史任务。
+并发是整个服务共享的**作品**数量；一部作品的资料获取和图片处理使用同一个并发槽位。同一作品不能同时进入多个任务；同 RJ 的网络请求还会合并，异 RJ 可并发。运行期间允许保存全部配置；顶层字段和 ETag/revision 表示已保存值，`active` 是当前生效的公开快照，`pending` 表示待生效，`active_jobs` 为当前任务数。原任务（包括图片读取与发布）继续使用启动快照；关闭开关也不自动取消原任务，需停止时使用任务取消接口。全部当前任务结束后启用最新保存值；待生效期间新任务返回 `409 scraper_settings_pending`，串联自动流程按忙时策略等待，避免新任务持续延后配置生效。空闲保存立即生效，重启时直接采用保存值。多次保存最后一次生效，过期 ETag 仍为 412，非法输入保留旧配置。关闭保留已有成功元数据和人工值；再次开启不会自动重跑历史任务。
 
 超时是 DLsite 整个阶段的预算，也是每个 HTTP 请求的最大时长；缓存站 HTTP 请求最多为该设置的三倍。代理为空时直连，不继承进程代理环境变量。返回体有大小上限；失败信息不包含代理凭据或上游正文。
 
@@ -57,13 +57,13 @@
 
 除现有标题、简介、发售日期、正文语言、编号、社团/声优/脚本/插画/音乐/其他明确署名、题材、封面 URL，`product_info` 尽力保留系列、作品类型、年龄分类、文件格式/大小、价格/货币、折扣、评分/分布、下载/评论数、样图/缩略图、平台、语言版本与原作关联、排行、时长和字幕提示等实际提供的字段。系列名和别名参与作品搜索。扩展字段保留来源单位：DLsite `price` 为日元，asmr.one `duration` 为秒；`file_size` 可能是展示字符串或数值，不自行猜测单位。描述字段保留原始封面/样图 URL；图片任务会另外建立本地缓存，不下载作品音频。
 
-支持 DLsite 作品介绍中的有序章节、段落换行、介绍插图、商品曲目名与标示时长，返回在 `texts[].description_parts`，跟随该份文本的语言。HTML 页面优先，JSON `intro` / `intro_s` 和 asmr.one 简介作为回退；不提供可执行 HTML。HTML 图片章节不会被简短 JSON 摘要替换。JSON 标题同时识别 `work_name` / `product_name`；署名采用稳定角色顺序。asmr.one 另外接收实际提供的插画、脚本与作者字段。
+支持 DLsite 作品介绍中的有序章节、段落换行、介绍插图、商品曲目名与标示时长，返回在 `texts[].description_parts`，跟随该份文本的语言。完整章节不会被简短摘要替换；全部文字按纯文本提供，不包含可执行内容。署名采用稳定角色顺序，只保留来源实际提供的信息。
 
 以下规范字段可以直接用于详情页，不必由客户端判断不同上游的原始形状。原始扩展字段仍保留，不把商品关联变成本地作品身份：
 
 | 字段 | 形状和含义 |
 | --- | --- |
-| `product_info.sample_images` | 有序图片数组，元素为 `{url,thumbnail_url?,width?,height?,caption?}`；URL 为 HTTP(S)，尺寸省略/0 表示未知。HTML 轮播优先，JSON 样图回退，去重并排除轮播封面 |
+| `product_info.sample_images` | 有序图片数组，元素为 `{url,thumbnail_url?,width?,height?,caption?}`；URL 为 HTTP(S)，尺寸省略/0 表示未知。按资料来源提供的顺序保存，去重并排除封面 |
 | `product_info.age_rating` | `all_ages` / `r15` / `r18`；没有明确证据则缺失。`nsfw=false` 不足以推断全年龄 |
 | `product_info.series_name` / `series_id` | 兼容 DLsite 与 asmr.one 系列对象；系列编号只作商品事实，不据此合并作品 |
 | `product_info.language_versions` | `{code,language?,title?}` 数组；code 为规范 RJ，language 为已知 BCP 47；同号去重。其它版本不写进本作品正文语言，也不创建本地作品 |
@@ -162,13 +162,13 @@ GET `/works/{work}/scraped-metadata` 的 via/cache_url 记录当时实际获取�
 
 ## 提供者字段与补全规则
 
-product.json、编号 AJAX 和精确身份 HTML 分别验证，不因一个端点失败而整体丢弃其它端点确认的署名、标签、日期或系列。字段缺失/失败保留已有资料；署名按实际观察的角色保留未确认的其它角色。HTML 标题允许 OG/title 回退，但必须具有匹配当前编号的 DLsite canonical；错号、推荐卡片和伪造域名拒绝。
+返回资料必须匹配当前商品编号。部分获取失败时，仍保留已确认的署名、标签、日期或系列；字段缺失或失败保留已有资料。署名按实际观察的角色更新，未确认的其它角色保留。
 
 新增扩展事实：summaries 为按 BCP 47 locale 保存的短摘要，与完整 description/description_parts 独立；credit_references 保存提供者、角色、署名 ID、名称和链接；original_product 保存关联原作的编号、标题、社团与系列事实，不替换当前版文本；advertised_size/advertised_duration 保留卖方容量/时长，与本地媒体探测分开。field_sources 记录由次来源补齐的字段路径。原作可在当前版无封面时提供封面回退。不同语言摘要和正文均保留，抓取不自动翻译。
 
 ## 评分与价格的共同展示字段
 
-DLsite RJ 的动态商品请求优先使用 maniax-touch 的编号 AJAX，失败、空对象或错号时尝试 maniax 桌面 AJAX；BJ/VJ 使用各自 books/pro 分区，不枚举不确定的站点。product.json 提供基准资料，当前动态值逐字段覆盖。不会因统计字段缺失额外调用第三方统计接口。
+评分和价格表示最近一次成功获取的商品信息，不保证实时更新；需要更新时显式刷新作品资料。未提供的统计字段保持未知，不据此推算。
 
 DLsite 与 ASMR.one 均通过 product_info 提供：rate_average_2dp（0–5）、rate_count（评分人数）、rate_count_detail（分布）、dl_count（销量）、review_count（评论数）、wishlist_count（上游明确提供时的收藏数）、price（现价）、official_price（原价）、price_without_tax（税前价）、currency（JPY）、discount_rate（0–100 百分比）和 is_discount/is_sale/is_free（明确布尔标志）。只保存上游实际提供且类型、范围有效的字段，不推测缺失的评分人数、折扣或原价。评分 rate_average 可作为上游另一种评分表示，统一写入 rate_average_2dp。
 
@@ -191,3 +191,7 @@ Flutter 作品详情的“分项刷新”分别提交：缓存优先商品资料
 ## 记录保留
 
 已结束任务及其重试输入最多保留 48 小时；过期详情返回不存在。刮削／媒体探测任务结束后，明细仅保留未完成项，成功与复用项计入任务汇总；明细分页 total 为实际保留的明细数。性能指标仅在任务执行期间可用。日志同时受 48 小时与总容量限制。作品资料、人工修改、字幕草稿和收听记录不受影响。
+
+## 智能选路
+
+智能选路由网络设置独立管理，适用于 DLsite、ASMR Online 及相关资源。需要有效服务器授权；当前可用状态见 `GET /license` 的 `capabilities.smart_routing`。不再通过刮削设置或连接测试提交 `dlsite_smart_routing`。已有成功缓存需要强制刷新才会重新获取。

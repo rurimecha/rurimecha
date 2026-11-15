@@ -51,9 +51,6 @@ Ruri 接受独立工具产出的 `ruri-metadata` v1 JSON 包。一个包对应�
 
 导入后，作品描述/多语言接口立即返回已生效内容；图片通过已有 `/works/{work}/images` 和认证图片接口读取，不把来源 URL 换成私有文件路径。`GET /info` 的能力标识为 `metadata.packages`。
 
-## 独立服务生成数据包
-
-新 ruri-scrape 通过 `GET /api/v1/products/{code}/package` 提供当前包：本地命中直接返回，缺失时抓取并保存。该服务只提供文字包，images 为空；Core 仍接受其它合法来源提供的带图包。该服务不生成 AI 译文；包仍可携带显式提供的独立 locale 文本。详见 [服务协议](scrape-service.md)。
 
 ## 多语言商品资料
 

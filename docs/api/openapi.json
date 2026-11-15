@@ -765,7 +765,7 @@
           "catalog"
         ],
         "summary": "deleteWork",
-        "description": "Delete only this work metadata. Never delete media. Locked descendants require force.",
+        "description": "Soft-delete this work. Purge its descriptive metadata, edits and whole-work references across accounts; retain only an inactive identity and deletion exclusion. Its files and ordinary subdirectories are ignored up to independent child work roots. Never delete original media or saved copies. Valid product codes are excluded across sources; code-less roots are excluded at their source/path. Related running tasks must finish or be stopped first. Locked work records require force. Lift the exclusion to permit fresh organization/import; erased data is not restored. See catalog.md.",
         "responses": {
           "204": {
             "description": "Success",
@@ -22347,6 +22347,160 @@
           }
         ]
       }
+    },
+    "/library-exclusions": {
+      "get": {
+        "operationId": "listLibraryExclusions",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "List soft-deleted works and ignored nodes",
+        "description": "Administrator only. Combines minimal deleted-work records and effective node ignore/subtree exclusions. Stable pagination: limit defaults to 50 (1..500), offset defaults to 0. Each item includes its revision as a string. For release, construct If-Match as \"<id>:<revision>\". Deleted-work revisions are 1; node revisions are source input generations. No deleted descriptions or personal references are retained in these items.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryExclusionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ]
+      }
+    },
+    "/library-exclusions/{exclusion}": {
+      "delete": {
+        "operationId": "releaseLibraryExclusion",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Lift a work or node exclusion",
+        "description": "Administrator only. Delete one exclusion after checking its item revision with If-Match. Permits future local organization or explicit remote import; does not recover erased metadata or whole-work references. Other exclusions still apply. For node exclusions, clears the effective ignore and subtree exclusion on this node; child nodes retain their own settings. No task is started.",
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "exclusion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Opaque identifier; never interpret as a filesystem path."
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current quoted ETag of this source or parent work, for example \"work-id:7\"."
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -30157,6 +30311,20 @@
           },
           "size": {
             "type": "string"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "nullable": true,
+            "description": "Current indexed duration in seconds, as in node browsing; null when unknown."
+          },
+          "subtitle_state": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no",
+              "unknown"
+            ],
+            "description": "Published subtitle availability, including eligible subtitles shared by audio versions."
           }
         }
       },
@@ -34247,6 +34415,81 @@
           "bitrate_kbps",
           "video_bitrate_kbps"
         ]
+      },
+      "LibraryExclusion": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "code",
+          "source_id",
+          "source_name",
+          "path",
+          "revision"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "code",
+              "root",
+              "directory",
+              "ignored"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "source_name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "description": "Quoted-string revision; deleted-work records use 1, node records use the source input generation."
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LibraryExclusionPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LibraryExclusion"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        }
       }
     }
   },

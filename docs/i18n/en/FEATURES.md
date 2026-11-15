@@ -4,12 +4,15 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## Interface languages
 
+- Tracks without their own subtitles can use subtitles from exactly named MP3/WAV or sound-effect alternatives in the same work; equally suitable sources are not selected automatically.
 - Software and website support Simplified Chinese, Traditional Chinese, Japanese, and English, with manual selection or system language matching. Account choices sync after sign-in; anonymous choices stay on the device. Metadata, audio, and subtitle languages remain independent.
 - Installers currently use Simplified Chinese. Management and CLI tools primarily use English. Historical release notes are maintained in Chinese and English.
 
 ## Organizing your library
 
+- Delete individual works while keeping originals and ignoring their own files and ordinary subfolders; independent child works remain. Review and lift deleted-work and folder exclusions in Settings. Cleared information and references are not restored.
 - Browse circles, voice actors and illustrators with associated work covers; manually discover related works on DLsite or compatible sources and refresh results.
+- Smart routing is shared in Network settings and tries direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. It tries the configured proxy when needed and requires an active server license.
 - Browse original media folders or organize files into works. Enable scanning, archiving, metadata fetching, and media information extraction independently, and adjust work membership manually.
 - Add kikoeru-compatible libraries, search works, browse/filter circles, tags, and voice actors, and save selected works or files to your server as needed.
 - Search titles, voice actors, circles, tags, or work numbers. Partial RJ numbers show suggestions; title-only search narrows the scope.
@@ -39,6 +42,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## Shared use and moving devices
 
+- During testing, enter your own email on the website to receive a free trial automatically, once per address. Activate within 7 days and use it for 31 days after first activation. Retry later or look up an existing license if the email does not arrive.
 - The built-in administrator uses the web app/WebDAV. A server license enables extra accounts with shared media but separate collections, playlists, preferences, and progress.
 - Configure LAN ranges and per-user remote access. Nginx can provide HTTPS over an HTTP server; same-host Nginx and default Docker bridge deployment need no Trusted proxies entry.
 - Inspect active device names, client types, sign-in IPs/times, and revoke unused sessions.

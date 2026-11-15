@@ -4,7 +4,7 @@
 
 **Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android connects to an already running Ruri server. The built-in administrator can use the web app and WebDAV without a license; Android online playback, downloads, and saved clips need an active server license. Completed downloads can be played offline on the phone.
 
-**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Current free trial licenses require an application and review, first activation within 7 days of issue, and last 31 days after first activation.
+**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
 
 ## Installation and first sign-in
 
@@ -149,6 +149,8 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 ### Fetching from DLsite
 
+Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
+
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
 
 ### Viewing, editing, and refreshing languages
@@ -178,6 +180,8 @@ Open a playlist and select **Play all** to start at the beginning. Tap an audio 
 An item's menu lets you play only that item, play it next, add it to the queue, view its file or work details, or choose **Add from here…** to place that item and the following items next or at the end of the queue. A group heading only expands the group; use its menu to play the group. Unavailable items cannot be tapped to play. Editing a playlist leaves the current queue alone.
 
 ## Playback and resuming
+
+When a track has no subtitles of its own, Ruri can use subtitles from another version in the same work and source. It prefers MP3/WAV alternatives in the same playback group, then versions with/without sound effects. Audio filenames must match exactly except for the final extension. Equally suitable subtitle sources are not selected automatically. Scan and archive the files first. Subtitles keep their original timing; adjust transcript timing if they appear early or late. Saving an edit creates a subtitle in the current audio folder and leaves the borrowed original unchanged.
 
 Play from a work or folder, choosing available editions/formats such as sound effects or WAV. Use Listening history to resume. Add favorites to queues, playlists, or collections.
 
@@ -415,3 +419,9 @@ Open Player settings → Video quality while watching a video. Supported videos 
 Administrators can set maximum transcoded height, video bitrate and worker threads per task in Processing settings. Use 0 for no height/bitrate limit. Threads accept 1–64; 0 uses one worker. Limits apply to new transcoding tasks and do not restrict original-format direct playback. Transcoding preserves source files, does not upscale the picture and retains the source frame rate.
 
 Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.
+
+## Deleting works and managing exclusions
+
+Administrators can open a work’s More actions → Delete work. This clears its information, fetched metadata, manual edits, and all users’ whole-work collection and playlist references. Original media and downloaded files remain. Its files and ordinary subfolders are ignored and do not join a parent work or appear as unarchived files; independent child works remain. Product codes such as RJ prevent re-registration across all sources. Without a code, only the original folder is excluded; moving or renaming it can allow registration again.
+
+Open Settings → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.
