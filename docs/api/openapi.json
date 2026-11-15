@@ -29720,6 +29720,45 @@
             "type": "boolean",
             "default": false,
             "description": "Coordinator-owned workflow; execution follows the current source automation switches."
+          },
+          "skip_images": {
+            "type": "boolean",
+            "default": false,
+            "description": "Scrape metadata without downloading images. Requires scrape=true; incompatible with images_only or force_images."
+          },
+          "images_only": {
+            "type": "boolean",
+            "default": false,
+            "description": "Use existing metadata to process images only. Requires scrape=true; incompatible with force_metadata or overwrite_mode=overwrite."
+          },
+          "force_images": {
+            "type": "boolean",
+            "default": false,
+            "description": "Redownload images even if already cached. Requires scrape=true."
+          },
+          "include_extras": {
+            "type": "boolean",
+            "description": "Include sample/description images for the scraping stage. Omit to follow scraper settings."
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "",
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "description": "One metadata language for this run; empty or omitted uses configured languages. Requires scrape=true."
+          },
+          "overwrite_mode": {
+            "type": "string",
+            "enum": [
+              "preserve",
+              "overwrite"
+            ],
+            "default": "preserve",
+            "description": "Preserve manual fields by default. Overwrite requires scrape=true and metadata_only=true, snapshots selected work IDs and revisions at creation, and rejects stale work updates."
           }
         },
         "required": [
@@ -29843,6 +29882,18 @@
           "resume_pending": {
             "type": "boolean",
             "description": "Interrupted workflow will be recomputed on startup, retaining completed sources and reusable observations."
+          },
+          "scrape_revisions": {
+            "type": "object",
+            "readOnly": true,
+            "description": "Server-created overwrite targets and revisions, grouped by source ID. Omitted for preserve mode. Used for persistence and restart protection.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*$"
+              }
+            }
           }
         },
         "required": [

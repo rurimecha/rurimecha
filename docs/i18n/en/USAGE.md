@@ -155,6 +155,14 @@ Ordinary system proxy settings do not affect direct connections. Transparent pro
 
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
 
+### Refreshing a directory
+
+Administrators can choose Refresh individual parts from a root folder card menu, the current folder menu, or a subfolder menu. The eight operations match those for a single work: cache-first or forced product metadata updates, missing or redownloaded images, missing or forced media information, rescanning files, and re-archiving. Existing scan and re-archive shortcuts remain available.
+
+The scope includes the selected folder and all subfolders, regardless of list filters. Metadata and image operations process imported works only, once per work; changes also appear wherever that work belongs to another source. Forced metadata updates offer language and manual-edit handling choices. Image redownloads let you include sample images. If details change after an overwrite task is created, the affected batch stops overwriting; review the results before submitting again.
+
+Use Background tasks to follow progress, cancel, or open child tasks to retry failed items. Choose one operation at a time; enabled source automation continues independently. Compatible sources support metadata, images, and re-archiving, but not local file scanning or media information extraction.
+
 ### Viewing, editing, and refreshing languages
 
 New installations fetch Simplified Chinese and Japanese by default. Enable Traditional Chinese or English in metadata settings if available from the source.

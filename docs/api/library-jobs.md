@@ -8,6 +8,12 @@
 
 source_ids 为 1..64 个不重复 ID。子树范围必须属于唯一来源且为存在的目录；首次没有完整索引时应全量扫描。其余字段可省略，布尔默认 false。skip_scan 只跳过枚举，继续归纳；metadata_only 跳过扫描和归纳，只处理元数据。force_metadata 传递给刮削和媒体探测，不绕过修订、范围及人工保护。刮削须先启用 scraper；探测依赖外部 ffprobe。
 
+分项刷新商品资料与图片时使用 `metadata_only=true`、`scrape=true`、`probe=false`，不会执行扫描或归档。刮削阶段另支持 `skip_images`、`images_only`、`force_images`、`include_extras`、`locale` 和 `overwrite_mode`，含义与单作品刮削一致：资料操作传 `skip_images=true`；补图传 `images_only=true, force_images=false`；重下图片传 `images_only=true, force_images=true`。`include_extras` 省略时沿用设置；`locale` 为空或省略时沿用已启用的语言。强制获取资料使用 `force_metadata=true`，不会自动全面覆盖人工修改。
+
+`skip_images` 与 `images_only/force_images` 互斥，`images_only` 与 `force_metadata=true` 或 `overwrite_mode=overwrite` 互斥；上述刮削选项要求 `scrape=true`。`overwrite_mode` 默认 preserve；overwrite 还要求 `metadata_only=true`，服务端在接纳请求时记录范围内的作品与修订，返回可选 `scrape_revisions`（source ID → work ID → 字符串修订），后续批次和重启恢复继续使用该快照。期间作品修订变化使相关批次报告 stale_input，不静默覆盖新编辑；新增作品不加入该次覆盖。多个来源共享同一作品时，覆盖目标只记录一次。失败或缺失的资料仍沿用原有逐字段保护规则；全面覆盖的缺失字段处理与单作品一致。
+
+范围选择按当前存在的目录节点及已纳入的作品成员，不受前端搜索/筛选影响；仅处理范围内已有作品，DISTINCT 去重。同一作品在其他来源展示的资料也会共同变化。媒体探测与扫描仍分别使用原有 `media-probe-jobs`、`scan-jobs` 范围参数；目录的单独重新归档沿用既有 `library-jobs`（`skip_scan=true`，不启用 scrape/probe），保留已有部分索引保护行为；单作品仍使用 `organize-jobs`。
+
 kikoeru 兼容来源已在入库时取得目录和媒体信息。对此类来源运行归纳时必须设置 `skip_scan=true` 且 `probe=false`；可按需设置 `scrape=true`。请求扫描或探测兼容来源返回 400，不创建任务；混合来源请求包含此类无效组合时也整体拒绝。
 
 返回 id、state、input、created_at、finished_at、items；每个来源项包含 source_id、state、observed_nodes、skipped_works 和 stages。阶段含 kind、state、error（稳定代码）、job_ids 和 duration_ms。child job_ids 可在扫描/刮削/探测原接口查询逐项错误。归纳直接在流程阶段执行，不产生单独归纳任务 ID。
