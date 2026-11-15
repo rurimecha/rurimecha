@@ -22501,6 +22501,60 @@
           }
         ]
       }
+    },
+    "/license/server": {
+      "put": {
+        "operationId": "setLicenseServer",
+        "tags": [
+          "licensing"
+        ],
+        "summary": "Set the license service address (administrator)",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Account login required"
+          },
+          "403": {
+            "description": "Authorization unavailable; stable license_* error code"
+          },
+          "503": {
+            "description": "Authorization storage or release configuration unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "server_url"
+                ],
+                "properties": {
+                  "server_url": {
+                    "type": "string",
+                    "description": "HTTPS origin without credentials, path, query or fragment; empty restores the default."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Administrator only. Saves an HTTPS origin, applied immediately and retained after restart. An empty server_url restores https://license.rurimecha.top. Preserves the existing certificate, instance identity and pinned issuer public key; does not contact the new address on save. Saved setting takes precedence over the startup license-server flag. No ETag: serialized changes use last successful save."
+      }
     }
   },
   "components": {
@@ -32409,6 +32463,10 @@
             "additionalProperties": {
               "type": "boolean"
             }
+          },
+          "server_url": {
+            "type": "string",
+            "description": "Effective license service address."
           }
         }
       },

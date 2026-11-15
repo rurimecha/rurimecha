@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://ruri-license.rurimecha-11c899c9.workers.dev",
+      "url": "https://license.rurimecha.top",
       "description": "Service address from the release configuration."
     }
   ],

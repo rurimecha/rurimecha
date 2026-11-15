@@ -46,3 +46,5 @@
 授权生效后可创建和使用其他账号。未激活或授权失效时，只有内置管理员可以访问网页和 WebDAV，Android 播放仍要求有效授权。参见 [账号与会话](accounts.md)。
 
 付费通行证在创建后七天内且从未激活时可办理退款，超过七天仍可激活。测试通行证在发放后七天内激活。同一许可证首次激活开始计算31天，重复激活及换机沿用原期限。激活期限已过返回 `license_activation_window_expired`，退款处理中返回 `license_refund_pending`，已退款返回 `license_refunded`，均为403。云端 `rate_limited` 由Core以429传递。
+
+管理员可通过 `PUT /api/v1/license/server` 提交 `{"server_url":"https://license.rurimecha.top"}` 修改授权服务地址；仅接受无凭据、路径、查询或片段的 HTTPS 地址，空字符串恢复默认值。成功返回 LicenseStatus，新增 `server_url` 为当前地址。保存后立即生效并持久化，优先于启动参数 `-license-server`；不联网、不修改现有证书、身份及固定验签公钥。按成功保存顺序覆盖，无 ETag；普通用户禁止修改，沿用会话及同源写入校验。无效地址返回 400/license_server_invalid，保存失败返回 503/license_storage_error。

@@ -271,6 +271,8 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 ## Server license and accounts
 
+Administrators can change License service address under Server license. Enter the HTTPS address supplied by the service operator and select Save service address. The default is https://license.rurimecha.top; save an empty field to restore it. Changes apply immediately, survive restarts, and keep the current license.
+
 Without an active license, the built-in administrator can use the web interface and WebDAV. Extra accounts, official Android online playback, and saved clips require activation: enter the key and server name under Server license, then activate.
 
 After activation, administrators create users in User management. Users share the library but keep separate collections, playlists, preferences, progress, and clips. Disabling an account under Access permissions ends its sessions and WebDAV access. Follow sign-in prompts after password, role, or license changes.
