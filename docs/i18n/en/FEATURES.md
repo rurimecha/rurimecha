@@ -4,6 +4,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## Interface languages
 
+- Root folders and subfolders offer the same eight refresh operations as individual works, with separate metadata, images, media information, scanning, and organization, plus language selection and manual-edit protection.
 - Tracks without their own subtitles can use subtitles from exactly named MP3/WAV or sound-effect alternatives in the same work; equally suitable sources are not selected automatically.
 - Software and website support Simplified Chinese, Traditional Chinese, Japanese, and English, with manual selection or system language matching. Account choices sync after sign-in; anonymous choices stay on the device. Metadata, audio, and subtitle languages remain independent.
 - Installers currently use Simplified Chinese. Management and CLI tools primarily use English. Historical release notes are maintained in Chinese and English.
@@ -12,7 +13,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 - Delete individual works while keeping originals and ignoring their own files and ordinary subfolders; independent child works remain. Review and lift deleted-work and folder exclusions in Settings. Cleared information and references are not restored.
 - Browse circles, voice actors and illustrators with associated work covers; manually discover related works on DLsite or compatible sources and refresh results.
-- Smart routing is shared in Network settings and tries direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. It tries the configured proxy when needed and requires an active server license. Smart routing may not work if your proxy has TLS domain sniffing enabled.
+- Smart routing is shared in Network settings and tries direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. It tries the configured proxy when needed and requires an active server license. Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply.
 - Browse original media folders or organize files into works. Enable scanning, archiving, metadata fetching, and media information extraction independently, and adjust work membership manually.
 - Add kikoeru-compatible libraries, search works, browse/filter circles, tags, and voice actors, and save selected works or files to your server as needed.
 - Search titles, voice actors, circles, tags, or work numbers. Partial RJ numbers show suggestions; title-only search narrows the scope.

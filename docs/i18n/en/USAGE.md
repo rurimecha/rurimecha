@@ -149,9 +149,19 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 ### Fetching from DLsite
 
-Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information. Smart routing may not work if your proxy has TLS domain sniffing enabled.
+Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
+
+Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply.
 
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
+
+### Refreshing a directory
+
+Administrators can choose Refresh individual parts from a root folder card menu, the current folder menu, or a subfolder menu. The eight operations match those for a single work: cache-first or forced product metadata updates, missing or redownloaded images, missing or forced media information, rescanning files, and re-archiving. Existing scan and re-archive shortcuts remain available.
+
+The scope includes the selected folder and all subfolders, regardless of list filters. Metadata and image operations process imported works only, once per work; changes also appear wherever that work belongs to another source. Forced metadata updates offer language and manual-edit handling choices. Image redownloads let you include sample images. If details change after an overwrite task is created, the affected batch stops overwriting; review the results before submitting again.
+
+Use Background tasks to follow progress, cancel, or open child tasks to retry failed items. Choose one operation at a time; enabled source automation continues independently. Compatible sources support metadata, images, and re-archiving, but not local file scanning or media information extraction.
 
 ### Viewing, editing, and refreshing languages
 
