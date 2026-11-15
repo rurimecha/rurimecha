@@ -133,6 +133,8 @@ Change each operation independently in Folder actions → Automatic processing. 
 
 For a kikoeru-compatible library, select that source type and enter its address. Browse and select works to add; optionally choose a server download folder to save files. Search at the top right finds works (expand search on a phone, then submit). Circle, tag, and voice actor tabs have their own name filters; open an entry to see works and return to the same list.
 
+Open Image category in the work’s files area to preview images, change their roles or select a cover. Images from compatible sources require a network connection. Select a failed preview to retry. Images larger than 16 MiB cannot be previewed; download them from the file list to view them.
+
 Compatible-source folders and media information are obtained when adding works. Use Re-archive from the source folder menu to organize again; separate scanning/extraction is unnecessary. Folders marked Ordinary folder stay ordinary until Restore automatic detection is chosen. After assigning a folder as a separate work or ordinary folder, wait for re-archiving and automatic refresh; inspect Background tasks if needed. Returning from another page starts at the source list. Temporary search/filter conditions last only for this visit; save a filter to reuse it.
 
 ## Finding works and choosing versions

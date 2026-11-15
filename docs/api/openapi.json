@@ -21748,8 +21748,8 @@
         "tags": [
           "presentation"
         ],
-        "summary": "Read the preferred local or cached work cover",
-        "description": "Authenticated read. Resolves the first local work artwork, then the first downloaded cover in the selected metadata view, without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Existing image authorization, Range, ETag and private cache rules apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "summary": "Read the selected source cover or preferred local/cached work cover",
+        "description": "Authenticated read. If the selected cover reference matches the saved cover URL of an imported compatible-source work, reads that source cover with a 15-second total deadline and 16 MiB limit. Other manual or localized cover references are not replaced by the source cover. Otherwise resolves local work artwork, then a downloaded cover in the selected metadata view without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Image authorization, Range, ETag and private cache apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
         "parameters": [
           {
             "name": "work",
@@ -21916,8 +21916,8 @@
         "tags": [
           "presentation"
         ],
-        "summary": "Read the preferred local or cached work cover",
-        "description": "Authenticated read. Resolves the first local work artwork, then the first downloaded cover in the selected metadata view, without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Existing image authorization, Range, ETag and private cache rules apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "summary": "Read the selected source cover or preferred local/cached work cover",
+        "description": "Authenticated read. If the selected cover reference matches the saved cover URL of an imported compatible-source work, reads that source cover with a 15-second total deadline and 16 MiB limit. Other manual or localized cover references are not replaced by the source cover. Otherwise resolves local work artwork, then a downloaded cover in the selected metadata view without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Image authorization, Range, ETag and private cache apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
         "parameters": [
           {
             "name": "work",
