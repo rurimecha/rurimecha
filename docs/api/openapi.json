@@ -16896,6 +16896,10 @@
                           }
                         }
                       }
+                    },
+                    "source_kind": {
+                      "type": "string",
+                      "description": "Kind of the work root source: local, kikoeru_compatible, or empty for a rootless work."
                     }
                   }
                 }
@@ -22648,6 +22652,129 @@
                   "track": {
                     "type": "string",
                     "description": "A usable listed track ID, or empty string for off."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/works/{work}/remote-download": {
+      "get": {
+        "operationId": "getRemoteWorkDownload",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Read the selectable file tree and latest server save for an imported work",
+        "description": "Administrator only. The tree contains current included files, their real directories, size when known, and verified complete-copy status. Independent child works are excluded.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteWorkDownload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Access denied"
+          },
+          "404": {
+            "description": "Virtual file unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "startRemoteWorkDownload",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Save explicitly selected work files to the source server download folder",
+        "description": "Administrator only. node_ids must be a nonempty unique selection of file IDs from this work tree. Directory IDs and files outside the work are rejected. Original paths are retained, complete copies are skipped, and only two saves may run at once. Overlapping file selections return 409 download_busy. File failures do not stop the other selected files; retry the original selection to skip completed copies and resume unfinished files. Closing the dialog does not cancel the task; process restart marks it interrupted. Task details and selection expire after 48 hours.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteDownloadJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error"
+          },
+          "401": {
+            "description": "Error"
+          },
+          "403": {
+            "description": "Error"
+          },
+          "404": {
+            "description": "Error"
+          },
+          "409": {
+            "description": "Error"
+          },
+          "502": {
+            "description": "Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "node_ids"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20000,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -34199,7 +34326,8 @@
             "type": "string"
           },
           "node_id": {
-            "type": "string"
+            "type": "string",
+            "description": "The selected file for a single save, or the work root for a work save."
           },
           "state": {
             "type": "string",
@@ -34229,6 +34357,25 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "work_id": {
+            "type": "string",
+            "description": "Present for a work selection save."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemoteDownloadItem"
+            }
+          },
+          "files_total": {
+            "type": "integer"
+          },
+          "files_done": {
+            "type": "integer"
+          },
+          "files_failed": {
+            "type": "integer"
           }
         }
       },
@@ -34702,6 +34849,114 @@
           },
           "offset": {
             "type": "integer"
+          }
+        }
+      },
+      "RemoteDownloadItem": {
+        "type": "object",
+        "required": [
+          "node_id",
+          "name",
+          "size_bytes",
+          "state",
+          "error"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Original relative path within the source download folder."
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed",
+              "skipped"
+            ]
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "RemoteDownloadNode": {
+        "type": "object",
+        "required": [
+          "id",
+          "parent_id",
+          "name",
+          "kind",
+          "size_bytes",
+          "saved"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string",
+            "description": "Empty for the work root."
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "directory",
+              "file"
+            ]
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "saved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RemoteWorkDownload": {
+        "type": "object",
+        "required": [
+          "root_node_id",
+          "download_configured",
+          "items",
+          "job"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "root_node_id": {
+            "type": "string"
+          },
+          "download_configured": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemoteDownloadNode"
+            }
+          },
+          "job": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RemoteDownloadJob"
+              }
+            ],
+            "nullable": true
           }
         }
       }
