@@ -414,7 +414,7 @@ A periodic check that finds no changes does not repeat organization, metadata fe
 
 Administrators can open System logs in Settings. Needs attention shows problems first; choose All records for operation results and expand details when reporting an issue. Task details contain progress, failed items, and retry options.
 
-To investigate a problem, open Detailed diagnostics in Settings, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.
+To investigate a problem, open Detailed diagnostics in Management, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.
 
 
 ## Listening statistics and recommendations
@@ -438,4 +438,4 @@ Finished tasks and runtime logs are kept for up to 48 hours. After completion, d
 
 Administrators can open a work’s More actions → Delete work. This clears its information, fetched metadata, manual edits, and all users’ whole-work collection and playlist references. Original media and downloaded files remain. Its files and ordinary subfolders are ignored and do not join a parent work or appear as unarchived files; independent child works remain. Product codes such as RJ prevent re-registration across all sources. Without a code, only the original folder is excluded; moving or renaming it can allow registration again.
 
-Open Settings → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.
+Open Management → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.
