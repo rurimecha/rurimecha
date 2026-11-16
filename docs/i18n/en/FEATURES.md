@@ -5,11 +5,13 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 ## Interface languages
 
 - Root folders and subfolders offer the same eight refresh operations as individual works, with separate metadata, images, media information, scanning, and organization, plus language selection and manual-edit protection.
-- Tracks without their own subtitles can use subtitles from exactly named MP3/WAV or sound-effect alternatives in the same work; equally suitable sources are not selected automatically.
+- Audio and video prefer matching subtitles in their own folder and also offer matches from other folders in the same work and source. Manual subtitle selections and Off choices are saved per file to your account.
 - Software and website support Simplified Chinese, Traditional Chinese, Japanese, and English, with manual selection or system language matching. Account choices sync after sign-in; anonymous choices stay on the device. Metadata, audio, and subtitle languages remain independent.
 - Installers currently use Simplified Chinese. Management and CLI tools primarily use English. Historical release notes are maintained in Chinese and English.
 
 ## Organizing your library
+
+- File-type filters stay during continuous browsing and temporary page changes within one source; another source or work starts with default file types. Filters can be cleared or saved explicitly.
 
 - Delete individual works while keeping originals and ignoring their own files and ordinary subfolders; independent child works remain. Review and lift deleted-work and folder exclusions in Settings. Cleared information and references are not restored.
 - Browse circles, voice actors and illustrators with associated work covers; manually discover related works on DLsite or compatible sources and refresh results.
@@ -28,7 +30,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Browse collections by work cards or lists. Individual audio/video files and clips are grouped in Soundbox. Smart discovery uses the same organization and saves directly as a collection.
 - Playlists preserve exact tracks, duplicates, and order. Start at any item and continue through the full list, play one item or search results, shuffle, or add following items to the queue. Older custom collections become playlists on upgrade.
 - Audio pages, bottom controls, transcript windows, and local playback provide 10-second back/forward buttons; seeking while paused keeps playback paused.
-- Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles remain visible over other apps.
+- Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles stay visible inside Ruri and over other apps, return after unlocking, and reveal a close button when tapped.
 - Open Windows from Start and install updates from Ruri → Check for updates. Windows/Linux installers select and validate listen IP/port. Windows uninstall can retain data or explicitly clear it while keeping original media.
 - With a server license, preview and save favorite ranges for replay or lists. Clips reference originals and need them to remain available.
 - Linux, Windows, and Docker include media tools for loudness normalization, compatible transcoding, and embedded subtitles. See [media tools](USAGE.md#preparing-media-tools).

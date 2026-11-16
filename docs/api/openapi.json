@@ -22555,6 +22555,111 @@
         },
         "description": "Administrator only. Saves an HTTPS origin, applied immediately and retained after restart. An empty server_url restores https://license.rurimecha.top. Preserves the existing certificate, instance identity and pinned issuer public key; does not contact the new address on save. Saved setting takes precedence over the startup license-server flag. No ETag: serialized changes use last successful save."
       }
+    },
+    "/nodes/{node}/subtitle-selection": {
+      "put": {
+        "operationId": "putSubtitleSelection",
+        "summary": "Remember this account’s subtitle selection for one media file",
+        "description": "Server playback contract. See playback.md for selection, defaults, persistence, cancellation and processing limits. Operations require a same-origin session Cookie or Bearer token; URL tokens and paths are rejected.",
+        "tags": [
+          "playback"
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ETag from GET subtitles or the preceding successful selection update."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubtitleList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "track"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "track": {
+                    "type": "string",
+                    "description": "A usable listed track ID, or empty string for off."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -27992,6 +28097,11 @@
           },
           "truncated": {
             "type": "boolean"
+          },
+          "selection": {
+            "type": "string",
+            "description": "Current account choice; null uses automatic ordering, empty string turns subtitles off.",
+            "nullable": true
           }
         },
         "required": [
