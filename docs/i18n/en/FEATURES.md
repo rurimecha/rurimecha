@@ -5,7 +5,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 ## Interface languages
 
 - Root folders and subfolders offer the same eight refresh operations as individual works, with separate metadata, images, media information, scanning, and organization, plus language selection and manual-edit protection.
-- Tracks without their own subtitles can use subtitles from exactly named MP3/WAV or sound-effect alternatives in the same work; equally suitable sources are not selected automatically.
+- Audio and video prefer matching subtitles in their own folder and also offer matches from other folders in the same work and source. Manual subtitle selections and Off choices are saved per file to your account.
 - Software and website support Simplified Chinese, Traditional Chinese, Japanese, and English, with manual selection or system language matching. Account choices sync after sign-in; anonymous choices stay on the device. Metadata, audio, and subtitle languages remain independent.
 - Installers currently use Simplified Chinese. Management and CLI tools primarily use English. Historical release notes are maintained in Chinese and English.
 
