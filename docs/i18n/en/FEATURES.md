@@ -11,6 +11,8 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## Organizing your library
 
+- File-type filters stay during continuous browsing and temporary page changes within one source; another source or work starts with default file types. Filters can be cleared or saved explicitly.
+
 - Delete individual works while keeping originals and ignoring their own files and ordinary subfolders; independent child works remain. Review and lift deleted-work and folder exclusions in Settings. Cleared information and references are not restored.
 - Browse circles, voice actors and illustrators with associated work covers; manually discover related works on DLsite or compatible sources and refresh results.
 - Smart routing is shared in Network settings and tries direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. It tries the configured proxy when needed and requires an active server license. Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply.
