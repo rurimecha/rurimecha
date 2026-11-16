@@ -5,8 +5,8 @@
 ## 首次设置
 
 - `GET /auth/setup` 无需会话，返回 `{ "required": true }` 或 `{ "required": false }`。
-- `POST /auth/setup` 无需会话，接收 `setup_code`、`password`、`confirm_password`。设置码来自新安装的数据目录 `setup-code` 文件。两次密码必须相同。成功返回 204，随后用 `admin` 与所设密码调用 `/auth/login`。设置码仅供首次设置使用。
-- 代码不正确返回 403 `admin_setup_code_invalid`，两次密码不同返回 400 `password_mismatch`。已有账户或另一请求先完成设置时返回 409 `admin_setup_complete`。现有账号、密码和会话继续有效。
+- `POST /auth/setup` 无需会话，接收 `password`、`confirm_password`。仅允许在没有账户时设置内置管理员，两次密码必须相同。成功返回 204，随后用 `admin` 与所设密码调用 `/auth/login`。
+- 两次密码不同返回 400 `password_mismatch`。已有账户或另一请求先完成设置时返回 409 `admin_setup_complete`。现有账号、密码和会话继续有效。
 
 ## 权限
 

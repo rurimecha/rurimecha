@@ -99,4 +99,4 @@ systemctl daemon-reload
 systemctl enable --now "$unit"
 
 echo 'Rurimecha 已安装。请使用所配置的监听地址和端口访问；监听全部地址时，使用服务器的局域网 IP。'
-echo "For first-time setup, run: sudo journalctl -u rurimecha.service -g 'Ruri administrator setup code:' -n 1 --no-pager"
+echo '首次打开 Ruri 时，请设置并确认 admin 的密码。'

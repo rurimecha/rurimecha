@@ -15,7 +15,7 @@ Download the package for your platform from [GitHub Releases](https://github.com
 1. Open the `.msi`, select Next, and choose the installation folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
 2. Choose a listen IP and port. Defaults are `0.0.0.0` and `8080`, accepting connections on all local IPv4 addresses. Use `127.0.0.1` for access only from this computer. A specific IP must belong to this computer. If the availability check fails, free the port or choose another. Reinstallation and upgrades retain existing network settings by default.
 3. Finish installation and open **Rurimecha** from Start. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
-4. Choose **Ruri → Open data folder**, open `setup-code` in Notepad, and copy the code to complete first-time setup.
+4. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
 
 Closing the window hides it in the tray while Ruri keeps running. Double-click the tray icon to reopen; right-click it and choose **Exit Ruri** to stop or update. Data stays in `%LOCALAPPDATA%\Rurimecha\data`, independently of the installation folder. See Connection and network for access from other devices.
 
@@ -27,11 +27,7 @@ Extract the full x86-64 server package, open a terminal there, and run:
 sudo ./install.sh
 ```
 
-Enter the listen IP and port, or press Enter for `0.0.0.0:8080`. A failed address/port check leaves existing network settings intact. The installer starts Ruri and enables startup on boot. Open `http://SERVER-LAN-IP:8080/` from another computer; the server needs no graphical desktop. Retrieve the setup code with:
-
-```sh
-sudo journalctl -u rurimecha.service -g 'Ruri administrator setup code:' -n 1 --no-pager
-```
+Enter the listen IP and port, or press Enter for `0.0.0.0:8080`. A failed address/port check leaves existing network settings intact. The installer starts Ruri and enables startup on boot. Open `http://SERVER-LAN-IP:8080/` from another computer; the server needs no graphical desktop. Set and confirm the `admin` password on the first-time setup page.
 
 Service installation requires systemd. Bundled media tools require glibc 2.35 or later, such as Ubuntu 22.04 or Debian 12. Data is in `/var/lib/rurimecha`. The `rurimecha` service user needs read access to media folders and their parents; do not make an entire media disk writable by everyone.
 
@@ -43,7 +39,7 @@ sudo ./install.sh --listen-ip 192.168.1.20 --listen-port 18080
 
 Use an IP the server owns. `0.0.0.0` means all IPv4 addresses; `127.0.0.1` is local only. Noninteractive new installations use defaults; existing installations retain settings unless arguments override them. Interactive upgrades can keep existing settings.
 
-Without installing a service, run `./rurimecha-core -data-dir ./data` and leave the terminal open. The code appears there. Keep using the same data folder when upgrading.
+Without installing a service, run `./rurimecha-core -data-dir ./data` and leave the terminal open. Keep using the same data folder when upgrading.
 
 ### Docker installation
 
@@ -58,14 +54,13 @@ RURI_MEDIA_DIR="/srv/media/ASMR"
 
 Replace `VERSION` with the release version, or use `latest` for the latest stable release. The media path must already exist on the Docker host. With Docker Desktop Linux containers, a Windows path can be `D:/ASMR`; allow Docker to access that drive. Add `/media/library` inside Ruri, rather than the host path. The sample mount is read-only; transcripts can use Save to Ruri without media write permission.
 
-2. Start and read the setup code after `Ruri administrator setup code:`:
+2. Start Ruri:
 
 ```sh
 docker compose up -d
-docker compose logs core
 ```
 
-Open `http://127.0.0.1:8080/` on the Docker host. On a phone, `127.0.0.1` refers to the phone itself.
+Open `http://127.0.0.1:8080/` on the Docker host to set the administrator password. On a phone, `127.0.0.1` refers to the phone itself.
 
 3. For other devices, first open Network settings. Keep the displayed current LAN ranges and add your home range on another line, for example `192.168.1.0/24` for addresses `192.168.1.x` with mask `255.255.255.0`. Docker's detected ranges may omit your home network. Keep the internal listen address at all IPv4 addresses; do not enter a host IP absent from the container. Then change the Compose port mapping, for example:
 
@@ -105,7 +100,7 @@ Accounts, details, settings, and licensing are in `ruri-data`. **Keep the volume
 
 ### Set the administrator password
 
-Enter the one-time setup code and your new password twice. Then sign in as `admin`. The setup code is not a reusable password. Existing installations keep their accounts and passwords. If forgotten, follow Reset the administrator password; do not delete the data folder or volume.
+When you first open Ruri, the administrator setup page appears. Enter a new password for `admin` twice, then choose **Set password and sign in** to open your library. Use `admin` and that password for future sign-ins. Existing installations keep their accounts and passwords. If forgotten, follow Reset the administrator password; do not delete the data folder or volume.
 
 Change your password in Account & sessions → Change password, entering the current password and the new password twice. Administrators also enter new passwords twice when creating users or resetting passwords.
 
@@ -213,7 +208,7 @@ Check availability under Parsing tools. Custom tools must support `fd` input; en
 
 ### Connecting another player or file manager
 
-Create a WebDAV connection using `http://SERVER:PORT/dav/`, or `https://CERTIFICATE-SERVER-NAME:PORT/dav/`. Use your current Ruri account/password, not the setup code, and do not append `/dav/` twice. For example `http://192.168.1.20:18080/dav/`, or `https://ruri.example.com/dav/` through Nginx. Without an active license, only the built-in administrator is eligible.
+Create a WebDAV connection using `http://SERVER:PORT/dav/`, or `https://CERTIFICATE-SERVER-NAME:PORT/dav/`. Use your current Ruri account/password and do not append `/dav/` twice. For example `http://192.168.1.20:18080/dav/`, or `https://ruri.example.com/dav/` through Nginx. Without an active license, only the built-in administrator is eligible.
 
 Browse folders and play original files. WebDAV is read-only, with no upload, delete, rename, conversion, or third-party progress sync. Scan newly added files in Ruri before they appear. Playback formats depend on the other player.
 

@@ -11302,8 +11302,8 @@
         "tags": [
           "accounts"
         ],
-        "summary": "Set the first administrator password with the one-time setup code.",
-        "description": "Only an empty installation can be set up. The code comes from the server data directory. On success, sign in through POST /auth/login.",
+        "summary": "Set the first administrator password.",
+        "description": "Only an empty installation can be set up. Supply matching password and confirm_password values. On success, sign in through POST /auth/login. Existing accounts cannot be replaced by setup.",
         "security": [],
         "requestBody": {
           "required": true,
@@ -11313,15 +11313,10 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "setup_code",
                   "password",
                   "confirm_password"
                 ],
                 "properties": {
-                  "setup_code": {
-                    "type": "string",
-                    "writeOnly": true
-                  },
                   "password": {
                     "type": "string",
                     "writeOnly": true
@@ -22667,7 +22662,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Opaque session token returned by POST /auth/login. The one-time setup code cannot be used as a bearer token."
+        "description": "Opaque session token returned by POST /auth/login."
       },
       "sessionCookie": {
         "type": "apiKey",
