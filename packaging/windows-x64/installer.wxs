@@ -5,7 +5,7 @@
     <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" SummaryCodepage="936" />
     <MajorUpgrade AllowSameVersionUpgrades="yes"
                   DowngradeErrorMessage="已安装较新的 Ruri 版本。" />
-    <MediaTemplate EmbedCab="yes" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
     <Icon Id="RuriIcon" SourceFile="$(var.PayloadDir)\Ruri.ico" />
     <Property Id="ARPPRODUCTICON" Value="RuriIcon" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
