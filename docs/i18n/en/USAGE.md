@@ -455,3 +455,9 @@ Finished tasks and runtime logs are kept for up to 48 hours. After completion, d
 Administrators can open a work’s More actions → Delete work. This clears its information, fetched metadata, manual edits, and all users’ whole-work collection and playlist references. Original media and downloaded files remain. Its files and ordinary subfolders are ignored and do not join a parent work or appear as unarchived files; independent child works remain. Product codes such as RJ prevent re-registration across all sources. Without a code, only the original folder is excluded; moving or renaming it can allow registration again.
 
 Open Management → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.
+
+### Online audio and connection checks
+
+For a Kikoeru-compatible source, enter its address and optional proxy, then select Test connection before saving. Existing sources also offer this check. Success means the library can be browsed; it does not measure audio download speed.
+
+For ASMR.one audio that has not been fully saved to the server, choose Smooth playback first or Quality first in the player. Smooth playback first uses a smaller version when available; Quality first plays the selected original file. Switching keeps your playback position. Completed server downloads always play the local original, and downloads are never replaced with the smaller version. The next track only starts preloading after the current track is fully buffered.

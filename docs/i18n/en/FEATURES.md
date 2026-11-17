@@ -81,3 +81,9 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices; switching resumes at the current position after buffering. Unsupported videos offer only Original format. This applies to local sources and readable kikoeru-compatible videos. Direct playback depends on your device. Compatible Auto uses a default quality budget; it does not continuously adapt to network speed.
 
 Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.
+
+### Online audio and connection checks
+
+For a Kikoeru-compatible source, enter its address and optional proxy, then select Test connection before saving. Existing sources also offer this check. Success means the library can be browsed; it does not measure audio download speed.
+
+For ASMR.one audio that has not been fully saved to the server, choose Smooth playback first or Quality first in the player. Smooth playback first uses a smaller version when available; Quality first plays the selected original file. Switching keeps your playback position. Completed server downloads always play the local original, and downloads are never replaced with the smaller version. The next track only starts preloading after the current track is fully buffered.

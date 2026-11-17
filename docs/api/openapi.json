@@ -10257,6 +10257,19 @@
               "type": "string"
             },
             "description": "Only mode=mp4: auto or an id from this node playback.video_qualities. Unknown or no longer permitted ids are rejected. Missing means auto."
+          },
+          {
+            "name": "audio_quality",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "smooth",
+                "quality"
+              ],
+              "default": "quality"
+            },
+            "description": "ASMR Online remote audio only. smooth requests its current lower-bandwidth rendition, falling back to the original when none is offered. Completed local downloads always use the original. Byte Range is relative to the selected rendition; change quality by opening a new stream and restoring the playback time."
           }
         ],
         "responses": {
@@ -10795,6 +10808,19 @@
               "type": "string"
             },
             "description": "Only mode=mp4: auto or an id from this node playback.video_qualities. Unknown or no longer permitted ids are rejected. Missing means auto."
+          },
+          {
+            "name": "audio_quality",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "smooth",
+                "quality"
+              ],
+              "default": "quality"
+            },
+            "description": "ASMR Online remote audio only. smooth requests its current lower-bandwidth rendition, falling back to the original when none is offered. Completed local downloads always use the original. Byte Range is relative to the selected rendition; change quality by opening a new stream and restoring the playback time."
           }
         ],
         "responses": {
@@ -23213,6 +23239,59 @@
           }
         }
       }
+    },
+    "/sources/test-connection": {
+      "post": {
+        "operationId": "testSourceConnection",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Test a Kikoeru-compatible source without saving it",
+        "description": "Administrator only. Tests unsaved origin and optional proxy using the same compatibility probe as source creation, with a 30-second deadline. Does not create, change or import a source. Success means browsing is supported, not a media throughput guarantee.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoteConnectionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteConnectionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -28372,6 +28451,10 @@
               "local",
               "kikoeru_compatible"
             ]
+          },
+          "audio_quality_selectable": {
+            "type": "boolean",
+            "description": "True for ASMR Online audio without a completed server download. Clients offer smooth/quality instead of local encoding options."
           }
         },
         "required": [
@@ -35827,6 +35910,39 @@
           "source"
         ],
         "additionalProperties": false
+      },
+      "RemoteConnectionInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "remote_site_url"
+        ],
+        "properties": {
+          "remote_site_url": {
+            "type": "string"
+          },
+          "proxy_url": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "RemoteConnectionResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connected",
+          "elapsed_ms"
+        ],
+        "properties": {
+          "connected": {
+            "type": "boolean"
+          },
+          "elapsed_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
       }
     }
   },
