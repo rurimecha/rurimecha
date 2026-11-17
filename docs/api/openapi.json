@@ -22788,6 +22788,431 @@
           }
         }
       }
+    },
+    "/voice-actors": {
+      "get": {
+        "operationId": "listVoiceActors",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Search published voice actor profiles",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Searches NFKC/casefold normalized names, aliases, traits and tags locally before pagination. exact=true matches names only and may return multiple people. Uses the versioned public catalog with a five-minute refresh interval; refresh=true bypasses it. A failed refresh retains verified cache and marks source.stale/error; without a valid cache returns 502/503.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "exact",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "works"
+              ],
+              "default": "name"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceCatalogPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}": {
+      "get": {
+        "operationId": "getVoiceActor",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read voice actor profile and all published languages",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Preserves original multilingual texts and sorted RJ codes. cover_url is a Core-authenticated image path or empty. Public cover inside actor remains a relative catalog object reference. Does not bind same-name local entities automatically.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceActorDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}/works": {
+      "get": {
+        "operationId": "voiceActorWorks",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Resolve a page of discovered RJ codes against the library",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Paginates published RJ codes first, then resolves exact normalized identifiers in one library snapshot. Same-code copies remain separate; inactive/excluded works are omitted. Media with local files present sorts before other copies. Multiple matches return select_work; one returns local_work; no match returns remote_search for the built-in source. Does not probe ASMR.one availability. Local references refresh on each request independently of catalog caching.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceActorWorkPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}/works/{code}/target": {
+      "get": {
+        "operationId": "voiceActorWorkTarget",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Resolve one actor work destination",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Code must be in the published actor profile; otherwise 404. Applies the same local-first selection as the paged works response. remote_search.path is a Core search endpoint, not a direct website redirect. Existing remote source and administrator-only import permissions remain enforced.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[Rr][Jj](?:[0-9]{6}|[0-9]{8})$"
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceActorWork"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}/cover": {
+      "get": {
+        "operationId": "voiceActorCover",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read a verified voice actor cover",
+        "description": "Requires authentication. Reads only the published actor cover, checks its SHA-256 and PNG/JPEG/GIF content type; missing cover returns 404. Supports the standard Core thumbnail size. Original image Cache-Control private,max-age=300; thumbnails use private,no-cache. ETag supports conditional reads. Does not accept arbitrary image URLs.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verified image",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -24548,7 +24973,11 @@
                   "session_limit_reached",
                   "directory_too_large",
                   "preferences_format_mismatch",
-                  "builtin_source"
+                  "builtin_source",
+                  "voice_catalog_unavailable",
+                  "voice_catalog_invalid",
+                  "voice_catalog_unsupported",
+                  "voice_cache_unavailable"
                 ]
               },
               "message": {
@@ -34971,6 +35400,433 @@
             "nullable": true
           }
         }
+      },
+      "VoiceCatalogName": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "locale",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogText": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "traits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "locale",
+          "description",
+          "traits"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogTag": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "locale",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogSource": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "string"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stale": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string",
+            "enum": [
+              "",
+              "voice_catalog_unavailable",
+              "voice_catalog_invalid",
+              "voice_catalog_unsupported",
+              "voice_cache_unavailable"
+            ]
+          }
+        },
+        "required": [
+          "revision",
+          "published_at",
+          "stale",
+          "error"
+        ],
+        "additionalProperties": false,
+        "description": "Last fully verified catalog revision. stale=true and error explain a failed refresh; retained data remains readable."
+      },
+      "VoiceCatalogEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "person",
+              "unknown",
+              "synthetic"
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogName"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogTag"
+            }
+          },
+          "traits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "works": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "profile": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "names",
+          "tags",
+          "traits",
+          "works",
+          "profile",
+          "sha256"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "person",
+              "unknown",
+              "synthetic"
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogName"
+            }
+          },
+          "texts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogText"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogTag"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cover": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "names",
+          "texts",
+          "tags",
+          "updated_at",
+          "codes"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceActorDetail": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/VoiceCatalogProfile"
+          },
+          "source": {
+            "$ref": "#/components/schemas/VoiceCatalogSource"
+          },
+          "cover_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor",
+          "source",
+          "cover_url"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogEntry"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source": {
+            "$ref": "#/components/schemas/VoiceCatalogSource"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "source"
+        ],
+        "additionalProperties": false
+      },
+      "CodeWork": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "root_node_id": {
+            "type": "string"
+          },
+          "root_path": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "source_name": {
+            "type": "string"
+          },
+          "source_kind": {
+            "type": "string"
+          },
+          "media_present": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "root_node_id",
+          "root_path",
+          "source_id",
+          "source_name",
+          "source_kind",
+          "media_present"
+        ],
+        "additionalProperties": false,
+        "description": "Independent active library copy. media_present reflects indexed audio/video presence, never an online reachability probe."
+      },
+      "VoiceRemoteSearch": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "enum": [
+              "builtin-asmr-one"
+            ]
+          },
+          "query": {
+            "type": "string"
+          },
+          "search_field": {
+            "type": "string",
+            "enum": [
+              "text"
+            ]
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "query",
+          "search_field",
+          "path"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceWorkTarget": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "local_work",
+              "select_work",
+              "remote_search"
+            ]
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "remote_search": {
+            "$ref": "#/components/schemas/VoiceRemoteSearch"
+          }
+        },
+        "required": [
+          "kind",
+          "work_id",
+          "remote_search"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceActorWork": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "local_works": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeWork"
+            }
+          },
+          "target": {
+            "$ref": "#/components/schemas/VoiceWorkTarget"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "local_works",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceActorWorkPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceActorWork"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source": {
+            "$ref": "#/components/schemas/VoiceCatalogSource"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "source"
+        ],
+        "additionalProperties": false
       }
     }
   },
