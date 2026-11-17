@@ -221,3 +221,7 @@ mark_missing=true 只核对被扫描子树的缺失，兄弟节点不改变 pres
 ## 记录保留
 
 已结束任务及其重试输入最多保留 48 小时；过期详情返回不存在。刮削／媒体探测任务结束后，明细仅保留未完成项，成功与复用项计入任务汇总；明细分页 total 为实际保留的明细数。性能指标仅在任务执行期间可用。日志同时受 48 小时与总容量限制。作品资料、人工修改、字幕草稿和收听记录不受影响。
+
+### 兼容来源连接测试
+
+`POST /sources/test-connection`（管理员）接受 `{remote_site_url, proxy_url?}`，测试尚未保存的网站地址和可选代理。成功返回 `{connected:true,elapsed_ms}`；30 秒超时，输入错误 400，未知站点 422/remote_source_unsupported，访问受限 422/remote_source_access_denied，网络故障 502/remote_source_unavailable。与创建来源共用兼容性探测，不修改数据库，不导入作品；成功仅说明可浏览，不保证所有音频文件可播放或下载速度。
