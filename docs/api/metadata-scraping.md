@@ -140,6 +140,9 @@ language_versions 和 original_workno/translation_info 的原作编号是关联�
 
 ## 资料来源与连接测试
 
+服务器获取作品资料及智能选路的连接仅使用IPv4。代理地址可填写域名或IPv4地址；IPv6字面量代理地址返回400 invalid_argument，只提供IPv6的目标或代理无法连接。本机到代理的连接使用IPv4，代理到上游的地址族由代理自身配置决定。不会修改宿主机的IPv6、监听地址或媒体目录。
+
+
 GET／PUT `/metadata-scraper/settings` 使用 providers，固定包含 scrape（缓存站）和 dlsite 各一次，数组顺序为优先级，enabled 可分别开关。默认缓存站关闭、DLsite开启；允许全部关闭，已有本地成功资料仍可复用。开启缓存站需有效格式地址与非空凭据。
 
 scrape_url 为根地址，scrape_token 写入专用，省略保留、空串清除；GET/active 只返回 scrape_token_configured。缓存站凭据应为具有查询权限的密钥，不是初始登录密码。来源失败或未取得请求内容时，尝试下一个已启用来源；不混用两来源的正文。

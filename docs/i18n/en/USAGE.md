@@ -161,6 +161,8 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
 
+Work information fetching and Smart routing use IPv4 only. Use websites and proxies reachable over IPv4. Connections from the server to a proxy use IPv4; the proxy controls how it connects to the website.
+
 Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply.
 
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
