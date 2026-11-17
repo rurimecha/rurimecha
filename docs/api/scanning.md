@@ -37,6 +37,10 @@
 
 本地来源创建时 name 和服务器上的绝对 path 必填；kind 可省略或设为 `local`。根目录不提供停用状态：enabled 省略或 true 均创建正常根目录，false 返回 400。离线目录仍可登记，任务会报告访问问题。重复或父子重叠路径返回 409。
 
+内置 ASMR.one 来源使用固定 ID `builtin-asmr-one`，`kind=kikoeru_compatible`、`builtin=true`，站点为`https://asmr.one`、接口为`https://api.asmr.one`、契约为`one`。Core启动时只补建缺失记录，不联网探测、不覆盖已有名称、代理、下载目录或修订，不自动浏览、入库或下载。它与用户添加的同网址来源独立共存；其他来源`builtin=false`，站点与接口地址不要求唯一。声优页面的兼容来源入口固定使用内置来源；社团和画师仍可选择已配置来源。
+
+内置来源允许按既有ETag修改名称、代理和下载目录；不能停用或移除。DELETE返回409 `builtin_source`，在停任务或清理任何资料前拒绝。普通来源仍沿用原移除流程。返回DTO的`builtin`为只读标记，不能在POST/PUT中赋值。作品继续通过该来源的既有`remote-works`接口浏览和显式入库，已入库作品保持原有来源身份，不迁移或合并至内置来源。
+
 kikoeru 兼容来源使用 `{"name":"远端音声","kind":"kikoeru_compatible","remote_site_url":"https://asmr.one","path":"","download_path":"/media/remote","proxy_url":"http://127.0.0.1:7890"}`。创建时先访问填写的网站，再验证 One 或 Number178 的作品契约；仅已识别的 `asmr.one` 网站可解析到独立的接口域名。验证成功后保存 `remote_site_url`、`remote_api_url` 和 `remote_dialect`（`one` 或 `number178`）。两种契约都不符合返回 422 `remote_source_unsupported`，站点拒绝匿名访问返回 422 `remote_source_access_denied`，网络失败返回 502；不创建来源。`download_path` 可省略；配置后必须是服务器可写绝对目录。`proxy_url` 可省略或留空，留空时使用服务器默认网络；指定后探测、浏览、入库、封面、附件、播放转发和服务器下载都使用此代理，支持不含凭据的 HTTP、HTTPS、SOCKS5 地址。外部媒体通过代理时要求 HTTPS，拒绝私网 IP 字面地址与本地主机名；主机名可由代理解析，TLS 仍验证目标主机身份。与所配置接口地址同主机的媒体不受此限制。Android 直连绕过服务器代理，需代理时选择服务端播放。该来源只手动选择作品入库或刷新，不接受本地扫描、监听、自动探测策略。虚拟根下按 RJ 号平铺作品目录，每个来源单独管理，相同 RJ 号不跨来源合并。入库快照包含来源的作品资料、封面地址和完整目录树；音频、视频、图片、字幕、文本和其他普通文件保持来源中的目录层级。归纳按普通作品边界建立作品，人工描述仍可覆盖来源资料。若来源不可访问，已入库资料保留，远端未保存的文件暂不可播放。
 
 浏览 q 是普通文本，`search_field` 可为 `text`（默认）、`circle`、`voice` 或 `tag`。One 适配器将分类搜索转换为该站语法；Number178 适配器用已有名称找到对应分类，再读取该分类的作品。One 与 Number178 分类列表均可通过 `/remote-facets?field=tag` 等接口读取。sort 支持 `recent`、`downloads`、`release`、`rating`；`page_size` 返回来源实际页大小。浏览不自动入库。封面通过本服务的认证接口读取。入库/刷新需要管理员；作品树的删除以移除来源或现有目录管理规则为准。

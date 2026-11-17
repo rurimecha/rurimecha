@@ -3450,7 +3450,7 @@
           "scan"
         ],
         "summary": "deleteSource",
-        "description": "Permanently remove this root and all its media metadata after automatically canceling and waiting for related background tasks. Files remain untouched. Other roots/shared references survive. Deleted nodes/works return 404; re-adding starts clean.",
+        "description": "Permanently remove this root and all its media metadata after automatically canceling and waiting for related background tasks. Files remain untouched. Other roots/shared references survive. Deleted nodes/works return 404; re-adding starts clean. The built-in ASMR.one source (builtin=true) returns 409 builtin_source before canceling tasks or changing metadata. Its stable ID is builtin-asmr-one.",
         "responses": {
           "204": {
             "description": "Success",
@@ -23847,6 +23847,10 @@
               "number178"
             ],
             "description": "Detected remote contract; empty for local roots."
+          },
+          "builtin": {
+            "type": "boolean",
+            "description": "True only for the permanent built-in ASMR.one source. It cannot be removed; name, proxy and download folder remain editable. User-created sources may use the same site URL."
           }
         },
         "required": [
@@ -23863,7 +23867,8 @@
           "download_path",
           "proxy_url",
           "remote_site_url",
-          "remote_dialect"
+          "remote_dialect",
+          "builtin"
         ],
         "additionalProperties": false
       },
@@ -24542,7 +24547,8 @@
                   "client_limit_reached",
                   "session_limit_reached",
                   "directory_too_large",
-                  "preferences_format_mismatch"
+                  "preferences_format_mismatch",
+                  "builtin_source"
                 ]
               },
               "message": {
