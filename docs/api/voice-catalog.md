@@ -56,4 +56,4 @@ Core按需获取资料，不在启动时联网或下载全部人物。索引每�
 
 所有target均附带`remote_search={source_id:"builtin-asmr-one",query:"RJ...",search_field:"text",path:"/api/v1/sources/builtin-asmr-one/remote-works?search_field=text&q=RJ..."}`，供显式的替代搜索操作使用。不预先请求ASMR.one判断收录，不触发搜索、入库或媒体下载。查看目标仅返回描述；之后访问来源或入库仍按相应权限校验。入库继续调用既有`POST /sources/builtin-asmr-one/remote-works/{code}/import`，归属内置来源；已在用户自建来源入库的作品仍作为本库匹配返回，不迁移或合并。
 
-本库匹配每次从当前快照读取，作品新增、移除或改号后无需刷新公开索引即可反映新去向；单部target接口用于点击时确认，避免把先前页面上的入库状态当作永久状态。上述是Core接口能力，客户端页面需使用这些接口接入。
+本库匹配每次从当前快照读取，作品新增、移除或改号后无需刷新公开索引即可反映新去向；单部target接口用于点击时确认，避免把先前页面上的入库状态当作永久状态。声优页面通过上述接口浏览公开人物与出演记录，点击作品时重新确认去向；本库声优与名称管理入口独立保留。

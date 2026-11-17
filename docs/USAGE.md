@@ -119,7 +119,7 @@ Windows Docker Desktop 用户可在宿主机 PowerShell 中、Compose 文件所�
 
 - **Windows 桌面窗口**：默认管理密码会自动填写，只需输入并确认自己的新密码，点「设置密码并登录」。
 - **浏览器或 Android 连接新服务器**：先输入服务器随机生成的「默认管理密码」，再输入并确认自己的新密码。获取方式如下，登录页也会显示相同引导：
-  - Windows：在安装 Ruri 的电脑上打开 Ruri，选择「Ruri → 查看默认管理密码」。文件在 `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`。
+  - Windows：在安装 Ruri 的电脑上打开 Ruri，选择「更多操作（⋯）→ 查看默认管理密码」。文件在 `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`。
   - Linux 服务安装：在服务器终端运行 `sudo cat /var/lib/rurimecha/default-admin-password.txt`。
   - Docker Compose：在服务器的 Compose 文件夹运行 `docker compose exec core cat /data/default-admin-password.txt`。使用 `docker run` 时运行 `docker exec <容器名> cat /data/default-admin-password.txt`，将 `<容器名>` 替换为实际名称。NAS 用户也可打开容器终端执行 `cat /data/default-admin-password.txt`。
   - 手动启动或自定义数据目录：读取所选数据目录中的 `default-admin-password.txt`；启动提示会给出保存位置。
@@ -508,7 +508,9 @@ server {
 
 ## 社团、声优和画师
 
-在「社团」「声优」「画师」中搜索名称，点条目查看本库作品；图片使用关联作品的封面。点作品打开详情。在「作品来源」选择 DLsite 分区可发现其他作品，点结果打开 DLsite。也可以点「发现作品」输入尚未收录的名称，或选择已配置的兼容来源查找。按名称搜索可能漏掉作品或包含同名参与者，画师在兼容来源中的结果取决于来源是否支持搜索其署名。点「刷新」从第一页重新获取，失败后保留当前结果，可点「重试」。发现结果不会自动加入媒体库或下载文件。
+「声优」默认显示媒体库已收录的声优，点人物浏览本库作品。点「更多声优」可搜索其他人物，再点「查看资料」打开介绍、标签和出演作品；本库人物的作品页也可点「查看资料」查找对应人物。资料默认使用当前界面语言，可切换「资料语言」查看其他原文；没有内容的语言不显示空标题。出演作品已在本库时直接打开，多个副本可选择来源和目录，其他作品可前往 ASMR.one 查找。「查看 ASMR.one 来源的作品」可浏览该声优在此来源中的作品。查看资料不会自动添加或下载作品。
+
+在「社团」「画师」中可按名称浏览本库作品，也可从「作品来源」选择 DLsite 分区或兼容来源查找相关作品。DLsite 结果只打开商品资料，不提供下载。
 
 
 ## 无变化时的自动检查

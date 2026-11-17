@@ -104,7 +104,7 @@ On a new installation, choose your own password for `admin`. Use that password f
 
 - **Windows desktop window:** The default administrator password is filled in automatically. Enter your new password twice and choose **Set password and sign in**.
 - **Browser or Android connecting to a new server:** Enter the server's randomly generated **default administrator password**, then enter your own new password twice. The sign-in page also shows these instructions:
-  - Windows: On the PC running Ruri, choose **Ruri → View default administrator password**. The file is `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`.
+  - Windows: On the PC running Ruri, choose **More actions (⋯) → View default administrator password**. The file is `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`.
   - Linux service: Run `sudo cat /var/lib/rurimecha/default-admin-password.txt` in the server terminal.
   - Docker Compose: Run `docker compose exec core cat /data/default-admin-password.txt` in the server's Compose folder. With `docker run`, use `docker exec <container-name> cat /data/default-admin-password.txt`, replacing the container name. NAS users can also run `cat /data/default-admin-password.txt` in the container terminal.
   - Manual start or custom data folder: Read `default-admin-password.txt` in your chosen data folder. The startup message shows its location.
@@ -417,7 +417,9 @@ Follow system uses a supported device language, choosing Traditional Chinese for
 
 ## Circles, voice actors and illustrators
 
-Search a name in Circles, Voice actors or Illustrators, then open an entry to browse library works. Entry images use associated work covers. Select a work to open its details. Under Works from, choose a DLsite floor to discover more works and open their DLsite pages. Discover works also accepts names absent from your library; configured compatible sources provide another search option. Name searches may miss works or match another person; illustrator searches in compatible sources depend on their indexed credits. Refresh reads from page one again. Failed refreshes retain the current results; Retry tries again. Discovery does not add works or download media automatically.
+Voice actors starts with people credited in your library. Open an entry to browse library works. More voice actors lets you search other people, then select View profile to see information, tags and credits. Library credit pages also offer View profile. Profiles use the current interface language when available; Profile language switches to other original text. Empty language sections are omitted. Open library works directly, choose a copy when several exist, or find missing works on ASMR.one. Browse works from ASMR.one opens that source filtered by the voice actor. Viewing information never adds or downloads works automatically.
+
+Circles and Illustrators retain library browsing and discovery through DLsite floors or compatible sources. DLsite results open product information and do not offer downloads.
 
 
 ## Automatic checks without changes
