@@ -12,10 +12,10 @@ Download the package for your platform from [GitHub Releases](https://github.com
 
 ### Windows installation
 
-1. Open the `.msi`, select Next, and choose the installation folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
+1. Open the `.msi`, select Next, and choose an installation location. A `Rurimecha` subfolder is added unless that is already the selected folder name; upgrades keep the existing folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
 2. Choose a listen IP and port. Defaults are `0.0.0.0` and `8080`, accepting connections on all local IPv4 addresses. Use `127.0.0.1` for access only from this computer. A specific IP must belong to this computer. If the availability check fails, free the port or choose another. Reinstallation and upgrades retain existing network settings by default.
 3. Finish installation and open **Rurimecha** from Start. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
-4. Choose **Ruri → Open data folder**, open `setup-code` in Notepad, and copy the code to complete first-time setup.
+4. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
 
 Closing the window hides it in the tray while Ruri keeps running. Double-click the tray icon to reopen; right-click it and choose **Exit Ruri** to stop or update. Data stays in `%LOCALAPPDATA%\Rurimecha\data`, independently of the installation folder. See Connection and network for access from other devices.
 
@@ -27,11 +27,7 @@ Extract the full x86-64 server package, open a terminal there, and run:
 sudo ./install.sh
 ```
 
-Enter the listen IP and port, or press Enter for `0.0.0.0:8080`. A failed address/port check leaves existing network settings intact. The installer starts Ruri and enables startup on boot. Open `http://SERVER-LAN-IP:8080/` from another computer; the server needs no graphical desktop. Retrieve the setup code with:
-
-```sh
-sudo journalctl -u rurimecha.service -g 'Ruri administrator setup code:' -n 1 --no-pager
-```
+Enter the listen IP and port, or press Enter for `0.0.0.0:8080`. A failed address/port check leaves existing network settings intact. The installer starts Ruri and enables startup on boot. Open `http://SERVER-LAN-IP:8080/` from another computer; the server needs no graphical desktop. Run `sudo cat /var/lib/rurimecha/default-admin-password.txt` on the server, enter the displayed default administrator password on the setup page, then choose and confirm your own password for `admin`.
 
 Service installation requires systemd. Bundled media tools require glibc 2.35 or later, such as Ubuntu 22.04 or Debian 12. Data is in `/var/lib/rurimecha`. The `rurimecha` service user needs read access to media folders and their parents; do not make an entire media disk writable by everyone.
 
@@ -43,7 +39,7 @@ sudo ./install.sh --listen-ip 192.168.1.20 --listen-port 18080
 
 Use an IP the server owns. `0.0.0.0` means all IPv4 addresses; `127.0.0.1` is local only. Noninteractive new installations use defaults; existing installations retain settings unless arguments override them. Interactive upgrades can keep existing settings.
 
-Without installing a service, run `./rurimecha-core -data-dir ./data` and leave the terminal open. The code appears there. Keep using the same data folder when upgrading.
+Without installing a service, run `./rurimecha-core -data-dir ./data` and leave the terminal open. Keep using the same data folder when upgrading.
 
 ### Docker installation
 
@@ -58,14 +54,13 @@ RURI_MEDIA_DIR="/srv/media/ASMR"
 
 Replace `VERSION` with the release version, or use `latest` for the latest stable release. The media path must already exist on the Docker host. With Docker Desktop Linux containers, a Windows path can be `D:/ASMR`; allow Docker to access that drive. Add `/media/library` inside Ruri, rather than the host path. The sample mount is read-only; transcripts can use Save to Ruri without media write permission.
 
-2. Start and read the setup code after `Ruri administrator setup code:`:
+2. Start Ruri:
 
 ```sh
 docker compose up -d
-docker compose logs core
 ```
 
-Open `http://127.0.0.1:8080/` on the Docker host. On a phone, `127.0.0.1` refers to the phone itself.
+Run `docker compose exec core cat /data/default-admin-password.txt` to obtain the default administrator password. Open `http://127.0.0.1:8080/` on the Docker host, enter that password, and choose your own administrator password. On a phone, `127.0.0.1` refers to the phone itself.
 
 3. For other devices, first open Network settings. Keep the displayed current LAN ranges and add your home range on another line, for example `192.168.1.0/24` for addresses `192.168.1.x` with mask `255.255.255.0`. Docker's detected ranges may omit your home network. Keep the internal listen address at all IPv4 addresses; do not enter a host IP absent from the container. Then change the Compose port mapping, for example:
 
@@ -105,7 +100,16 @@ Accounts, details, settings, and licensing are in `ruri-data`. **Keep the volume
 
 ### Set the administrator password
 
-Enter the one-time setup code and your new password twice. Then sign in as `admin`. The setup code is not a reusable password. Existing installations keep their accounts and passwords. If forgotten, follow Reset the administrator password; do not delete the data folder or volume.
+On a new installation, choose your own password for `admin`. Use that password for later sign-ins.
+
+- **Windows desktop window:** The default administrator password is filled in automatically. Enter your new password twice and choose **Set password and sign in**.
+- **Browser or Android connecting to a new server:** Enter the server's randomly generated **default administrator password**, then enter your own new password twice. The sign-in page also shows these instructions:
+  - Windows: On the PC running Ruri, choose **Ruri → View default administrator password**. The file is `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`.
+  - Linux service: Run `sudo cat /var/lib/rurimecha/default-admin-password.txt` in the server terminal.
+  - Docker Compose: Run `docker compose exec core cat /data/default-admin-password.txt` in the server's Compose folder. With `docker run`, use `docker exec <container-name> cat /data/default-admin-password.txt`, replacing the container name. NAS users can also run `cat /data/default-admin-password.txt` in the container terminal.
+  - Manual start or custom data folder: Read `default-admin-password.txt` in your chosen data folder. The startup message shows its location.
+
+The default password is only for initial setup and cannot sign in. It becomes invalid and is deleted after setup; do not share it. Existing installations keep their accounts and passwords. If you forget your own password, follow Reset the administrator password without deleting data or volumes.
 
 Change your password in Account & sessions → Change password, entering the current password and the new password twice. Administrators also enter new passwords twice when creating users or resetting passwords.
 
@@ -131,7 +135,11 @@ Selecting the option to also clear local application data permanently deletes ac
 
 Change each operation independently in Folder actions → Automatic processing. Manual scanning remains available when automatic scanning is off; other enabled operations can use existing scan results. Archiving needs a complete scan; reading duration only needs discovered files. Removing a source clears its library details, manual organization, and related collection/playlist entries while keeping original files. Media can be on mounted or network drives; keep application data on a local disk.
 
+The directory page includes an ASMR.one source: browse and select works to add without entering a website address. Administrators can edit its name, proxy and download folder. This built-in source cannot be removed. User-added sources with the same address remain separate; the voice actor page always opens the built-in ASMR.one source. Adding a work does not download its files; select and save files when needed.
+
 For a kikoeru-compatible library, select that source type and enter its address. Browse and select works to add; optionally choose a server download folder to save files. Search at the top right finds works (expand search on a phone, then submit). Circle, tag, and voice actor tabs have their own name filters; open an entry to see works and return to the same list.
+
+After adding a work to the library, administrators can choose Save work to server in its files area. Expand the tree and select folders or files. Extension buttons select matching file types; Select all and Clear selection are also available. Check the selected count and size, including any unknown sizes, then choose Start saving. Files keep their original folder structure in that source’s server download folder, and complete copies are skipped. Saving continues after closing the window. Reopen the same work’s download window to check progress or stop saving. Failed or stopped saves keep the original selection for retrying unfinished files. Up to two saves can run at once; if selected files overlap or all slots are in use, try again later.
 
 Open Image category in the work’s files area to preview images, change their roles or select a cover. Images from compatible sources require a network connection. Select a failed preview to retry. Images larger than 16 MiB cannot be previewed; download them from the file list to view them.
 
@@ -152,6 +160,8 @@ In Appearance & browsing preferences choose Original first or language preferenc
 ### Fetching from DLsite
 
 Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
+
+Work information fetching and Smart routing use IPv4 only. Use websites and proxies reachable over IPv4. Connections from the server to a proxy use IPv4; the proxy controls how it connects to the website.
 
 Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply.
 
@@ -199,6 +209,10 @@ Play from a work or folder, choosing available editions/formats such as sound ef
 
 Audio pages, bottom controls, transcript windows, and local playback have Back 10 seconds and Forward 10 seconds. Seeking while paused stays paused. Wait if duration is unknown or media is loading. Drag the progress bar to see target time and available previews; Playback options select subtitles, tracks, and chapters. Extract media information if tracks/chapters are missing.
 
+The play button shows when media is loading or buffering and remains available to pause. Pausing prevents playback from starting when loading finishes. If playback fails, tap Retry to reload from the current position. Tap a work name on the player page to open its details; returning keeps the current queue. Screen readers announce the current time and total duration on the progress bar.
+
+While dragging an audio progress bar, the time beside it shows the target position. Release to seek. Changing tracks or starting a load cancels an unfinished drag. Tap the volume button to view and adjust the percentage. The sleep timer menu checks the selected setting, and a filled moon shows that it is enabled. The minutes shown are the selected duration.
+
 Timed transcripts show the current line. In portrait, drag the horizontal handle to resize, or tap to switch between one and multiple lines. In landscape, drag the vertical handle to resize or tap to hide. On larger web windows, audio opens a transcript window at the lower right. Drag its top handle to resize, tap to hide, and reopen using Transcripts & subtitles in bottom controls. It stays open while browsing; adjust timing there or open the full player with cover and transcript.
 
 On Android, choose Floating subtitles for a timed transcript, grant display-over-other-apps permission, return, and tap again. Subtitles stay visible inside Ruri and over other apps. They hide while the screen is locked and return after unlocking. Only the current and next lines show normally. Tap the subtitles to reveal the close button, or drag vertically to reposition. The controls hide after 3 seconds without interaction. To close, tap the subtitles and then × at the top right. Full-screen video supports Space to pause/resume, arrow keys to seek, and Esc to leave on the web. On Android, tap for controls and double-tap either side to seek 10 seconds. Set a sleep timer in the player.
@@ -213,7 +227,7 @@ Check availability under Parsing tools. Custom tools must support `fd` input; en
 
 ### Connecting another player or file manager
 
-Create a WebDAV connection using `http://SERVER:PORT/dav/`, or `https://CERTIFICATE-SERVER-NAME:PORT/dav/`. Use your current Ruri account/password, not the setup code, and do not append `/dav/` twice. For example `http://192.168.1.20:18080/dav/`, or `https://ruri.example.com/dav/` through Nginx. Without an active license, only the built-in administrator is eligible.
+Create a WebDAV connection using `http://SERVER:PORT/dav/`, or `https://CERTIFICATE-SERVER-NAME:PORT/dav/`. Use your current Ruri account/password and do not append `/dav/` twice. For example `http://192.168.1.20:18080/dav/`, or `https://ruri.example.com/dav/` through Nginx. Without an active license, only the built-in administrator is eligible.
 
 Browse folders and play original files. WebDAV is read-only, with no upload, delete, rename, conversion, or third-party progress sync. Scan newly added files in Ruri before they appear. Playback formats depend on the other player.
 
@@ -414,7 +428,7 @@ A periodic check that finds no changes does not repeat organization, metadata fe
 
 Administrators can open System logs in Settings. Needs attention shows problems first; choose All records for operation results and expand details when reporting an issue. Task details contain progress, failed items, and retry options.
 
-To investigate a problem, open Detailed diagnostics in Settings, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.
+To investigate a problem, open Detailed diagnostics in Management, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.
 
 
 ## Listening statistics and recommendations
@@ -438,4 +452,4 @@ Finished tasks and runtime logs are kept for up to 48 hours. After completion, d
 
 Administrators can open a work’s More actions → Delete work. This clears its information, fetched metadata, manual edits, and all users’ whole-work collection and playlist references. Original media and downloaded files remain. Its files and ordinary subfolders are ignored and do not join a parent work or appear as unarchived files; independent child works remain. Product codes such as RJ prevent re-registration across all sources. Without a code, only the original folder is excluded; moving or renaming it can allow registration again.
 
-Open Settings → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.
+Open Management → Exclusion management to review deleted works and ignored folders, and lift exclusions. Then organize a local source again, or explicitly add a compatible-service work again. Cleared information, ratings and collection references are not restored. Other exclusions still apply. Wait for related running tasks to finish, or stop them, before deleting.

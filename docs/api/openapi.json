@@ -3450,7 +3450,7 @@
           "scan"
         ],
         "summary": "deleteSource",
-        "description": "Permanently remove this root and all its media metadata after automatically canceling and waiting for related background tasks. Files remain untouched. Other roots/shared references survive. Deleted nodes/works return 404; re-adding starts clean.",
+        "description": "Permanently remove this root and all its media metadata after automatically canceling and waiting for related background tasks. Files remain untouched. Other roots/shared references survive. Deleted nodes/works return 404; re-adding starts clean. The built-in ASMR.one source (builtin=true) returns 409 builtin_source before canceling tasks or changing metadata. Its stable ID is builtin-asmr-one.",
         "responses": {
           "204": {
             "description": "Success",
@@ -11302,8 +11302,8 @@
         "tags": [
           "accounts"
         ],
-        "summary": "Set the first administrator password with the one-time setup code.",
-        "description": "Only an empty installation can be set up. The code comes from the server data directory. On success, sign in through POST /auth/login.",
+        "summary": "Set the first administrator password.",
+        "description": "Only an empty installation can be set up. Supply setup_code using the randomly generated default administrator password from default-admin-password.txt in the server data directory, and matching password and confirm_password values. The Windows desktop host supplies setup_code through its local bridge; ordinary browsers must ask the operator. Setup status never returns this password. Missing or invalid setup_code returns 403 admin_setup_code_invalid. On success the default password is invalidated and its file is removed when possible. Sign in through POST /auth/login with the chosen password; the default password cannot be used to log in. Existing accounts cannot be replaced by setup.",
         "security": [],
         "requestBody": {
           "required": true,
@@ -11318,10 +11318,6 @@
                   "confirm_password"
                 ],
                 "properties": {
-                  "setup_code": {
-                    "type": "string",
-                    "writeOnly": true
-                  },
                   "password": {
                     "type": "string",
                     "writeOnly": true
@@ -11329,6 +11325,11 @@
                   "confirm_password": {
                     "type": "string",
                     "writeOnly": true
+                  },
+                  "setup_code": {
+                    "type": "string",
+                    "writeOnly": true,
+                    "description": "Random default administrator password; used only for initial setup."
                   }
                 }
               }
@@ -11343,7 +11344,7 @@
             "$ref": "#/components/responses/Error"
           },
           "403": {
-            "$ref": "#/components/responses/Error"
+            "description": "Default administrator password is missing or invalid, or the request origin is forbidden."
           },
           "409": {
             "$ref": "#/components/responses/Error"
@@ -16901,6 +16902,10 @@
                           }
                         }
                       }
+                    },
+                    "source_kind": {
+                      "type": "string",
+                      "description": "Kind of the work root source: local, kikoeru_compatible, or empty for a rootless work."
                     }
                   }
                 }
@@ -22660,6 +22665,554 @@
           }
         }
       }
+    },
+    "/works/{work}/remote-download": {
+      "get": {
+        "operationId": "getRemoteWorkDownload",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Read the selectable file tree and latest server save for an imported work",
+        "description": "Administrator only. The tree contains current included files, their real directories, size when known, and verified complete-copy status. Independent child works are excluded.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteWorkDownload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Access denied"
+          },
+          "404": {
+            "description": "Virtual file unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "startRemoteWorkDownload",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Save explicitly selected work files to the source server download folder",
+        "description": "Administrator only. node_ids must be a nonempty unique selection of file IDs from this work tree. Directory IDs and files outside the work are rejected. Original paths are retained, complete copies are skipped, and only two saves may run at once. Overlapping file selections return 409 download_busy. File failures do not stop the other selected files; retry the original selection to skip completed copies and resume unfinished files. Closing the dialog does not cancel the task; process restart marks it interrupted. Task details and selection expire after 48 hours.",
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteDownloadJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error"
+          },
+          "401": {
+            "description": "Error"
+          },
+          "403": {
+            "description": "Error"
+          },
+          "404": {
+            "description": "Error"
+          },
+          "409": {
+            "description": "Error"
+          },
+          "502": {
+            "description": "Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "node_ids"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 20000,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice-actors": {
+      "get": {
+        "operationId": "listVoiceActors",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Search published voice actor profiles",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Searches NFKC/casefold normalized names, aliases, traits and tags locally before pagination. exact=true matches names only and may return multiple people. Uses the versioned public catalog with a five-minute refresh interval; refresh=true bypasses it. A failed refresh retains verified cache and marks source.stale/error; without a valid cache returns 502/503.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "exact",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "works"
+              ],
+              "default": "name"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceCatalogPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}": {
+      "get": {
+        "operationId": "getVoiceActor",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read voice actor profile and all published languages",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Preserves original multilingual texts and sorted RJ codes. cover_url is a Core-authenticated image path or empty. Public cover inside actor remains a relative catalog object reference. Does not bind same-name local entities automatically.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceActorDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}/works": {
+      "get": {
+        "operationId": "voiceActorWorks",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Resolve a page of discovered RJ codes against the library",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Paginates published RJ codes first, then resolves exact normalized identifiers in one library snapshot. Same-code copies remain separate; inactive/excluded works are omitted. Media with local files present sorts before other copies. Multiple matches return select_work; one returns local_work; no match returns remote_search for the built-in source. Does not probe ASMR.one availability. Local references refresh on each request independently of catalog caching.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceActorWorkPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}/works/{code}/target": {
+      "get": {
+        "operationId": "voiceActorWorkTarget",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Resolve one actor work destination",
+        "description": "Requires a Core session; anonymous CDN reads occur only on the server and never forward credentials. Members and enabled guests may read. No source lookup, work import or metadata rewrite is triggered. JSON responses use Cache-Control: no-store. Code must be in the published actor profile; otherwise 404. Applies the same local-first selection as the paged works response. remote_search.path is a Core search endpoint, not a direct website redirect. Existing remote source and administrator-only import permissions remain enforced.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[Rr][Jj](?:[0-9]{6}|[0-9]{8})$"
+            }
+          },
+          {
+            "name": "metadata_locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceActorWork"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/voice-actors/{actor}/cover": {
+      "get": {
+        "operationId": "voiceActorCover",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read a verified voice actor cover",
+        "description": "Requires authentication. Reads only the published actor cover, checks its SHA-256 and PNG/JPEG/GIF content type; missing cover returns 404. Supports the standard Core thumbnail size. Original image Cache-Control private,max-age=300; thumbnails use private,no-cache. ETag supports conditional reads. Does not accept arbitrary image URLs.",
+        "parameters": [
+          {
+            "name": "actor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verified image",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -22667,7 +23220,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Opaque session token returned by POST /auth/login. The one-time setup code cannot be used as a bearer token."
+        "description": "Opaque session token returned by POST /auth/login."
       },
       "sessionCookie": {
         "type": "apiKey",
@@ -23719,6 +24272,10 @@
               "number178"
             ],
             "description": "Detected remote contract; empty for local roots."
+          },
+          "builtin": {
+            "type": "boolean",
+            "description": "True only for the permanent built-in ASMR.one source. It cannot be removed; name, proxy and download folder remain editable. User-created sources may use the same site URL."
           }
         },
         "required": [
@@ -23735,7 +24292,8 @@
           "download_path",
           "proxy_url",
           "remote_site_url",
-          "remote_dialect"
+          "remote_dialect",
+          "builtin"
         ],
         "additionalProperties": false
       },
@@ -24414,7 +24972,12 @@
                   "client_limit_reached",
                   "session_limit_reached",
                   "directory_too_large",
-                  "preferences_format_mismatch"
+                  "preferences_format_mismatch",
+                  "builtin_source",
+                  "voice_catalog_unavailable",
+                  "voice_catalog_invalid",
+                  "voice_catalog_unsupported",
+                  "voice_cache_unavailable"
                 ]
               },
               "message": {
@@ -34204,7 +34767,8 @@
             "type": "string"
           },
           "node_id": {
-            "type": "string"
+            "type": "string",
+            "description": "The selected file for a single save, or the work root for a work save."
           },
           "state": {
             "type": "string",
@@ -34234,6 +34798,25 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "work_id": {
+            "type": "string",
+            "description": "Present for a work selection save."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemoteDownloadItem"
+            }
+          },
+          "files_total": {
+            "type": "integer"
+          },
+          "files_done": {
+            "type": "integer"
+          },
+          "files_failed": {
+            "type": "integer"
           }
         }
       },
@@ -34709,6 +35292,541 @@
             "type": "integer"
           }
         }
+      },
+      "RemoteDownloadItem": {
+        "type": "object",
+        "required": [
+          "node_id",
+          "name",
+          "size_bytes",
+          "state",
+          "error"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Original relative path within the source download folder."
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed",
+              "skipped"
+            ]
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "RemoteDownloadNode": {
+        "type": "object",
+        "required": [
+          "id",
+          "parent_id",
+          "name",
+          "kind",
+          "size_bytes",
+          "saved"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string",
+            "description": "Empty for the work root."
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "directory",
+              "file"
+            ]
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "saved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RemoteWorkDownload": {
+        "type": "object",
+        "required": [
+          "root_node_id",
+          "download_configured",
+          "items",
+          "job"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "root_node_id": {
+            "type": "string"
+          },
+          "download_configured": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemoteDownloadNode"
+            }
+          },
+          "job": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RemoteDownloadJob"
+              }
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "VoiceCatalogName": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "locale",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogText": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "traits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "locale",
+          "description",
+          "traits"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogTag": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "locale",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogSource": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "string"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stale": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string",
+            "enum": [
+              "",
+              "voice_catalog_unavailable",
+              "voice_catalog_invalid",
+              "voice_catalog_unsupported",
+              "voice_cache_unavailable"
+            ]
+          }
+        },
+        "required": [
+          "revision",
+          "published_at",
+          "stale",
+          "error"
+        ],
+        "additionalProperties": false,
+        "description": "Last fully verified catalog revision. stale=true and error explain a failed refresh; retained data remains readable."
+      },
+      "VoiceCatalogEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "person",
+              "unknown",
+              "synthetic"
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogName"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogTag"
+            }
+          },
+          "traits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "works": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "profile": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "names",
+          "tags",
+          "traits",
+          "works",
+          "profile",
+          "sha256"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "person",
+              "unknown",
+              "synthetic"
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogName"
+            }
+          },
+          "texts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogText"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogTag"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cover": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "names",
+          "texts",
+          "tags",
+          "updated_at",
+          "codes"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceActorDetail": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/VoiceCatalogProfile"
+          },
+          "source": {
+            "$ref": "#/components/schemas/VoiceCatalogSource"
+          },
+          "cover_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor",
+          "source",
+          "cover_url"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceCatalogPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceCatalogEntry"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source": {
+            "$ref": "#/components/schemas/VoiceCatalogSource"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "source"
+        ],
+        "additionalProperties": false
+      },
+      "CodeWork": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "root_node_id": {
+            "type": "string"
+          },
+          "root_path": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "source_name": {
+            "type": "string"
+          },
+          "source_kind": {
+            "type": "string"
+          },
+          "media_present": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "root_node_id",
+          "root_path",
+          "source_id",
+          "source_name",
+          "source_kind",
+          "media_present"
+        ],
+        "additionalProperties": false,
+        "description": "Independent active library copy. media_present reflects indexed audio/video presence, never an online reachability probe."
+      },
+      "VoiceRemoteSearch": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "enum": [
+              "builtin-asmr-one"
+            ]
+          },
+          "query": {
+            "type": "string"
+          },
+          "search_field": {
+            "type": "string",
+            "enum": [
+              "text"
+            ]
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "query",
+          "search_field",
+          "path"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceWorkTarget": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "local_work",
+              "select_work",
+              "remote_search"
+            ]
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "remote_search": {
+            "$ref": "#/components/schemas/VoiceRemoteSearch"
+          }
+        },
+        "required": [
+          "kind",
+          "work_id",
+          "remote_search"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceActorWork": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "local_works": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeWork"
+            }
+          },
+          "target": {
+            "$ref": "#/components/schemas/VoiceWorkTarget"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "local_works",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceActorWorkPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceActorWork"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source": {
+            "$ref": "#/components/schemas/VoiceCatalogSource"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "source"
+        ],
+        "additionalProperties": false
       }
     }
   },

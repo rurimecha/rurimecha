@@ -5,8 +5,9 @@
 ## 首次设置
 
 - `GET /auth/setup` 无需会话，返回 `{ "required": true }` 或 `{ "required": false }`。
-- `POST /auth/setup` 无需会话，接收 `setup_code`、`password`、`confirm_password`。设置码来自新安装的数据目录 `setup-code` 文件。两次密码必须相同。成功返回 204，随后用 `admin` 与所设密码调用 `/auth/login`。设置码仅供首次设置使用。
-- 代码不正确返回 403 `admin_setup_code_invalid`，两次密码不同返回 400 `password_mismatch`。已有账户或另一请求先完成设置时返回 409 `admin_setup_complete`。现有账号、密码和会话继续有效。
+- `POST /auth/setup` 无需会话，接收 `setup_code`（默认管理密码）、`password`、`confirm_password`。首次启动随机生成默认管理密码并保存到数据目录的 `default-admin-password.txt`，仅供有服务器本机访问权限的操作者读取；Windows 桌面宿主经本机通道自动提供，普通网页无法读取。仅允许在没有账户时设置内置管理员，两次密码必须相同。成功返回 204，随后用 `admin` 与所设密码调用 `/auth/login`。
+- 默认管理密码缺失或错误返回 403 `admin_setup_code_invalid`。默认管理密码不能用于 `/auth/login`；设置成功后失效并尝试删除文件。`GET /auth/setup` 不返回默认管理密码。
+- 两次密码不同返回 400 `password_mismatch`。已有账户或另一请求先完成设置时返回 409 `admin_setup_complete`。现有账号、密码和会话继续有效。
 
 ## 权限
 

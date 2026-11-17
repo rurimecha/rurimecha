@@ -18,6 +18,8 @@
 | GET | /sources/{source}/remote-works/{code}/cover | 查看来源封面 |
 | GET | /works/{work}/remote-cover | 读取已入库作品的来源封面 |
 | POST | /sources/{source}/remote-works/{code}/import | 入库或刷新选中的 RJ 作品 |
+| GET | /works/{work}/remote-download | 管理员查看作品可选目录树、完整副本状态及最近一次保存任务 |
+| POST | /works/{work}/remote-download | 管理员按选中的文件批量保存作品，保留目录结构 |
 | GET | /nodes/{node}/remote-download | 查看远端文件在服务器上的实际保存状态及最近一次任务 |
 | POST | /nodes/{node}/remote-download | 将远端文件保存到来源的下载目录 |
 | GET | /remote-download-jobs/{job} | 查看保存进度 |
@@ -35,9 +37,19 @@
 
 本地来源创建时 name 和服务器上的绝对 path 必填；kind 可省略或设为 `local`。根目录不提供停用状态：enabled 省略或 true 均创建正常根目录，false 返回 400。离线目录仍可登记，任务会报告访问问题。重复或父子重叠路径返回 409。
 
+内置 ASMR.one 来源使用固定 ID `builtin-asmr-one`，`kind=kikoeru_compatible`、`builtin=true`，站点为`https://asmr.one`、接口为`https://api.asmr.one`、契约为`one`。Core启动时只补建缺失记录，不联网探测、不覆盖已有名称、代理、下载目录或修订，不自动浏览、入库或下载。它与用户添加的同网址来源独立共存；其他来源`builtin=false`，站点与接口地址不要求唯一。声优页面的兼容来源入口固定使用内置来源；社团和画师仍可选择已配置来源。
+
+内置来源允许按既有ETag修改名称、代理和下载目录；不能停用或移除。DELETE返回409 `builtin_source`，在停任务或清理任何资料前拒绝。普通来源仍沿用原移除流程。返回DTO的`builtin`为只读标记，不能在POST/PUT中赋值。作品继续通过该来源的既有`remote-works`接口浏览和显式入库，已入库作品保持原有来源身份，不迁移或合并至内置来源。
+
 kikoeru 兼容来源使用 `{"name":"远端音声","kind":"kikoeru_compatible","remote_site_url":"https://asmr.one","path":"","download_path":"/media/remote","proxy_url":"http://127.0.0.1:7890"}`。创建时先访问填写的网站，再验证 One 或 Number178 的作品契约；仅已识别的 `asmr.one` 网站可解析到独立的接口域名。验证成功后保存 `remote_site_url`、`remote_api_url` 和 `remote_dialect`（`one` 或 `number178`）。两种契约都不符合返回 422 `remote_source_unsupported`，站点拒绝匿名访问返回 422 `remote_source_access_denied`，网络失败返回 502；不创建来源。`download_path` 可省略；配置后必须是服务器可写绝对目录。`proxy_url` 可省略或留空，留空时使用服务器默认网络；指定后探测、浏览、入库、封面、附件、播放转发和服务器下载都使用此代理，支持不含凭据的 HTTP、HTTPS、SOCKS5 地址。外部媒体通过代理时要求 HTTPS，拒绝私网 IP 字面地址与本地主机名；主机名可由代理解析，TLS 仍验证目标主机身份。与所配置接口地址同主机的媒体不受此限制。Android 直连绕过服务器代理，需代理时选择服务端播放。该来源只手动选择作品入库或刷新，不接受本地扫描、监听、自动探测策略。虚拟根下按 RJ 号平铺作品目录，每个来源单独管理，相同 RJ 号不跨来源合并。入库快照包含来源的作品资料、封面地址和完整目录树；音频、视频、图片、字幕、文本和其他普通文件保持来源中的目录层级。归纳按普通作品边界建立作品，人工描述仍可覆盖来源资料。若来源不可访问，已入库资料保留，远端未保存的文件暂不可播放。
 
 浏览 q 是普通文本，`search_field` 可为 `text`（默认）、`circle`、`voice` 或 `tag`。One 适配器将分类搜索转换为该站语法；Number178 适配器用已有名称找到对应分类，再读取该分类的作品。One 与 Number178 分类列表均可通过 `/remote-facets?field=tag` 等接口读取。sort 支持 `recent`、`downloads`、`release`、`rating`；`page_size` 返回来源实际页大小。浏览不自动入库。封面通过本服务的认证接口读取。入库/刷新需要管理员；作品树的删除以移除来源或现有目录管理规则为准。
+
+管理员可通过 `GET /works/{work}/remote-download` 读取已入库作品的目录树，返回 `root_node_id`、`download_configured`、平铺的 `items` 和最近一次 `job`。节点包含 `id/parent_id/name/kind/size_bytes/saved`，根节点的 `parent_id` 为空，未知大小为 null。目录与文件保持来源中的层级；独立子作品和不属于本作品的文件不纳入选择。`saved` 会检查当前完整副本，检查文件时不持有数据库快照。
+
+`POST /works/{work}/remote-download` 接收 `{"node_ids":["file-id", "another-file-id"]}`，仅接受 1..20000 个不重复的本作品文件 ID，目录 ID、其他作品文件或失效节点返回 400。成功返回 202 及 `RemoteDownloadJob`。保留来源原目录结构，跳过完整副本，逐项保存；一个文件失败后仍继续其余文件，整项任务标为 failed。任务包含 `work_id`、原作品根 `node_id`、各项 `items`（`node_id/name/size_bytes/state/error`）和 `files_total/files_done/files_failed`；项状态为 pending/succeeded/failed/skipped。单文件任务的 `work_id` 省略，`node_id` 仍为文件。`bytes_done` 是已完成副本及当前项的进度，未知总大小时 `bytes_total` 为 null，成功结束后记为实际总字节数。
+
+单文件与作品任务共用最多两个同时保存名额，选中文件有重叠或名额已满时返回 409 `download_busy`；没有配置目录返回 `download_folder_required`，全部已保存返回 `file_already_saved`。任务由服务端执行，关闭窗口不会取消；原取消接口也可停止作品任务。停止或服务重启后标为 interrupted，再次提交原选择会跳过完整副本并尝试续传剩余文件。任务详情与选择记录保留 48 小时，文件不随记录清理。作品树与批量开始均要求管理员，匿名返回 401，普通成员和游客返回 403。
 
 配置下载目录后，可对已入库文件启动服务器保存。下载使用来源支持的 Range 续传；未完成文件不进入播放和本地扫描。Number178 来源若只返回播放列表而没有原文件，该作品入库返回 422，不把播放列表当作音频保存。完成的文件优先用于播放和 WebDAV，丢失或大小不符则继续从来源读取。来源移除不删除下载目录中的文件。若另把下载目录加入本地来源，它按独立本地来源扫描，可使用普通本地媒体探测；kikoeru 来源的持久媒体资料仍来自 API；播放时为视频画质协商做临时探测，不写回媒体资料，详见 playback.md。
 

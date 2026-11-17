@@ -11,6 +11,30 @@ using WixToolset.Dtf.WindowsInstaller;
 
 public static class InstallerActions
 {
+    public static string InstallationDirectory(string selected, string previous)
+    {
+        string path = Path.GetFullPath(selected);
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (string.Equals(trimmed, previous.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Path.GetFileName(trimmed), "Rurimecha", StringComparison.OrdinalIgnoreCase))
+            return path;
+        return Path.Combine(path, "Rurimecha");
+    }
+
+    [CustomAction]
+    public static ActionResult NormalizeInstallFolder(Session session)
+    {
+        try
+        {
+            string selected = session["INSTALLFOLDER"];
+            string target = InstallationDirectory(selected, session["RURI_PREVIOUS_INSTALLFOLDER"]);
+            if (!string.Equals(selected.TrimEnd('\\'), target.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+                session.SetTargetPath("INSTALLFOLDER", target);
+            return ActionResult.Success;
+        }
+        catch (Exception error) { return Fail(session, "无法使用所选安装位置。请选择可写的文件夹后重试。", error); }
+    }
+
     private static string DataDirectory()
     {
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rurimecha", "data");

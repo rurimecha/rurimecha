@@ -97,6 +97,8 @@ mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_r
 
 作品资源的分类模式可用 `/works/{work}/members?kind=all|audio|video|image|text`；all 仅列文件，目录模式使用 resources 投影。分类与计数在服务端分页前应用，不通过丢弃当前页条目实现。
 
+`GET /works/{work}/resource-summary` 另返回作品根来源的 `source_kind`（local、kikoeru_compatible 或无根作品的空字符串），供客户端决定是否展示作品服务器保存入口。
+
 `GET /works/{work}/resource-summary` 返回所有当前可用音视频的 files/bytes/duration_seconds，以及按真实来源和直接父目录分组的 items（最多 200 组，另有 truncated）。总计不受分组展示上限影响，字节数为字符串；不同格式分别累计，不标为去重作品时长。人工时长优先，失效自动观察不计入。
 
 媒体探测任务详情的可选 input 字段表示创建时的范围，可用于按原范围重试；未提供该字段时，不推测原请求。
