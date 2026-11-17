@@ -119,7 +119,7 @@ Windows Docker Desktop 用戶可在宿主機 PowerShell 中、Compose 檔案所�
 
 - **Windows 桌面視窗**：預設管理密碼會自動填寫，只需輸入並確認自己的新密碼，點「設定密碼並登入」。
 - **瀏覽器或 Android 連接新伺服器**：先輸入伺服器隨機產生的「預設管理密碼」，再輸入並確認自己的新密碼。登入頁也會顯示以下取得方式：
-  - Windows：在安裝 Ruri 的電腦上選擇「Ruri → 查看預設管理密碼」。檔案位於 `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`。
+  - Windows：在安裝 Ruri 的電腦上選擇「更多操作（⋯）→ 查看預設管理密碼」。檔案位於 `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`。
   - Linux 服務安裝：在伺服器終端執行 `sudo cat /var/lib/rurimecha/default-admin-password.txt`。
   - Docker Compose：在伺服器的 Compose 資料夾執行 `docker compose exec core cat /data/default-admin-password.txt`。使用 `docker run` 時執行 `docker exec <容器名稱> cat /data/default-admin-password.txt`，替換實際容器名稱。NAS 使用者也可在容器終端執行 `cat /data/default-admin-password.txt`。
   - 手動啟動或自訂資料目錄：讀取所選目錄的 `default-admin-password.txt`；啟動提示會顯示儲存位置。
@@ -504,7 +504,7 @@ server {
 
 ## 社團、聲優和畫師
 
-「聲優」預設顯示公開聲優目錄，可依名字、別名或聲音特色搜尋，開啟人物查看原文資料與已收錄的出演作品。本庫已有作品可直接開啟；有多個副本時選擇來源與目錄；未收錄的作品依 RJ 編號前往內置 ASMR.one 尋找。也可依聲優名字尋找 ASMR.one 作品。沒有出演紀錄時會明確提示，不會自動下載。點「本庫聲優」瀏覽本庫署名，點「聲優資料」返回目錄；名稱管理保持獨立。重新整理失敗時保留目前內容，使用舊快取時會顯示提示。
+「聲優」預設顯示媒體庫已收錄的聲優，點人物瀏覽本庫作品。點「更多聲優」搜尋其他人物，再點「查看資料」開啟介紹、標籤與出演作品；本庫人物作品頁也可查看資料。預設顯示目前介面語言，可切換「資料語言」查看其他原文，不顯示空白語言標題。本庫已有作品直接開啟，多個副本可選擇來源與目錄；其他作品可前往 ASMR.one 尋找。「查看 ASMR.one 來源的作品」可瀏覽該聲優在此來源的作品，不會自動新增或下載。
 
 「社團」「畫師」保留依名稱瀏覽本庫作品，以及在 DLsite 分區或相容來源中尋找相關作品。DLsite 結果只開啟商品資料，不提供下載。
 
