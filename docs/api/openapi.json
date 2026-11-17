@@ -11303,7 +11303,7 @@
           "accounts"
         ],
         "summary": "Set the first administrator password.",
-        "description": "Only an empty installation can be set up. Supply matching password and confirm_password values. On success, sign in through POST /auth/login. Existing accounts cannot be replaced by setup.",
+        "description": "Only an empty installation can be set up. Supply setup_code using the randomly generated default administrator password from default-admin-password.txt in the server data directory, and matching password and confirm_password values. The Windows desktop host supplies setup_code through its local bridge; ordinary browsers must ask the operator. Setup status never returns this password. Missing or invalid setup_code returns 403 admin_setup_code_invalid. On success the default password is invalidated and its file is removed when possible. Sign in through POST /auth/login with the chosen password; the default password cannot be used to log in. Existing accounts cannot be replaced by setup.",
         "security": [],
         "requestBody": {
           "required": true,
@@ -11313,6 +11313,7 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
+                  "setup_code",
                   "password",
                   "confirm_password"
                 ],
@@ -11324,6 +11325,11 @@
                   "confirm_password": {
                     "type": "string",
                     "writeOnly": true
+                  },
+                  "setup_code": {
+                    "type": "string",
+                    "writeOnly": true,
+                    "description": "Random default administrator password; used only for initial setup."
                   }
                 }
               }
@@ -11338,7 +11344,7 @@
             "$ref": "#/components/responses/Error"
           },
           "403": {
-            "$ref": "#/components/responses/Error"
+            "description": "Default administrator password is missing or invalid, or the request origin is forbidden."
           },
           "409": {
             "$ref": "#/components/responses/Error"

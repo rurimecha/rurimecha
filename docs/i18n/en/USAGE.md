@@ -12,7 +12,7 @@ Download the package for your platform from [GitHub Releases](https://github.com
 
 ### Windows installation
 
-1. Open the `.msi`, select Next, and choose the installation folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
+1. Open the `.msi`, select Next, and choose an installation location. A `Rurimecha` subfolder is added unless that is already the selected folder name; upgrades keep the existing folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
 2. Choose a listen IP and port. Defaults are `0.0.0.0` and `8080`, accepting connections on all local IPv4 addresses. Use `127.0.0.1` for access only from this computer. A specific IP must belong to this computer. If the availability check fails, free the port or choose another. Reinstallation and upgrades retain existing network settings by default.
 3. Finish installation and open **Rurimecha** from Start. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
 4. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
@@ -27,7 +27,7 @@ Extract the full x86-64 server package, open a terminal there, and run:
 sudo ./install.sh
 ```
 
-Enter the listen IP and port, or press Enter for `0.0.0.0:8080`. A failed address/port check leaves existing network settings intact. The installer starts Ruri and enables startup on boot. Open `http://SERVER-LAN-IP:8080/` from another computer; the server needs no graphical desktop. Set and confirm the `admin` password on the first-time setup page.
+Enter the listen IP and port, or press Enter for `0.0.0.0:8080`. A failed address/port check leaves existing network settings intact. The installer starts Ruri and enables startup on boot. Open `http://SERVER-LAN-IP:8080/` from another computer; the server needs no graphical desktop. Run `sudo cat /var/lib/rurimecha/default-admin-password.txt` on the server, enter the displayed default administrator password on the setup page, then choose and confirm your own password for `admin`.
 
 Service installation requires systemd. Bundled media tools require glibc 2.35 or later, such as Ubuntu 22.04 or Debian 12. Data is in `/var/lib/rurimecha`. The `rurimecha` service user needs read access to media folders and their parents; do not make an entire media disk writable by everyone.
 
@@ -60,7 +60,7 @@ Replace `VERSION` with the release version, or use `latest` for the latest stabl
 docker compose up -d
 ```
 
-Open `http://127.0.0.1:8080/` on the Docker host to set the administrator password. On a phone, `127.0.0.1` refers to the phone itself.
+Run `docker compose exec core cat /data/default-admin-password.txt` to obtain the default administrator password. Open `http://127.0.0.1:8080/` on the Docker host, enter that password, and choose your own administrator password. On a phone, `127.0.0.1` refers to the phone itself.
 
 3. For other devices, first open Network settings. Keep the displayed current LAN ranges and add your home range on another line, for example `192.168.1.0/24` for addresses `192.168.1.x` with mask `255.255.255.0`. Docker's detected ranges may omit your home network. Keep the internal listen address at all IPv4 addresses; do not enter a host IP absent from the container. Then change the Compose port mapping, for example:
 
@@ -100,7 +100,16 @@ Accounts, details, settings, and licensing are in `ruri-data`. **Keep the volume
 
 ### Set the administrator password
 
-When you first open Ruri, the administrator setup page appears. Enter a new password for `admin` twice, then choose **Set password and sign in** to open your library. Use `admin` and that password for future sign-ins. Existing installations keep their accounts and passwords. If forgotten, follow Reset the administrator password; do not delete the data folder or volume.
+On a new installation, choose your own password for `admin`. Use that password for later sign-ins.
+
+- **Windows desktop window:** The default administrator password is filled in automatically. Enter your new password twice and choose **Set password and sign in**.
+- **Browser or Android connecting to a new server:** Enter the server's randomly generated **default administrator password**, then enter your own new password twice. The sign-in page also shows these instructions:
+  - Windows: On the PC running Ruri, choose **Ruri → View default administrator password**. The file is `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`.
+  - Linux service: Run `sudo cat /var/lib/rurimecha/default-admin-password.txt` in the server terminal.
+  - Docker Compose: Run `docker compose exec core cat /data/default-admin-password.txt` in the server's Compose folder. With `docker run`, use `docker exec <container-name> cat /data/default-admin-password.txt`, replacing the container name. NAS users can also run `cat /data/default-admin-password.txt` in the container terminal.
+  - Manual start or custom data folder: Read `default-admin-password.txt` in your chosen data folder. The startup message shows its location.
+
+The default password is only for initial setup and cannot sign in. It becomes invalid and is deleted after setup; do not share it. Existing installations keep their accounts and passwords. If you forget your own password, follow Reset the administrator password without deleting data or volumes.
 
 Change your password in Account & sessions → Change password, entering the current password and the new password twice. Administrators also enter new passwords twice when creating users or resetting passwords.
 

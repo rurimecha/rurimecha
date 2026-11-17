@@ -21,7 +21,7 @@
 
 ### Windows 安裝
 
-1. 下載 `.msi` 安裝包並雙擊打開嚮導，點「下一步」，選擇安裝目錄。安裝包僅支持「為當前用戶安裝」，無需管理員權限；預設目錄為 `%LOCALAPPDATA%\Programs\Rurimecha`，開始菜單入口也僅對當前 Windows 用戶可見。其他 Windows 用戶需要分別安裝。若曾安裝舊版 EXE 安裝包，先在 Windows 設定中卸載舊版，再安裝 MSI；媒體庫資料會保留。
+1. 下載 `.msi` 安裝包並雙擊打開嚮導，點「下一步」，選擇安裝位置，所選位置下會自動建立 `Rurimecha` 資料夾；已選同名資料夾時直接使用，升級預設沿用原目錄。安裝包僅支持「為當前用戶安裝」，無需管理員權限；預設目錄為 `%LOCALAPPDATA%\Programs\Rurimecha`，開始菜單入口也僅對當前 Windows 用戶可見。其他 Windows 用戶需要分別安裝。若曾安裝舊版 EXE 安裝包，先在 Windows 設定中卸載舊版，再安裝 MSI；媒體庫資料會保留。
 2. 設定監聽 IP 和端口，再點「下一步」檢查是否可用。首次安裝預設 IP 為 `0.0.0.0`、端口為 `8080`，表示接收這台電腦所有 IPv4 地址上的連接；只供本機使用時填 `127.0.0.1`。選擇某個 IP 時，必須填寫這台電腦實際擁有的地址。端口被佔用時，退出佔用它的程序或改用其他端口，再重試。升級或重新安裝預設沿用已有網絡設定。
 3. 確認安裝，完成後從開始菜單打開 **Rurimecha**。如提示缺少 WebView2，安裝微軟的 [Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) 後重新打開。
 4. 在首次設定頁面為 `admin` 輸入並確認新密碼，點「設定密碼並登入」。
@@ -37,7 +37,7 @@
    ```
 
 2. 在安裝提示中填寫監聽 IP 和端口，直接回車使用 `0.0.0.0` 和 `8080`。安裝會檢查地址是否可用、端口是否被佔用；檢查失敗時不會覆蓋已有網絡設定。安裝後會啓動 Ruri，並在開機後自動運行。使用預設設定時，可從另一台電腦打開 `http://服务器的局域网地址:8080/`，伺服器本身不需要圖形界面。
-3. 打開 Ruri 後，在首次設定頁面為 `admin` 輸入並確認新密碼，點「設定密碼並登入」。
+3. 在伺服器終端執行 `sudo cat /var/lib/rurimecha/default-admin-password.txt`，複製預設管理密碼。開啟 Ruri 輸入它，再為 `admin` 輸入並確認自己的新密碼，點「設定密碼並登入」。
 
 服務安裝需要 systemd；隨包音影片工具要求 glibc 2.35 或更新版本，例如 Ubuntu 22.04 或 Debian 12。應用資料儲存在 `/var/lib/rurimecha`。Ruri 以 `rurimecha` 用戶運行，這個用戶需要能讀取媒體資料夾及其上級目錄；不要為解決讀取問題把整塊媒體盤設為所有人可寫。
 
@@ -72,7 +72,7 @@ RURI_MEDIA_DIR="/srv/media/音声"
 docker compose up -d
 ```
 
-在運行 Docker 的電腦上打開 `http://127.0.0.1:8080/` 完成設定。手機上的 `127.0.0.1` 指手機自己，不能用來訪問這台電腦。
+執行 `docker compose exec core cat /data/default-admin-password.txt` 取得預設管理密碼，再在運行 Docker 的電腦上開啟 `http://127.0.0.1:8080/`，輸入該密碼並設定自己的管理密碼。手機上的 `127.0.0.1` 指手機自己，不能用來訪問這台電腦。
 
 **3. 讓手機或其他電腦連接。** 不需要其他設備訪問時，保留示例設定即可。需要局域網訪問時，同時完成以下兩項：
 
@@ -115,9 +115,16 @@ Windows Docker Desktop 用戶可在宿主機 PowerShell 中、Compose 檔案所�
 
 ### 首次設定管理員密碼
 
-首次打開 Ruri 時會直接顯示管理員設定頁面。為 `admin` 輸入兩遍自己的新密碼，點「設定密碼並登入」進入媒體庫。以後用 `admin` 和該密碼登入。
+首次開啟新安裝的 Ruri 時，為 `admin` 設定自己的管理密碼，以後使用這個密碼登入。
 
-已有安裝繼續使用原來的帳號和密碼。如果忘記密碼，按[重置管理員密碼](#重置管理員密碼)操作。不要為了找回密碼刪除應用數據目錄或 Docker 數據卷。
+- **Windows 桌面視窗**：預設管理密碼會自動填寫，只需輸入並確認自己的新密碼，點「設定密碼並登入」。
+- **瀏覽器或 Android 連接新伺服器**：先輸入伺服器隨機產生的「預設管理密碼」，再輸入並確認自己的新密碼。登入頁也會顯示以下取得方式：
+  - Windows：在安裝 Ruri 的電腦上選擇「Ruri → 查看預設管理密碼」。檔案位於 `%LOCALAPPDATA%\Rurimecha\data\default-admin-password.txt`。
+  - Linux 服務安裝：在伺服器終端執行 `sudo cat /var/lib/rurimecha/default-admin-password.txt`。
+  - Docker Compose：在伺服器的 Compose 資料夾執行 `docker compose exec core cat /data/default-admin-password.txt`。使用 `docker run` 時執行 `docker exec <容器名稱> cat /data/default-admin-password.txt`，替換實際容器名稱。NAS 使用者也可在容器終端執行 `cat /data/default-admin-password.txt`。
+  - 手動啟動或自訂資料目錄：讀取所選目錄的 `default-admin-password.txt`；啟動提示會顯示儲存位置。
+
+預設管理密碼僅用於首次設定，不能直接登入；設定成功後失效並刪除，請勿分享。既有安裝繼續使用原帳號與密碼。若忘記自己的密碼，按[重置管理員密碼](#重置管理員密碼)操作，不要刪除應用資料或 Docker 資料卷。
 
 要修改自己的密碼，在「帳戶與會話 → 修改密碼」輸入當前密碼，再輸入兩遍新密碼。管理員給其他用戶創建或重置密碼時，也需要輸入兩遍。
 
