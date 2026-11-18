@@ -195,7 +195,7 @@ Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on m
 
 As an administrator, open **AI configuration**, choose a gateway, and enable AI.
 
-- For **Local gateway**, open **Manage local gateway** in a browser, add a provider and a model, and test the model. Return to AI configuration and select **Load local gateway models**.
+- For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration and select **Load local gateway models**.
 - For **Remote gateway**, enter its address and access token, then select **Test connection and load models**.
 
 Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review the result before saving a translation or applying archive suggestions. The original text and media files are kept.
