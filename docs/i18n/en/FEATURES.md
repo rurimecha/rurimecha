@@ -25,6 +25,11 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - For a Kikoeru-compatible source, enter its address and optional proxy, then select Test connection before saving. Existing sources also offer this check. Success means the library can be browsed; it does not measure audio download speed.
 - For ASMR.one audio that has not been fully saved to the server, choose Smooth playback first or Quality first in the player. Smooth playback first uses a smaller version when available; Quality first plays the selected original file. Switching keeps your playback position. Completed server downloads always play the local original, and downloads are never replaced with the smaller version. The next track only starts preloading after the current track is fully buffered.
 
+## AI translation and archive suggestions
+
+- Administrators can choose a local or remote gateway in **AI configuration**. With a local gateway, add and test provider models. With a remote gateway, connect using its address and access token. Choose a model for each feature you use.
+- Translate scripts, work details, and folder or file display names, or generate archive suggestions. Online models receive the selected text. Review results before applying them. The original text and media files are kept.
+
 ## Playback, resuming, and collecting
 
 - Play from works/folders, choosing available editions and formats such as sound effects, MP3, or WAV.

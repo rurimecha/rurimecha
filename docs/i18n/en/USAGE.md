@@ -189,6 +189,15 @@ New installations fetch Simplified Chinese and Japanese by default. Enable Tradi
 
 Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on macOS); long-press text on mobile.
 
+## AI translation and archive suggestions
+
+As an administrator, open **AI configuration**, choose a gateway, and enable AI.
+
+- For **Local gateway**, open **Manage local gateway** in a browser, add a provider and a model, and test the model. Return to AI configuration and select **Load local gateway models**.
+- For **Remote gateway**, enter its address and access token, then select **Test connection and load models**.
+
+Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review the result before saving a translation or applying archive suggestions. The original text and media files are kept.
+
 ## Collections and playlists
 
 Add a whole work to an existing or new collection from its menu. Browse collection cover cards or a list just like the library, then open details and files. References show current work details after updates.
