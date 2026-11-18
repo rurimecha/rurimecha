@@ -60,6 +60,12 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 - `GET /works/{work}/resources?parent_id=&view=media&limit=50&offset=0`：仅投影当前作品的文件和真实祖先目录；手工组合从真实来源根进入。默认从作品根列子项，无作品根时列来源入口。view 为 media/all/audio/video/image/text，默认保留目录与音视频。条目同时返回原名、节点 alias、可选 `localized_aliases` 和 `duration_seconds`（秒，与节点浏览使用相同的当前时长；未知时为 null），以及 `subtitle_state`（yes/no/unknown，包含可借用字幕的已发布状态）；返回 items/total/parent_id/root_node_id。
 - `GET /nodes/{node}/file-information?force=false`：独立、按需读取文本预览或图片/PDF 属性。文本最多读取 2 MiB、预览 64 KiB；UTF-8/UTF-16，GB18030 回退标注推测。失败保留说明。缓存校验实际文件属性、内容失效代次和当前工具配置，不更改扫描或归属。工具可用性以接口返回为准。
 
+### 文件内容预览
+
+`GET/HEAD /nodes/{node}/preview` 读取当前可用的已索引文件。支持本地媒体目录和已入库的 Kikoeru 兼容来源。接受同源会话 Cookie 或 Bearer，不接受原始文件路径和查询参数。文本（TXT、MD、MARKDOWN、SRT、VTT、LRC、ASS、SSA）原文件上限为 2 MiB，返回 `text/plain; charset=utf-8`。支持 UTF-8（含 BOM）、有 BOM 的 UTF-16，旧编码按 Shift-JIS 和 GB18030（含 GBK）推断。PDF 上限为 32 MiB，校验文件头后以 `application/pdf` 和 `Content-Disposition: attachment` 返回原始字节，客户端可加载其内容用于预览。响应使用私有缓存，并支持字节范围。
+
+文件不可用返回 404，超出预览上限返回 413 `file_preview_too_large`，不支持的扩展名返回 415 `file_preview_unsupported`，PDF 文件头无效返回 422 `file_preview_invalid`。JPEG、PNG、GIF 和 WebP 图片继续通过 `GET/HEAD /nodes/{node}/image` 读取，文件上限为 16 MiB。
+
 ## 图片与播放背景
 
 `GET/HEAD /works/{work}/cover` 一次返回优先封面：所选封面引用与已入库兼容来源保存的封面地址相同时，读取该来源封面；其他情况先取作品图片，读取失败或没有图片时取所选资料版本中已下载的商品封面。不会将其他手工或语言封面引用替换为来源封面。来源封面读取总时限 15 秒、不超过 16 MiB；其他本地和缓存路径不触发外网下载。无封面或作品不存在时返回 404。接受 `size=thumbnail`（最长边 512 像素 JPEG，省略取原图）及 `metadata_locale`（省略遵循账户资料显示偏好）；保留图片认证、根限制、Range、ETag 和私有缓存。明确的 node 封面引用仍可直接读取节点图片/内嵌封面。
@@ -116,7 +122,7 @@ mode 为 combined/separate/existing；existing 增加 work_id、字符串 work_r
 
 `GET /works/{work}/resources` 与 `GET /works/{work}/resource-summary` 支持可选 `playback_group_id`。指定后仅统计/展示该组的included成员；目录树先过滤成员再投影其真实祖先，分页和总数基于过滤结果。汇总的文件数、字节数、时长及分目录明细使用相同播放组条件。组必须属于URL中的作品，不存在或跨作品的组返回404；本作品空组返回空资源和零汇总。省略/空字符串保留全作品范围，不改变既有目录和成员归属。
 
-分类视图继续使用已有 `/members?playback_group_id=...`。网页“默认播放组”在作品已配置默认组时使用该ID，否则展示全作品；明确选组后目录、分类、汇总及作品级播放/加入队列/添加到播放列表使用同一选择。切组重置目录路径和资源页码，保留视图类型与页面滚动位置，不自动开始播放，也不保存或修改作品默认组。
+分类视图继续使用已有 `/members?playback_group_id=...`。客户端在仅显示音视频、音频或视频时将当前播放组用于资源目录和分类列表；浏览全部文件、图片或文本/PDF 时省略播放组，以便读取整个作品的附件。播放汇总与作品级播放、加入队列和添加到播放列表仍按所选播放组执行。切换播放组重置目录路径和资源页码，保留视图类型与页面滚动位置，不自动开始播放，也不保存或修改作品默认组。
 
 资源汇总也返回 `preferred_playback`，包含推荐播放组、格式、初始目录和按账号顺序排列的可用格式。显式播放组优先。原汇总仍按请求的播放组统计。
 

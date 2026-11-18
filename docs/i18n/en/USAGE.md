@@ -156,6 +156,8 @@ Compatible-source folders and media information are obtained when adding works. 
 
 ## Finding works and choosing versions
 
+In a work’s **Included content** section, choose **All files** from the file type menu to see every file in the work, including files outside the selected playback group. Choose **Images** or **Transcripts / documents** to find those attachments. Select a filename to read text, zoom in on an image, or page through a PDF. The preview limits are 2 MiB for text, 16 MiB for images, and 32 MiB for PDFs. Use another app to open larger files.
+
 Search titles, voice actors, circles, or RJ numbers. A partial number such as `RJ12` finds prefixes. After at least two characters, wait for suggestions; source and path distinguish duplicate copies. Enter or Search opens all results. Title-only search covers saved titles in all languages. Temporary library search and filters clear when leaving; work type, sorting, and view are retained.
 
 Cards show up to two lines of tags; All tags shows the rest. Missing circles, voice actors, or tags show unknown placeholders, with the empty tag action disabled. Authors appear as voice actors. Cards at the same width have equal height.

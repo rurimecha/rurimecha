@@ -16121,6 +16121,247 @@
         ]
       }
     },
+    "/nodes/{node}/preview": {
+      "get": {
+        "operationId": "getFilePreview",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read an authenticated text or PDF preview",
+        "description": "Read an available indexed file from a local or imported Kikoeru-compatible source. TXT, MD, MARKDOWN, SRT, VTT, LRC, ASS and SSA are returned as plain UTF-8 text, with a 2 MiB input limit. Text requires no encoding selection and supports UTF-8, UTF-16 with BOM, and inferred Shift-JIS and GB18030. PDFs are returned as original bytes after signature validation, with a 32 MiB limit. See presentation.md for stable errors and access details.",
+        "responses": {
+          "200": {
+            "description": "Preview",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Requested byte range",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Unchanged local file"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "description": "File precondition failed"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "416": {
+            "description": "Unsatisfiable byte range"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "head": {
+        "operationId": "headFilePreview",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read an authenticated text or PDF preview",
+        "description": "Read an available indexed file from a local or imported Kikoeru-compatible source. TXT, MD, MARKDOWN, SRT, VTT, LRC, ASS and SSA are returned as plain UTF-8 text, with a 2 MiB input limit. Text requires no encoding selection and supports UTF-8, UTF-16 with BOM, and inferred Shift-JIS and GB18030. PDFs are returned as original bytes after signature validation, with a 32 MiB limit. See presentation.md for stable errors and access details.",
+        "responses": {
+          "200": {
+            "description": "Preview",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Requested byte range",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Unchanged local file"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "description": "File precondition failed"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "416": {
+            "description": "Unsatisfiable byte range"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "node",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "Opaque identity, retained as text."
+          }
+        }
+      ]
+    },
     "/nodes/{node}/embedded-artwork": {
       "get": {
         "operationId": "getEmbeddedArtwork",
