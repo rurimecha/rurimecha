@@ -96,7 +96,7 @@ GET /localized?locale=en-US 返回：
 
 ## 成员与播放组
 
-成员输入包括 node_id、state（默认 included）、origin、source_ref、locked、playback_group_id、play_order、media_kind、media_format。节点身份不可更换。有效 included 归属全局唯一；excluded 行是历史/排除记录，不是另一份归属。GET /works?node_id=... 查询当前所有者，结果最多一部。成员响应中的 alias 是节点共享别名，未设置为空字符串；别名通过节点接口维护，不属于成员编辑正文。
+成员输入包括 node_id、state（默认 included）、origin、source_ref、locked、playback_group_id、play_order、media_kind、media_format。节点身份不可更换。有效 included 归属全局唯一；excluded 行是历史/排除记录，不是另一份归属。GET /works?node_id=... 查询当前所有者，结果最多一部。成员响应包含节点共享名 `alias` 和可选的 `localized_aliases`。显示名通过[节点显示名接口](scanning.md)编辑。
 
 已登记目录必须通过目录决定改变归属，不能用成员 POST/DELETE 或 state 修改替代。已登记文件的 POST 保存显式 assign；有效成员改为 excluded 或 DELETE 保存文件 exclude；删除本来已 excluded 的历史记录只清理历史，不改当前所有者。其他作品已拥有该文件时不能通过成员 CRUD 保存覆盖，使用决定接口明确操作。跨作品转移使用 assign 决定和归纳应用，直接插入第二条 included 会 409。未登记的不透明节点可用于资料草稿，但不会影响目录归纳。存在祖先排除或跨来源目标时冲突。
 

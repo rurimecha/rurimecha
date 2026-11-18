@@ -75,6 +75,8 @@ Authorization: Bearer <token>
 
 解析不保存队列，也不修改播放列表。响应 `items` 中每项包含：节点/来源/作品 ID、原始 `name`、显示别名 `alias`（无别名为空）、原始名字节 `name_base64`、`available`、`kind`、`has_audio`、`has_video`、可空时长和尺寸、观察标题/作者、作品原语言标题、`cover_ref`，以及 `information_state`（`absent/unprobed/current/stale/unavailable`）。非法 UTF-8 名称的 `name=null`，客户端可显示 alias 或自行替换不可显示字符。别名不参与格式判断、资源访问、搜索和排序。没有当前探测时的音视频类型是扩展名线索，不能据此保证文件有效或视频有音轨。队列可用性来自索引，实际开始播放会重新核对文件。
 
+已有多语显示名的播放条目另返回 `localized_aliases`。客户端可按界面语言选择别名，使用[节点显示名规则](scanning.md)。
+
 ## 播放列表
 
 播放列表只属于当前认证账户。每账户最多 100 个，每个最多 5000 项，名称为去除首尾空白后 1..100 个 Unicode 字符。

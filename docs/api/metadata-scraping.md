@@ -201,4 +201,4 @@ Flutter 作品详情的“分项刷新”分别提交：缓存优先商品资料
 
 ## 智能选路
 
-智能选路由网络设置独立管理，适用于 DLsite、ASMR Online 及相关资源。需要有效服务器授权；当前可用状态见 `GET /license` 的 `capabilities.smart_routing`。不再通过刮削设置或连接测试提交 `dlsite_smart_routing`。已有成功缓存需要强制刷新才会重新获取。
+智能选路由网络设置独立管理，适用于 DLsite、ASMR Online 及相关资源，按管理员权限操作。已有成功缓存需要强制刷新才会重新获取。

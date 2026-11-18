@@ -37,6 +37,8 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 收藏集保存整部作品引用和单独收录的音视频引用，用于资料浏览，不保存曲目编排。`GET /collections` 返回 `items`；每项包含 id、revision（字符串）、name、alias、origin、items、truncated、updated_at。`origin=archive` 为智能发现，带 source_id、node_id、source_name、path，alias 为目录显示别名；`origin=custom` 为账号私有收藏集。名称可相同，身份不由名称决定。
 
+已保存多语展示名的归档目录和直接收录的文件条目可返回 `localized_aliases`，使用[节点显示名规则](scanning.md)。
+
 `POST /collections` 接收 `{name,items:[...]}`。成员为 `{id?,kind:"work",work_id}` 或 `{id?,kind:"node",node_id}`，作品和直接资源分别按身份去重。所有直接资源在客户端的内置「拾音」虚拟目录中浏览；不创建索引目录或作品，也不改写原作品归属。作品成员是完整真实作品引用，资料和内容跟随当前作品。存储接口拒绝 node_ids、group_id、format、queue_group；这些仍可用于独立的播放选择器 entries。每集最多 5000 个成员。
 
 `GET /collections/{collection}` 返回 ETag，成员增加 name、alias、available 及可选 work_revision、cover_ref。已知作品附加 `work`，结构与作品库的 WorkDisplay 相同，使用相同账号资料语言策略。详情不展开作品曲目。客户端按作品库的卡片/列表展示作品，「拾音」采用 ASMR 作品式封面卡片并打开文件列表。`PUT` 完整替换名称和成员；`POST /collections/{collection}/items` 原子追加；`DELETE` 删除账号自己的收藏集。写入要求 If-Match，过期为 412。新引用须有效，已保存失效引用允许保留或移除。成员数组的顺序只用于稳定展示，不承担播放顺序承诺。
@@ -55,7 +57,7 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 - `GET /filesystem?path=/&q=&limit=50&offset=0`：服务器目录选择器，返回 path/parent/items/total；不列文件或符号链接，不读取文件内容。Linux 默认从 `/` 浏览；Windows 未指定路径或传 `/` 时返回可用盘符，`path` 和 `parent` 均为空字符串。进入盘符根目录后，`parent` 为空字符串，表示返回盘符列表。普通目录仅接受服务器上的绝对路径。
 - 节点查询支持 sort=name/modified/size/duration 和 sort_order=asc/desc，默认名称自然升序，修改时间/大小未指定方向时默认降序；目录始终优先，未知资料后置。指定 parent_id 时 q 搜索名称，其他查询搜索路径及有效媒体标题。完整筛选及计数先于分页，见 [目录查询契约](scanning.md)。
-- `GET /works/{work}/resources?parent_id=&view=media&limit=50&offset=0`：仅投影当前作品的文件和真实祖先目录；手工组合从真实来源根进入。默认从作品根列子项，无作品根时列来源入口。view 为 media/all/audio/video/image/text，默认保留目录与音视频。条目同时返回原名、节点 alias 和 `duration_seconds`（秒，与节点浏览使用相同的当前时长；未知时为 null），以及 `subtitle_state`（yes/no/unknown，包含可借用字幕的已发布状态）；返回 items/total/parent_id/root_node_id。
+- `GET /works/{work}/resources?parent_id=&view=media&limit=50&offset=0`：仅投影当前作品的文件和真实祖先目录；手工组合从真实来源根进入。默认从作品根列子项，无作品根时列来源入口。view 为 media/all/audio/video/image/text，默认保留目录与音视频。条目同时返回原名、节点 alias、可选 `localized_aliases` 和 `duration_seconds`（秒，与节点浏览使用相同的当前时长；未知时为 null），以及 `subtitle_state`（yes/no/unknown，包含可借用字幕的已发布状态）；返回 items/total/parent_id/root_node_id。
 - `GET /nodes/{node}/file-information?force=false`：独立、按需读取文本预览或图片/PDF 属性。文本最多读取 2 MiB、预览 64 KiB；UTF-8/UTF-16，GB18030 回退标注推测。失败保留说明。缓存校验实际文件属性、内容失效代次和当前工具配置，不更改扫描或归属。工具可用性以接口返回为准。
 
 ## 图片与播放背景
@@ -63,6 +65,8 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 `GET/HEAD /works/{work}/cover` 一次返回优先封面：所选封面引用与已入库兼容来源保存的封面地址相同时，读取该来源封面；其他情况先取作品图片，读取失败或没有图片时取所选资料版本中已下载的商品封面。不会将其他手工或语言封面引用替换为来源封面。来源封面读取总时限 15 秒、不超过 16 MiB；其他本地和缓存路径不触发外网下载。无封面或作品不存在时返回 404。接受 `size=thumbnail`（最长边 512 像素 JPEG，省略取原图）及 `metadata_locale`（省略遵循账户资料显示偏好）；保留图片认证、根限制、Range、ETag 和私有缓存。明确的 node 封面引用仍可直接读取节点图片/内嵌封面。
 
 `GET /works/{work}/artwork` 返回本地图片；`GET /nodes/{node}/artwork` 返回当前音视频的播放图片。响应 items 的 path 是相对 `/api/v1/` 的认证读取地址。专属图片要求同来源、同直接父目录，匹配完整媒体文件名或不含扩展名的前缀，后续必须是明确分隔符；01 不匹配 010。专属图片优先，否则回退作品图片、缓存商品图片或附近图片，最后尝试已有观察中的内嵌封面；不抽取视频帧。
+
+已有翻译的本地图片条目可返回 `localized_aliases`，图片匹配使用原名。
 
 `GET /nodes/{node}/image-roles` 返回 ETag 与 roles；`PUT` 带 ETag 和 `{roles:[cover,track,other],reset:false}`。分类可重叠；reset 恢复自动分类。人工分类独立存储，重扫不删除。封面引用继续使用现有作品 cover_ref 手工修改接口。
 

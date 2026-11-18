@@ -2,9 +2,9 @@
 
 **Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
 
-**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android connects to an already running Ruri server. The built-in administrator can use the web app and WebDAV without a license; Android online playback, downloads, and saved clips need an active server license. Completed downloads can be played offline on the phone.
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Extra accounts, AI features, and saved clips require a license.
 
-**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
+**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three installations. The final plan will be announced later. Activate premium features separately on the phone and server. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
 
 ## Installation and first sign-in
 
@@ -79,7 +79,7 @@ Run `docker compose up -d` and connect using `http://192.168.1.20:18080/`. The p
 
 To change only the external port, change the middle number and keep the final `8080`. Check with `docker compose ps`. See [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/). Phones need the host's LAN IP and external port, not a `172.x.x.x` container address. Discovery may not cross Docker networking; enter the address manually if necessary.
 
-4. Android online playback, extra accounts, and saved clips require server licensing and a host identifier. On Linux, verify `/etc/machine-id` exists and is nonempty, then add its read-only mount under the existing `core` volumes:
+4. Extra accounts, AI features, and saved clips require server licensing and a host identifier. On Linux, verify `/etc/machine-id` exists and is nonempty, then add its read-only mount under the existing `core` volumes:
 
 ```yaml
 volumes:
@@ -163,7 +163,7 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 ### Fetching from DLsite
 
-Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. An active server license is required; some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
+Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. Some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
 
 Work information fetching and Smart routing use IPv4 only. Use websites and proxies reachable over IPv4. Connections from the server to a proxy use IPv4; the proxy controls how it connects to the website.
 
@@ -274,19 +274,21 @@ Open Saved clips in the account menu to replay, queue, add to playlists/collecti
 
 ## Listening on Android
 
-Install the Android client, discover LAN servers or enter an address, then sign in. Check both devices share a LAN and discovery is enabled if nothing appears. Online playback needs a licensed server.
+To organize files on your phone, open the local library and add a folder in the system picker. After scanning, browse by folder or work and play your files. Adding or removing a folder keeps its original files. If access is lost, select the folder again to grant access.
+
+To listen to a server library, select Connect to server, discover a LAN server or enter its address, and sign in. If nothing appears, check that both devices share a LAN and discovery is enabled.
 
 Before playback, open My → Playback settings to change Direct source connections. On uses the phone's own connection; turn it off to use the server's source proxy or if direct playback fails. The same setting is available in playback details.
 
 ### Downloading for offline listening
 
-1. Choose edition/format in work details, then Download to device and select files. A file menu can download individual media. Sign-in and a valid server license are required while downloading.
-2. Open Local library from the connection page, login page, or account menu to pause, resume, cancel, and view progress. Cancel keeps completed files. Retry missing covers/subtitles.
-3. After completion, listen from Local library without network, sign-in, or an active license. Local versions in online details also opens downloads.
+1. Choose edition/format in work details, then Download to device and select files. A file menu can download individual media. Sign in to the source server while downloading.
+2. Open Downloaded media from the connection page, login page, or account menu to pause, resume, cancel, and view progress. Cancel keeps completed files. Retry missing covers/subtitles.
+3. After completion, listen from Downloaded media without network, sign-in, or an active license. Local versions in online details also opens downloads.
 
 Downloads include originals, saved text, covers, and available text subtitles. Your phone must support the original format; download another format if needed. Wi-Fi/wired only is the default; disabling this may use mobile data. Up to 500 files per request and 500 downloaded editions are supported.
 
-Local playback supports background controls, notifications, repeat, shuffle, sleep timer, transcripts, and full-screen video. Local queue, favorites, and progress are separate. Restored queues start paused. Refresh work details updates only text, covers, and subtitles and requires the original server/account and an active server license. Deleting local versions removes only phone copies. Sign-out/server changes keep downloads; uninstalling or clearing app data deletes downloads and records. Download again on a new phone. Saved clips require a server connection.
+Local playback supports background controls, notifications, repeat, shuffle, sleep timer, transcripts, and full-screen video. Local queue, favorites, and progress are separate. Restored queues start paused. Refresh work details updates only text, covers, and subtitles and requires signing in to the original server with the same account. Deleting local versions removes only phone copies. Sign-out/server changes keep downloads; uninstalling or clearing app data deletes downloads and records. Download again on a new phone. Clips saved on a server require a connection to the original licensed server.
 
 ## Privacy mode and listening history
 
@@ -300,7 +302,9 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 Administrators can change License service address under Server license. Enter the HTTPS address supplied by the service operator and select Save service address. The default is https://license.rurimecha.top; save an empty field to restore it. Changes apply immediately, survive restarts, and keep the current license.
 
-Without an active license, the built-in administrator can use the web interface and WebDAV. Extra accounts, official Android online playback, and saved clips require activation: enter the key and server name under Server license, then activate.
+The built-in administrator can sign in on the web, Android, or WebDAV. To add accounts or use AI and saved clips in the server library, enter the key and server name under Server license, then activate.
+
+For AI and saved clips in the Android local library, open the phone's license settings and activate with your key. Before moving to another phone, deactivate on the old phone to free the activation slot.
 
 After activation, administrators create users in User management. Users share the library but keep separate collections, playlists, preferences, progress, and clips. Disabling an account under Access permissions ends its sessions and WebDAV access. Follow sign-in prompts after password, role, or license changes.
 

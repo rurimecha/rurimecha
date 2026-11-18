@@ -26,6 +26,7 @@
 | 读取音视频信息 | [媒体信息](media-probe.md)、[文件信息及图片](presentation.md) |
 | 播放、字幕、队列与播放列表 | [播放接口](playback.md)、[进度及播放选择](listening.md)、[片段版本与字幕关系](media-associations.md) |
 | 手工编辑或转换台本 | [台本编辑](subtitle-editing.md) |
+| 连接文字模型，核对翻译和归档建议 | [文字生成与确认保存](text-ai.md) |
 | 偏好与收藏集 | [界面配套接口](presentation.md) |
 | 连接通用 WebDAV 客户端 | [只读 WebDAV](webdav.md) |
 | 调整网络、使用反向代理 | [网络接口](network.md)、[Nginx 使用教程](../USAGE.md#通过-nginx-访问-ruri) |
