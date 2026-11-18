@@ -3193,7 +3193,7 @@
           "scan"
         ],
         "summary": "createSource",
-        "description": "createSource",
+        "description": "createSource The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "responses": {
           "201": {
             "description": "Success",
@@ -3256,7 +3256,7 @@
             "$ref": "#/components/responses/Error"
           },
           "422": {
-            "description": "Remote site or media contract is not supported."
+            "$ref": "#/components/responses/Error"
           },
           "502": {
             "description": "Remote site is unavailable."
@@ -3356,7 +3356,7 @@
           "scan"
         ],
         "summary": "replaceSource",
-        "description": "Rename a configured media root with If-Match. Root disabling is unsupported; enabled may be omitted or true only.",
+        "description": "Rename a configured media root with If-Match. Root disabling is unsupported; enabled may be omitted or true only. The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3410,6 +3410,9 @@
             "$ref": "#/components/responses/Error"
           },
           "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
             "$ref": "#/components/responses/Error"
           }
         },
@@ -21061,7 +21064,7 @@
           "scan"
         ],
         "summary": "startRemoteDownload",
-        "description": "Save one file to the source download folder. Repeat to resume a partial save.",
+        "description": "Save one file to the source download folder. Repeat to resume a partial save. The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "parameters": [
           {
             "name": "node",
@@ -21100,6 +21103,9 @@
           },
           "502": {
             "description": "Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
           }
         }
       }
@@ -22741,7 +22747,7 @@
           "scan"
         ],
         "summary": "Save explicitly selected work files to the source server download folder",
-        "description": "Administrator only. node_ids must be a nonempty unique selection of file IDs from this work tree. Directory IDs and files outside the work are rejected. Original paths are retained, complete copies are skipped, and only two saves may run at once. Overlapping file selections return 409 download_busy. File failures do not stop the other selected files; retry the original selection to skip completed copies and resume unfinished files. Closing the dialog does not cancel the task; process restart marks it interrupted. Task details and selection expire after 48 hours.",
+        "description": "Administrator only. node_ids must be a nonempty unique selection of file IDs from this work tree. Directory IDs and files outside the work are rejected. Original paths are retained, complete copies are skipped, and only two saves may run at once. Overlapping file selections return 409 download_busy. File failures do not stop the other selected files; retry the original selection to skip completed copies and resume unfinished files. Closing the dialog does not cancel the task; process restart marks it interrupted. Task details and selection expire after 48 hours. The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "parameters": [
           {
             "name": "work",
@@ -22785,6 +22791,9 @@
             "$ref": "#/components/responses/Error"
           },
           "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
             "$ref": "#/components/responses/Error"
           }
         },
@@ -23288,6 +23297,59 @@
             "$ref": "#/components/responses/Error"
           },
           "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/sources/test-download-directory": {
+      "post": {
+        "operationId": "testDownloadDirectory",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Test the server download folder",
+        "description": "Administrator only. Tests an absolute path with the same staging and no-overwrite file publication operations as downloads. Creates the folder and staging directory if needed and removes the probe files. Does not change source settings.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "download_path"
+                ],
+                "properties": {
+                  "download_path": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The server can save files in this directory."
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
             "$ref": "#/components/responses/Error"
           }
         }

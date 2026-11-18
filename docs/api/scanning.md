@@ -225,3 +225,5 @@ mark_missing=true 只核对被扫描子树的缺失，兄弟节点不改变 pres
 ### 兼容来源连接测试
 
 `POST /sources/test-connection`（管理员）接受 `{remote_site_url, proxy_url?}`，测试尚未保存的网站地址和可选代理。成功返回 `{connected:true,elapsed_ms}`；30 秒超时，输入错误 400，未知站点 422/remote_source_unsupported，访问受限 422/remote_source_access_denied，网络故障 502/remote_source_unavailable。与创建来源共用兼容性探测，不修改数据库，不导入作品；成功仅说明可浏览，不保证所有音频文件可播放或下载速度。
+
+`POST /sources/test-download-directory`（管理员）接受 `{"download_path":"/media/downloads"}`，可在保存来源前检查服务器绝对目录。服务器按需创建目标与下载暂存目录，以运行服务的身份实际创建、写入、完成保存并清理专用测试文件。成功返回 204。无效路径返回 400 `download_folder_invalid`，目标与应用数据重叠返回 400 `media_data_overlap`。无法写入返回 422 `download_folder_unwritable`，无法完成硬链接发布返回 422 `download_folder_publish_failed`。创建或更新来源时，每次显式提交非空下载目录都重新测试，失败时不保存配置。清空目录不做写入测试。开始单文件或作品下载时再次检查当前目录。
