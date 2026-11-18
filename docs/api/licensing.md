@@ -1,6 +1,6 @@
 # 产品授权管理
 
-单档授权按安装实例绑定。服务器和 Android 本机库分别向授权中心激活和验证，服务器实例内的账户共享该服务器授权。证书表示产品 `rurimecha` 在有限期内已获授权，不携带功能清单、程序版本或数据库结构摘要。调整功能范围不会导致既有证书失效。服务器中的多用户、AI 和珍藏片段需要有效服务器授权，普通媒体播放和下载依照现有账号访问规则。
+单档授权按安装实例绑定。服务器和 Android 本机库分别向授权中心激活和验证，服务器实例内的账户共享该服务器授权。证书表示产品 `rurimecha` 在有限期内已获授权，不携带功能清单、程序版本或数据库结构摘要。调整功能范围不会导致既有证书失效。服务器上的珍藏片段、AI 和智能选路需要有效服务器授权。Android 本机库的珍藏片段和 AI 需要有效本机授权。普通媒体播放与下载、多用户和更多声优依照现有账号访问规则。
 
 ## Core 管理接口
 
@@ -12,7 +12,7 @@
 | `POST /license/activate` | `{"license_key":"…","device_name":"我的服务器"}`，密钥 32..256 字节，名称 1..80 个 Unicode 字符；成功返回当前状态 |
 | `POST /license/deactivate` | 必须提交空对象 `{}`；返回 `{"ok":true}` |
 
-状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.multi_user`、`capabilities.ai` 和 `capabilities.treasured_clips` 表示当前授权能力。普通 Android 播放和智能选路可按账号规则使用，服务器保留对应的 `android_playback` 和 `smart_routing` 能力键。允许增加其他键，客户端应忽略未知键。
+状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前服务器授权能力。手机本机授权含 AI 和珍藏片段。允许增加其他键，客户端应忽略未知键。
 
 激活及续期需要 Core 连接发行方激活服务。同一许可证、同一实例密钥重复激活复用绑定名额，可在线更新期限和宿主机信息；到期日由云端许可证决定，重新激活不会重置期限。激活密钥只用于本次请求，不在 Core 持久保存或写入日志。超时后可安全重试。
 
@@ -38,12 +38,12 @@
 - `POST /admin/licenses/{license}/key` 接受空对象并返回新密钥。原密钥此后不能激活，许可身份、证书和绑定保持不变。
 - `GET /admin/activations?license_id=…` 分页读取历史，`POST /admin/activations/{activation}/release` 接受空对象并幂等释放指定绑定。`GET /admin/events` 分页读取事件，可选 license_id。
 - 列表默认 limit=50，范围 1..100，offset>=0；用户和许可证支持最多 254 字符的 q 字面检索。许可证列表仅带本页活跃绑定，历史单独查询；items/total/limit/offset 或 licenses/activations/total/limit/offset 来自同一读取事务。
-- `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 license_key/device_name/instance_key/host_id，可选 existing_license_id；反激活接受 certificate/proof。
+- `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 license_key/device_name/instance_key/host_id、目标 `target`（`server` 或 `android`）及可选 existing_license_id。新 Core 请求携带目标，并验证新签发证书的目标与设备类型一致。已有无目标证书可按原宿主、实例密钥和期限继续离线使用，主动更新可换取带目标的证书。反激活接受 certificate/proof。
 - `POST /v1/self`、`POST /v1/release` 当前始终返回 503 self_service_unavailable。不提供密钥持有人查看全部云端绑定或远程解绑的权限。当前使用 Core 本机管理员反激活或联系发行方管理员处理。
 
 授权中心错误对象含稳定 error.code 与 request_id。常见额外代码：customer_conflict/order_conflict 为 409；self_service_unavailable/license_schema_mismatch/license_not_configured 为 503；request_too_large 为 413；rate_limited 为 429。管理 PUT 为完整替换，按最后提交生效。停用、缩短期限和释放不能即时撤销离线副本，既有证书可能继续使用至原到期日。
 
-授权生效后可创建和使用其他账号。授权失效后，内置管理员仍可使用网页、Android 和 WebDAV。参见 [账号与会话](accounts.md)。
+创建和使用账号依照 [账号与会话](accounts.md)。产品授权失效时保留资料、账号和播放队列。
 
 付费通行证在创建后七天内且从未激活时可办理退款，超过七天仍可激活。测试通行证在发放后七天内激活。同一许可证首次激活开始计算31天，重复激活及换机沿用原期限。激活期限已过返回 `license_activation_window_expired`，退款处理中返回 `license_refund_pending`，已退款返回 `license_refunded`，均为403。云端 `rate_limited` 由Core以429传递。
 

@@ -115,6 +115,47 @@
         "security": []
       }
     },
+    "/updates/latest": {
+      "get": {
+        "operationId": "getLatestServerUpdate",
+        "tags": [
+          "system"
+        ],
+        "summary": "Check the latest official server release",
+        "description": "Checks the production GitHub release for the running server platform and architecture. Requires an administrator or member session. Performs no installation. Build numbers and platform assets are verified against metadata from the same release.",
+        "responses": {
+          "200": {
+            "description": "Check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerUpdateCheck"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "description": "Could not verify release metadata (update_check_failed).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/info": {
       "get": {
         "operationId": "getInfo",
@@ -18059,7 +18100,7 @@
         "tags": [
           "accounts"
         ],
-        "description": "Administrator only. The server must have active product authorization to create an additional account. New accounts are enabled and local-only.",
+        "description": "Administrator only. New accounts are enabled and local-only.",
         "responses": {
           "201": {
             "description": "Success",
@@ -18827,7 +18868,7 @@
           "licensing"
         ],
         "summary": "Current product authorization; all authenticated users",
-        "description": "An active server license enables multi-user accounts, AI, and saved clips. Ordinary Android playback and smart routing follow account access rules.",
+        "description": "An active server license enables AI, treasured clips, and smart routing. Account access, ordinary playback, and downloads follow account and network rules.",
         "responses": {
           "200": {
             "description": "Success",
@@ -26687,6 +26728,72 @@
         ],
         "additionalProperties": false
       },
+      "ServerUpdateCheck": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "status"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "current"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "no_asset"
+                ]
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "version",
+              "build_number",
+              "asset_name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available"
+                ]
+              },
+              "version": {
+                "type": "string"
+              },
+              "build_number": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "asset_name": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
       "Info": {
         "type": "object",
         "properties": {
@@ -26704,12 +26811,37 @@
             "items": {
               "type": "string"
             }
+          },
+          "build_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Packaged Core build number, when supplied at build time."
+          },
+          "os": {
+            "type": "string",
+            "description": "Server runtime operating system, such as linux or windows."
+          },
+          "arch": {
+            "type": "string",
+            "description": "Server runtime architecture, such as amd64."
+          },
+          "deployment_type": {
+            "type": "string",
+            "enum": [
+              "linux-systemd",
+              "linux-manual",
+              "windows",
+              "container"
+            ],
+            "description": "How Core was installed, omitted when unknown."
           }
         },
         "required": [
           "api_version",
           "version",
-          "capabilities"
+          "capabilities",
+          "os",
+          "arch"
         ],
         "additionalProperties": false
       },
@@ -34831,10 +34963,8 @@
           "capabilities": {
             "type": "object",
             "properties": {
-              "multi_user": { "type": "boolean" },
               "ai": { "type": "boolean" },
               "treasured_clips": { "type": "boolean" },
-              "android_playback": { "type": "boolean" },
               "smart_routing": { "type": "boolean" }
             },
             "additionalProperties": {

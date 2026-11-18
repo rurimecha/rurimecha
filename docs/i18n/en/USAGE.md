@@ -2,7 +2,7 @@
 
 **Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
 
-**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Extra accounts, AI features, and saved clips require a license.
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and server smart routing require a license. Ordinary playback, downloads, and shared accounts are available to eligible users.
 
 **Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three installations. The final plan will be announced later. Activate premium features separately on the phone and server. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
 
@@ -79,7 +79,7 @@ Run `docker compose up -d` and connect using `http://192.168.1.20:18080/`. The p
 
 To change only the external port, change the middle number and keep the final `8080`. Check with `docker compose ps`. See [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/). Phones need the host's LAN IP and external port, not a `172.x.x.x` container address. Discovery may not cross Docker networking; enter the address manually if necessary.
 
-4. Extra accounts, AI features, and saved clips require server licensing and a host identifier. On Linux, verify `/etc/machine-id` exists and is nonempty, then add its read-only mount under the existing `core` volumes:
+4. Treasured clips, AI, and smart routing require a server license and a host identifier. On Linux, verify `/etc/machine-id` exists and is nonempty, then add its read-only mount under the existing `core` volumes:
 
 ```yaml
 volumes:
@@ -115,9 +115,14 @@ Change your password in Account & sessions → Change password, entering the cur
 
 ## Upgrading an existing installation
 
-- Linux service: run `sudo ./install.sh` from the new package. It restarts the service using `/var/lib/rurimecha`. For manual installations, stop Ruri and start the new version with the original `-data-dir`.
-- Docker: update `RURI_IMAGE` in the original `.env`, then run `docker compose pull core` and `docker compose up -d core`. Keep the data volume and mounts.
-- Windows: choose Ruri → Check for updates, confirm download, finish installation, and reopen.
+**Older Android clients are incompatible with the new server. Update both together.**
+
+Select **Check for updates** in **Settings → Version and updates**. When Android is connected to a server, you can check the app and server separately. You can also check the app from the connection screen or local library settings. If the check fails, try again or open the [official release page](https://github.com/rurimecha/rurimecha/releases/latest).
+
+- **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. When connected to Windows from a browser or phone, upgrade on the server PC.
+- **Android.** Choose **Download and install** and confirm in the system installer. Follow the system prompt if it asks you to allow installation. You can still use the current app if you cancel or installation fails. Installing over the existing app keeps your local library, license, and access to selected folders.
+- **Linux.** Download and extract the official x86-64 server package on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
+- **Docker.** Set `RURI_IMAGE` in the original Compose `.env` to `docker.io/rurimecha/rurimecha:<new-version>`, then run `docker compose pull core` and `docker compose up -d core`. Keep the existing data volume and media mounts. For custom deployments, replace the image using your existing deployment method.
 
 Supported databases upgrade on startup. Before an upgrade, Ruri creates a `core.db.before-v…` backup folder in the data directory. Sign in with the same account afterward. If startup fails, keep the data folder, check free space and write permissions, and follow the version message before retrying.
 
@@ -163,11 +168,9 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 ### Fetching from DLsite
 
-Administrators can enable Smart routing in Network settings to try direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. Ruri tries the configured proxy when needed. Some resources may remain unavailable. Changes take effect immediately. Turning it off keeps saved information.
+With an active server license, administrators can turn on **Smart routing** in **Network settings** to try more connections when accessing DLsite or ASMR Online. Availability depends on the server network and region. Turning it off keeps previously saved information.
 
-Work information fetching and Smart routing use IPv4 only. Use websites and proxies reachable over IPv4. Connections from the server to a proxy use IPv4; the proxy controls how it connects to the website.
-
-Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply.
+Use websites and proxies reachable over IPv4 when fetching work information.
 
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
 
@@ -192,6 +195,8 @@ New installations fetch Simplified Chinese and Japanese by default. Enable Tradi
 Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on macOS); long-press text on mobile.
 
 ## AI translation and archive suggestions
+
+In the Android local library, open **AI configuration**. Choose the local gateway to add a provider, enter its key, find models, and test the connection. To use a remote gateway, choose it and enter the connection details. Ruri remembers the model for each gateway. After saving, start translating from a work’s details. Cloud models still require internet access on the phone.
 
 As an administrator, open **AI configuration**, choose a gateway, and enable AI.
 
@@ -240,7 +245,7 @@ Check availability under Parsing tools. Custom tools must support `fd` input; en
 
 ### Connecting another player or file manager
 
-Create a WebDAV connection using `http://SERVER:PORT/dav/`, or `https://CERTIFICATE-SERVER-NAME:PORT/dav/`. Use your current Ruri account/password and do not append `/dav/` twice. For example `http://192.168.1.20:18080/dav/`, or `https://ruri.example.com/dav/` through Nginx. Without an active license, only the built-in administrator is eligible.
+Create a WebDAV connection using `http://SERVER:PORT/dav/`, or `https://CERTIFICATE-SERVER-NAME:PORT/dav/`. Use your current Ruri account/password and do not append `/dav/` twice. For example `http://192.168.1.20:18080/dav/`, or `https://ruri.example.com/dav/` through Nginx. Use an account with access to the server.
 
 Browse folders and play original files. WebDAV is read-only, with no upload, delete, rename, conversion, or third-party progress sync. Scan newly added files in Ruri before they appear. Playback formats depend on the other player.
 
@@ -300,15 +305,15 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 ## Server license and accounts
 
-Administrators can change License service address under Server license. Enter the HTTPS address supplied by the service operator and select Save service address. The default is https://license.rurimecha.top; save an empty field to restore it. Changes apply immediately, survive restarts, and keep the current license.
+Open **Server license** on the server to activate treasured clips, AI, and smart routing. When Android is connected to a server, those features use the server license. Open **Device license** in the Android local library to activate local treasured clips and work details translation. The same license key works on both. Each activation uses one slot.
 
-The built-in administrator can sign in on the web, Android, or WebDAV. To add accounts or use AI and saved clips in the server library, enter the key and server name under Server license, then activate.
+Choose **Activate license** and enter your key and a device name. Once activated, the page shows the expiry and enabled features. After renewal, select **Update license** and enter the original key. Activation, updates, and binding release require internet access on that device. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
 
-For AI and saved clips in the Android local library, open the phone's license settings and activate with your key. Before moving to another phone, deactivate on the old phone to free the activation slot.
+Before changing devices, choose **Release binding** to free the slot and keep your media and library data. If the release is pending, connect to the internet and retry. If the old device cannot start, contact the license provider with your purchase information. Keep the data volume and host identifier when changing a container image.
 
-After activation, administrators create users in User management. Users share the library but keep separate collections, playlists, preferences, progress, and clips. Disabling an account under Access permissions ends its sessions and WebDAV access. Follow sign-in prompts after password, role, or license changes.
+If your provider gives you a different address, open **Advanced settings**, enter the HTTPS address, and save. Save a blank value to restore the default service. Your current license remains usable after the change.
 
-Activation, updating, and deactivation need server internet access; an active license works offline until expiry. Renew using the original key. Deactivate on the old server before activating another. If the old server cannot start, contact the provider with purchase information to release the binding. Recreating a container on the same machine requires keeping its data volume and host identifier.
+Administrators can create accounts in **User management**. Users share media and keep separate collections, playlists, preferences, and progress. Disabling an account under **Access permissions** ends its sessions and WebDAV access. If prompted to sign in after updating, sign in again.
 
 Account & sessions → Login sessions & WebDAV shows current device names, client types, sign-in IPs, and login/expiry times. Revoke unused sessions. IPs reflect sign-in and do not track later network changes. Browsers show browser/OS names, Android device models, and desktop clients computer names. Signed-out/expired history is not retained here.
 

@@ -39,7 +39,7 @@
 
 `GET /auth/sessions` 仅列出自身未过期会话（无令牌），标记 current。`DELETE /auth/sessions/{session}` 只撤销自己的一个会话；`POST /auth/sessions/revoke` 只撤销自身全部会话。会话固定有效 30 天，每账户最多 256 个，不自动挤掉其他设备。未授权访问 401；长媒体连接每分钟复查账号、会话和网络访问资格。
 
-未激活或授权失效时，只有内置管理员可以登录和访问。此规则覆盖此前签发的会话以及 WebDAV 密码直连。授权失效后重新激活，其他用户需重新登录。正确凭据的登录遇到停用、授权失效或远程访问限制时分别返回 403 `account_disabled`、`account_license_required` 或 `remote_access_denied`。既有令牌失效返回 401。客户端可以更换网络地址，仍须符合 [网络访问规则](network.md)。
+账号登录、普通播放、下载及 WebDAV 依照账号权限和网络设置使用。正确凭据的登录遇到停用或远程访问限制时返回 403 `account_disabled` 或 `remote_access_denied`。更新前受产品授权约束的旧会话须重新登录；已撤销的会话保持失效。既有令牌失效返回 401。客户端可以更换网络地址，仍须符合 [网络访问规则](network.md)。
 
 ## 游客体验
 

@@ -6,6 +6,8 @@
 
 [體驗示範站](https://asmr.rurimecha.top/) · [下載](https://github.com/rurimecha/rurimecha/releases/latest) · [使用指南](docs/i18n/zh-Hant/USAGE.md)
 
+> **舊版 Android 用戶端與新版伺服器不相容，請一併更新。**
+
 示範站可選擇訪客體驗；訪客的收藏和收聽進度不會儲存。
 
 ![Ruri library](docs/screenshots/library.webp)
@@ -15,9 +17,13 @@
 - 查看帶時間的台本、設定睡眠定時、前後跳轉 10 秒並從上次位置繼續。
 - 以隱私模式遮住封面和文字；Android 支援背景播放和懸浮字幕。
 
-Windows 可使用 MSI 安裝程式，無需命令列。Linux 和 Docker 用於執行 Ruri 伺服器；Android 連接已執行的伺服器。內建管理員無需授權即可使用網頁和 WebDAV；Android 線上播放、下載與珍藏片段需要有效伺服器授權。下載完成後可離線收聽。
+Windows 可使用 MSI 安裝程式。Linux 和 Docker 可執行 Ruri 伺服器。Android 安裝 APK 後可新增手機資料夾或連線至伺服器。一般曲目的播放與下載、建立帳號及瀏覽更多聲優均可免費使用。下載完成後可離線收聽。
 
-測試期間免費。未來收費暫定人民幣 10 元／月、60 元／年或 90 元永久授權，可綁定 3 台伺服器，Android 等客戶端不單獨佔用綁定名額；最終方案以正式公布為準。現有免費功能不會改為付費。目前免費測試授權需申請審核，發放後須在 7 天內首次啟用，首次啟用後可使用 31 天。
+珍藏片段、AI 和伺服器上的智慧選路需要授權。伺服器與 Android 手機可用同一組金鑰分別啟用，每台各占一個名額。連線至伺服器媒體庫時使用該伺服器的授權。Android 本機媒體庫可選擇本機或遠端閘道翻譯作品資料。使用雲端模型時需要連線。
+
+可在「設定 → 版本與更新」或 Android 連線頁面檢查更新。Windows 開啟新版 MSI，Android 依系統提示安裝。Linux 管理員在主機上執行新版安裝程式，Docker 使用者依指南替換映像。
+
+可在 Ruri 官網填寫電子郵件領取免費測試授權。發放後須在 7 天內首次啟用，自首次啟用起可使用 31 天。未來收費暫定人民幣 10 元／月、60 元／年或 90 元永久授權，同一組金鑰最多可啟用 3 台裝置。最終方案以正式公布為準。[Ruri 官網](https://rurimecha.top/)
 
 [Features](docs/i18n/zh-Hant/FEATURES.md) · [使用指南](docs/i18n/zh-Hant/USAGE.md)
 

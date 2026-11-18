@@ -5,6 +5,7 @@ COPY --from=certificates /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-ce
 COPY media-tools /usr/local/bin/media-tools
 COPY third_party /usr/share/doc/rurimecha/third_party
 COPY rurimecha-core /usr/local/bin/rurimecha-core
+ENV RURI_DEPLOYMENT_TYPE=container
 EXPOSE 8080
 VOLUME ["/data"]
 ENTRYPOINT ["/usr/local/bin/rurimecha-core"]

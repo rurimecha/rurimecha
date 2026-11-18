@@ -1062,7 +1062,7 @@
     "/v1/activate": {
       "post": {
         "operationId": "activate",
-        "description": "Reuse one active binding for the same license and instance key; online rebinding changes host metadata without consuming another slot. Status, expiry and activation quota are checked together. Certificate grants product rurimecha with no feature list; see licensing.md.",
+        "description": "Reuse one active binding for the same license and instance key. A targetless legacy binding acquires its target when renewed by a current client, without using a new slot. A binding with an explicit target cannot switch targets. Separate instance keys each consume a slot. A signed certificate has a server or android target and grants product rurimecha without a feature list. Older clients may omit target and receive a legacy certificate until their binding has an explicit target. See licensing.md.",
         "responses": {
           "200": {
             "description": "Success",
@@ -1090,7 +1090,14 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/Forbidden"
+            "description": "Activation rejected, including license_device_changed when the binding already has a different target.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -1143,6 +1150,14 @@
                   },
                   "existing_license_id": {
                     "type": "string"
+                  },
+                  "target": {
+                    "type": "string",
+                    "enum": [
+                      "server",
+                      "android"
+                    ],
+                    "description": "Required for current clients. The issuer signs this target into the certificate."
                   }
                 }
               }

@@ -13,7 +13,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - File-type filters stay during continuous browsing and temporary page changes within one source; another source or work starts with default file types. Filters can be cleared or saved explicitly.
 - Delete individual works while keeping originals and ignoring their own files and ordinary subfolders; independent child works remain. Review and lift deleted-work and folder exclusions in Settings. Cleared information and references are not restored.
 - Browse public voice actor profiles and credits, open library copies or search the built-in ASMR.one source. Local voice credits and name management remain available. Circles and illustrators retain library browsing and external discovery.
-- Smart routing is shared in Network settings and tries direct access to DLsite, ASMR Online and related resources, including region-restricted DLsite work information. It tries the configured proxy when needed. Ordinary system proxy settings do not affect direct connections. Transparent proxies, TUN/VPN connections or gateway routing can still change the actual network exit, and TLS domain sniffing may interfere with smart routing. Access depends on the country or region of the actual public IP of the server and network connectivity; region restrictions may still apply. Server connections for work information and Smart routing use IPv4 only.
+- With an active server license, administrators can turn on **Smart routing** in **Network settings** to try more connections when accessing DLsite or ASMR Online. Availability depends on the server network and region. Turning it off keeps previously saved information.
 - Browse original media folders or organize files into works. Enable scanning, archiving, metadata fetching, and media information extraction independently, and adjust work membership manually.
 - Includes a permanent ASMR.one source for browsing and adding works, with editable proxy and download folder. It can coexist with user-added sources at the same address; voice actor browsing uses the built-in source. Browse server folders or enter a path. Saving the setting checks that the server can write there.
 - Add kikoeru-compatible libraries, search works, browse/filter circles, tags, and voice actors, and save selected works or files to your server as needed.
@@ -28,6 +28,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 ## AI translation and archive suggestions
 
 - With an active server license, administrators can choose a local or remote gateway in **AI configuration**. With a local gateway, add and test provider models. With a remote gateway, connect using its address and access token. Choose a model for each feature you use.
+- In the Android local library, open **AI configuration**. Choose the local gateway to add a provider, enter its key, find models, and test the connection. To use a remote gateway, choose it and enter the connection details. Ruri remembers the model for each gateway. After saving, start translating from a work’s details. Cloud models still require internet access on the phone.
 - Translate scripts, work details, and folder or file display names, or generate archive suggestions. Online models receive the selected text. Review results before applying them. The original text and media files are kept.
 
 ## Playback, resuming, and collecting
@@ -40,7 +41,8 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Audio pages, bottom controls, transcript windows, and local playback provide 10-second back/forward buttons; seeking while paused keeps playback paused.
 - Pause while media loads or buffers. Open work details from a work name on the player page; screen readers announce the current time and total duration on the progress bar.
 - Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles stay visible inside Ruri and over other apps, return after unlocking, and reveal a close button when tapped.
-- Open Rurimecha from Start or choose to add a desktop shortcut during installation. Install updates from Ruri → Check for updates. Windows and Linux installers let you choose and check the listen IP and port. Windows keeps application data by default on uninstall. You can opt to clear it while keeping original media.
+- Open Rurimecha from Start or choose to add a desktop shortcut during installation. Windows and Linux installers let you choose and check the listen IP and port. Windows keeps application data by default on uninstall. You can opt to clear it while keeping original media.
+- Check versions and updates under **Settings → Version and updates**. Android can also check app updates from the connection screen. Follow the host installation method to update Linux or Docker.
 - With an active license on the current server or phone, preview and save favorite ranges for replay or lists. Clips reference originals and need them to remain available.
 - Linux, Windows, and Docker include media tools for loudness normalization, compatible transcoding, and embedded subtitles. See [media tools](USAGE.md#preparing-media-tools).
 - Other WebDAV players can browse folders and play originals using Ruri credentials. Access is read-only. Configure certificates, separate HTTP/HTTPS ports, and optional HTTPS redirects.
@@ -60,7 +62,7 @@ Open Player settings → Video quality while watching a video. Supported videos 
 
 - Initial setup requires a random default administrator password. Windows desktop fills it in automatically; browsers show Windows, Linux, and Docker instructions. Choose your own password to enter the library; the default then expires.
 - During testing, enter your own email on the website to receive a free trial automatically, once per address. Activate within 7 days and use it for 31 days after first activation. Retry later or look up an existing license if the email does not arrive.
-- The built-in administrator uses the web app/WebDAV. A server license enables extra accounts with shared media but separate collections, playlists, preferences, and progress.
+- Administrators can add accounts in **User management**. Users share media and keep separate collections, playlists, preferences, and progress.
 - Configure LAN ranges and per-user remote access. Nginx can provide HTTPS over an HTTP server; same-host Nginx and default Docker bridge deployment need no Trusted proxies entry.
 - Inspect active device names, client types, sign-in IPs/times, and revoke unused sessions.
 - Export system data, all work details, or one work; restore with new media paths. Missing media can retain details until files return and are scanned again.
