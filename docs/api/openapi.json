@@ -12176,7 +12176,7 @@
           "metadata-scraper"
         ],
         "summary": "startScrapeJob",
-        "description": "Metadata scraping currently supports DLsite RJ/BJ/VJ; FANZA is paused. Before persistence, omit works with no valid supported code or only a paused FANZA code. Mixed requests contain only remaining items and totals. If all selected works are omitted, return 400 no_scrapable_works without creating a job. Missing works and conflicting identifiers remain explicit failed items. Images-only requests remain independent of product identifiers. Shared successful cache and explicit force behavior are unchanged. See metadata-scraping.md.",
+        "description": "Metadata scraping currently supports DLsite RJ/BJ/VJ; FANZA is paused. Before persistence, omit works with no valid supported code or only a paused FANZA code. Mixed requests contain only remaining items and totals. If all selected works are omitted, return 400 no_scrapable_works without creating a job. Missing works and conflicting identifiers remain explicit failed items. Images-only requests remain independent of product identifiers. Successful cached content stays usable. Terminal failures wait for an explicit retry. See metadata-scraping.md.",
         "parameters": [],
         "responses": {
           "202": {
@@ -13060,6 +13060,7 @@
           "catalog"
         ],
         "summary": "retryFailedScrape",
+        "description": "Retries failed targets from a completed scrape job. Successful cached images are reused.",
         "responses": {
           "202": {
             "description": "Success",
@@ -31096,7 +31097,8 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "default": 2
+            "default": 2,
+            "description": "Additional attempts for each product metadata fetch or image download in one retrieval round."
           },
           "cache_max_age_hours": {
             "type": "integer",
@@ -31109,7 +31111,9 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3600,
-            "default": 300
+            "default": 300,
+            "deprecated": true,
+            "description": "Legacy value preserved for compatibility. Failed requests wait for an explicit retry."
           },
           "image_cache_max_bytes": {
             "type": "integer",
@@ -31240,7 +31244,8 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "default": 2
+            "default": 2,
+            "description": "Additional attempts for each product metadata fetch or image download in one retrieval round."
           },
           "cache_max_age_hours": {
             "type": "integer",
@@ -31253,7 +31258,9 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3600,
-            "default": 300
+            "default": 300,
+            "deprecated": true,
+            "description": "Legacy value preserved for compatibility. Failed requests wait for an explicit retry."
           },
           "image_cache_max_bytes": {
             "type": "integer",
@@ -31636,7 +31643,7 @@
           },
           "image_error": {
             "type": "string",
-            "description": "Empty or sanitized image failure code: unsupported_image_url, image_unavailable, image_limit. Successful old bytes may remain available."
+            "description": "Empty or sanitized image failure code: unsupported_image_url, image_unavailable, image_limit, image_cache_capacity, or image_retry_required. Previously downloaded images may remain available."
           },
           "locale_results": {
             "type": "object",
@@ -33358,7 +33365,8 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "default": 2
+            "default": 2,
+            "description": "Additional attempts for each product metadata fetch or image download in one retrieval round."
           },
           "cache_max_age_hours": {
             "type": "integer",
@@ -33371,7 +33379,9 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3600,
-            "default": 300
+            "default": 300,
+            "deprecated": true,
+            "description": "Legacy value preserved for compatibility. Failed requests wait for an explicit retry."
           },
           "image_cache_max_bytes": {
             "type": "integer",

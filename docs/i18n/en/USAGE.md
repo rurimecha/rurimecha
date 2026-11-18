@@ -182,6 +182,8 @@ The scope includes the selected folder and all subfolders, regardless of list fi
 
 Use Background tasks to follow progress, cancel, or open child tasks to retry failed items. Choose one operation at a time; enabled source automation continues independently. Compatible sources support metadata, images, and re-archiving, but not local file scanning or media information extraction.
 
+When product details or images run out of retries, open Background tasks and choose Retry failed items. You can also choose Force refresh product details or Redownload images from the work menu. Previously retrieved details and images remain usable.
+
 ### Viewing, editing, and refreshing languages
 
 New installations fetch Simplified Chinese and Japanese by default. Enable Traditional Chinese or English in metadata settings if available from the source.

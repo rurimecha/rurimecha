@@ -98,7 +98,7 @@
 {"work_ids":["作品ID"],"images_only":true,"include_extras":true}
 ```
 
-如果 URL 不变但上游图片内容变了，增加 `"force_images":true`。图片缓存不绑定任务；相同完整 URL 跨作品/任务/重启复用，文件丢失时重下载；同批次或重叠强制任务可复用启动后成功更新的内容。同一 URL 只下载一次可并发复用的成功结果，失败不作为成功缓存。未变化的已有图片不做 HEAD/条件网络复查，没有自动 TTL。
+如果 URL 不变但上游图片内容变了，增加 `"force_images":true`。图片缓存不绑定任务；相同完整 URL 跨作品/任务/重启复用，丢失的文件可重新下载，标记失败的图片等待手动重试；同批次或重叠强制任务可复用启动后成功更新的内容。同一 URL 只下载一次可并发复用的成功结果，失败不作为成功缓存。未变化的已有图片不做 HEAD/条件网络复查，没有自动 TTL。
 
 任务和条目增加 `images_total,images_downloaded,images_cached,images_failed`。计数以“作品所引用的图片目标”为单位，同一 URL 在另一个作品中可以计为缓存命中。条目 `phase` 为 metadata/images/done，另有独立 `image_error`（`unsupported_image_url,image_unavailable,image_limit`）。商品成功但图片失败时条目可为 succeeded，任务为 partial，工作项 failed 仍为 0；客户端应分别展示作品和图片计数。图片执行期间每个结果都会保存进度并记录关联 job_id/work_id 的日志。取消和重启 interrupted 沿用原任务接口，已成功图片仍保留。
 
@@ -116,9 +116,9 @@
 
 商品刮削在持久化任务前过滤无有效编号、格式无效或只有暂停的 FANZA 编号的作品，不为它们创建任务条目，也不计入总数或失败数。混合选择仅处理其余作品；全部被过滤时返回 HTTP 400 `no_scrapable_works`，不创建空任务。自动扫描归档流程遇到该结果正常继续，没有商品刮削子任务。一个作品存在多个不同商品编号时仍记录 `unsupported_identifier` 冲突项，不存在作品记录 `not_found`，不会拒绝整批；空/重复选择等请求格式错误仍拒绝。显式 `images_only=true` 仅补齐现有图片引用，继续不要求商品编号。不同作品即使编号相同也保持独立，只共享上游事实缓存。翻译商品无封面且提供 original_workno/translation_info 原作编号时，最多多取一次原作资料，仅补封面并记录 cover_source_code，不改标题或作品编号。
 
-设置新增可选字段：`retry_attempts`（0..3，默认 2 次重试，250/500/1000ms 退避）、`cache_max_age_hours`（0..87600，默认 0（永久复用））、`failure_cache_seconds`（0..3600，默认 300；0 关闭）、`image_cache_max_bytes`（0..1TiB，默认 1GiB；0 不自动限制）。PUT 省略这些新增字段保留原值。缓存过期或 force 才联网；近期失败不重复访问上游，项错误为 provider_failure_cached。取消不写失败缓存，失败刷新不删除最后成功资料。force 绕过失败缓存；HTTP/超时重试有界，字段格式错误不重试。
+`retry_attempts` 控制一轮商品资料抓取或单张图片下载的额外尝试次数（0..3，默认 2，依次等待 250/500/1000 毫秒）。商品资料最终失败后按商品编号和语言记住结果，普通任务跳过上游请求，保留既有资料；无可用资料时项错误为 `provider_failure_cached`。图片最终失败后按 URL 记住结果，普通补图可继续使用已有成功图片，未取得的图片记录 `image_retry_required`。失败记录跨重启保留，手动强制刷新或重试失败项可再次请求，成功后清除相应记录。取消不会留下失败记录。旧字段 `failure_cache_seconds` 仍接受和返回，取值不影响再次请求的条件。`cache_max_age_hours` 控制成功资料的缓存期限，0 表示永久复用。`image_cache_max_bytes` 控制图片缓存容量，0 表示不自动限制。省略可选设置字段时保留原值。
 
-`POST /metadata-scrape-jobs/{job}/retry-failed` 为终止任务中失败或图片失败的作品创建新任务（202），成功的其他作品不重复。无失败项返回 400；原任务未终止返回 409。
+`POST /metadata-scrape-jobs/{job}/retry-failed` 为终止任务中失败或图片失败的作品创建新任务（202），成功的其他作品不重复。重试图片时，已下载且没有失败记录的图片继续复用。无失败项返回 400；原任务未终止返回 409。
 
 ## 图片容量与清理
 
@@ -151,7 +151,7 @@ POST `/metadata-scraper/test-connection` 接受 source=dlsite/scrape 及可选�
 
 Core 缓存站客户端使用统一 POST `/api/v1/lookup`，按需请求 metadata 或 image_references 字段组，传入语言优先级；图片字段仅为地址，图片字节仍由 Core 图片任务下载。缓存站无可用图片地址时继续尝试已开启的 DLsite，关闭的来源不请求。商品资料与补图分别使用各自范围，不因取得文字就停止寻找图片地址。
 
-Core 本地成功缓存仍优先，force 刷新按当前来源顺序执行。缓存站404可回退下一来源，最终结果决定任务状态。失败缓存绑定配置修订；强制刷新绕过。缓存站保留统一作品接口，不提供按上游区分的公开路径。
+Core 本地成功缓存仍优先，force 刷新按当前来源顺序执行。缓存站404可回退下一来源，最终结果决定任务状态。商品资料的失败记录按编号和语言保存；修改配置后可通过强制刷新再次获取。缓存站保留统一作品接口，不提供按上游区分的公开路径。
 
 GET `/works/{work}/scraped-metadata` 的 via/cache_url 记录当时实际获取途径，不从当前设置推断。DLsite、缓存站和导入分别标注，地址不含密钥。
 
