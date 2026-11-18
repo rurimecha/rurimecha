@@ -14,7 +14,7 @@ Download the package for your platform from [GitHub Releases](https://github.com
 
 1. Open the `.msi`, select Next, and choose an installation location. A `Rurimecha` subfolder is added unless that is already the selected folder name; upgrades keep the existing folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
 2. Choose a listen IP and port. Defaults are `0.0.0.0` and `8080`, accepting connections on all local IPv4 addresses. Use `127.0.0.1` for access only from this computer. A specific IP must belong to this computer. If the availability check fails, free the port or choose another. Reinstallation and upgrades retain existing network settings by default.
-3. Finish installation and open **Rurimecha** from Start. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
+3. To add a desktop shortcut, select **安装后创建桌面快捷方式** on the installation options page. The box is unchecked for new installations. You can also open **Rurimecha** from Start after installation. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
 4. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
 
 Closing the window hides it in the tray while Ruri keeps running. Double-click the tray icon to reopen; right-click it and choose **Exit Ruri** to stop or update. Data stays in `%LOCALAPPDATA%\Rurimecha\data`, independently of the installation folder. See Connection and network for access from other devices.
@@ -126,6 +126,8 @@ Supported databases upgrade on startup. Before an upgrade, Ruri creates a `core.
 Exit from the tray first, then uninstall Rurimecha in Windows Settings → Installed apps. The wizard keeps data by default for reinstallation.
 
 Selecting the option to also clear local application data permanently deletes accounts, library details, collections, progress, transcripts saved to Ruri, settings, and local license information in `%LOCALAPPDATA%\Rurimecha\data`. Original media in source folders is kept. Export a migration package first to retain data, and deactivate before uninstalling if moving the license. Upgrades never perform this cleanup. Cleanup refuses linked or in-use data folders; exit and check the path before retrying, and never delete the media behind a link.
+
+If the wizard reports extra files or folders in the data directory, move the items you added out of the directory and try again, or clear the cleanup checkbox.
 
 ## Adding media folders
 

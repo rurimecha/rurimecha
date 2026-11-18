@@ -3,7 +3,7 @@
   <Product Id="*" Name="Rurimecha" Language="2052" Codepage="936" Version="$(var.MsiVersion)"
            Manufacturer="Rurimecha" UpgradeCode="{9B5B6D7B-B5C9-4F71-AC3C-716D485BE015}">
     <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" SummaryCodepage="936" />
-    <MajorUpgrade AllowSameVersionUpgrades="yes"
+    <MajorUpgrade AllowSameVersionUpgrades="yes" MigrateFeatures="no"
                   DowngradeErrorMessage="已安装较新的 Ruri 版本。" />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
     <Icon Id="RuriIcon" SourceFile="$(var.PayloadDir)\Ruri.ico" />
@@ -13,6 +13,14 @@
     <Property Id="RURI_LISTEN_PORT" Secure="yes" />
     <Property Id="RURI_ORIGINAL_IP" Secure="yes" />
     <Property Id="RURI_ORIGINAL_PORT" Secure="yes" />
+    <Property Id="RURI_DESKTOP_SHORTCUT" Secure="yes" />
+    <Property Id="RURI_PREVIOUS_DESKTOP_SHORTCUT">
+      <RegistrySearch Id="PreviousDesktopShortcut" Root="HKCU" Key="Software\Rurimecha"
+                      Name="DesktopShortcut" Type="raw" Win64="yes" />
+    </Property>
+    <SetProperty Id="RURI_DESKTOP_SHORTCUT" Value="1" After="AppSearch" Sequence="first">
+      RURI_PREVIOUS_DESKTOP_SHORTCUT="1" AND NOT RURI_DESKTOP_SHORTCUT
+    </SetProperty>
     <Property Id="RURI_REMOVE_DATA" Secure="yes" />
     <Property Id="INSTALLFOLDER" Secure="yes">
       <RegistrySearch Id="PreviousInstallFolder" Root="HKCU" Key="Software\Rurimecha"
@@ -35,11 +43,11 @@
                   Execute="rollback" Impersonate="yes" />
     <CustomAction Id="PrepareRemoveData" BinaryKey="RuriInstallerActions" DllEntry="PrepareRemoveData" />
     <CustomAction Id="RemoveUserData" BinaryKey="RuriInstallerActions" DllEntry="RemoveUserData"
-                  Execute="deferred" Impersonate="yes" />
+                  Execute="commit" Impersonate="yes" />
     <InstallUISequence>
       <Show Dialog="PrepareDlg" Before="AppSearch">0</Show>
-      <Custom Action="ReadNetwork" After="AppSearch">NOT (REMOVE~="ALL")</Custom>
-      <Show Dialog="RuriRemoveDlg" Before="ProgressDlg">Installed AND REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE</Show>
+      <Custom Action="ReadNetwork" After="AppSearch">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
+      <Show Dialog="RuriRemoveDlg" Before="ProgressDlg">Installed AND REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND NOT RuriRemovalConfirmed</Show>
     </InstallUISequence>
     <InstallExecuteSequence>
       <Custom Action="NormalizeInstallFolder" After="CostFinalize">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
@@ -48,7 +56,7 @@
       <Custom Action="RollbackNetwork" Before="ApplyNetwork">NOT (REMOVE~="ALL")</Custom>
       <Custom Action="ApplyNetwork" After="InstallFiles">NOT (REMOVE~="ALL")</Custom>
       <Custom Action="PrepareRemoveData" Before="RemoveUserData">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
-      <Custom Action="RemoveUserData" Before="RemoveFiles">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
+      <Custom Action="RemoveUserData" Before="InstallFinalize">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
     </InstallExecuteSequence>
     <UI>
       <!-- Skip WiX's placeholder license agreement. -->
@@ -62,16 +70,20 @@
                Value="NormalizeInstallFolder" Order="5">WIXUI_INSTALLDIR_VALID="1"</Publish>
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog"
                Value="RuriNetworkDlg" Order="3">NOT Installed</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog"
+               Value="RuriRemoveDlg" Order="2">1</Publish>
       <Dialog Id="RuriNetworkDlg" Width="370" Height="270" Title="Rurimecha 安装">
         <Control Id="Title" Type="Text" X="15" Y="15" Width="340" Height="25"
-                 Text="{\WixUI_Font_Title}设置访问地址" />
+                 Text="{\WixUI_Font_Title}安装选项" />
         <Control Id="Description" Type="Text" X="20" Y="48" Width="330" Height="50"
                  Text="所选位置下会自动创建 Rurimecha 文件夹；升级沿用原目录。实际安装目录：[INSTALLFOLDER]" />
         <Control Id="IpLabel" Type="Text" X="20" Y="113" Width="80" Height="17" Text="监听 IP：" />
         <Control Id="Ip" Type="Edit" X="105" Y="110" Width="240" Height="20" Property="RURI_LISTEN_IP" />
         <Control Id="PortLabel" Type="Text" X="20" Y="150" Width="80" Height="17" Text="监听端口：" />
         <Control Id="Port" Type="Edit" X="105" Y="147" Width="90" Height="20" Property="RURI_LISTEN_PORT" />
-        <Control Id="Hint" Type="Text" X="20" Y="185" Width="330" Height="45"
+        <Control Id="DesktopShortcut" Type="CheckBox" X="20" Y="175" Width="330" Height="18"
+                 Property="RURI_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="安装后创建桌面快捷方式" />
+        <Control Id="Hint" Type="Text" X="20" Y="199" Width="330" Height="32"
                  Text="0.0.0.0 表示接收本机所有 IPv4 地址上的连接。点击下一步检查地址和端口。安装或升级前，请先从系统托盘退出 Ruri。" />
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="上一步">
           <Publish Event="NewDialog" Value="InstallDirDlg">1</Publish>
@@ -79,7 +91,9 @@
         <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="下一步">
           <Publish Event="DoAction" Value="CheckNetwork" Order="1">1</Publish>
           <Publish Event="SpawnDialog" Value="RuriNetworkErrorDlg" Order="2">RURI_NETWORK_VALID&lt;&gt;"1"</Publish>
-          <Publish Event="NewDialog" Value="VerifyReadyDlg" Order="3">RURI_NETWORK_VALID="1"</Publish>
+          <Publish Event="AddLocal" Value="DesktopShortcutFeature" Order="3">RURI_NETWORK_VALID="1" AND RURI_DESKTOP_SHORTCUT="1"</Publish>
+          <Publish Event="Remove" Value="DesktopShortcutFeature" Order="4">RURI_NETWORK_VALID="1" AND RURI_DESKTOP_SHORTCUT&lt;&gt;"1"</Publish>
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" Order="5">RURI_NETWORK_VALID="1"</Publish>
         </Control>
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="取消">
           <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
@@ -101,7 +115,10 @@
         <Control Id="Warning" Type="Text" X="20" Y="135" Width="330" Height="45"
                  Text="勾选后将永久删除账户、媒体库资料（含收藏、进度和台本）、设置和本机授权信息。媒体来源目录中的音视频原文件不会删除。" />
         <Control Id="Remove" Type="PushButton" X="225" Y="203" Width="65" Height="17" Default="yes" Text="卸载">
-          <Publish Event="EndDialog" Value="Return">1</Publish>
+          <Publish Event="Remove" Value="ALL" Order="1">1</Publish>
+          <Publish Property="REMOVE" Value="ALL" Order="2">1</Publish>
+          <Publish Property="RuriRemovalConfirmed" Value="1" Order="3">1</Publish>
+          <Publish Event="EndDialog" Value="Return" Order="4">1</Publish>
         </Control>
         <Control Id="Cancel" Type="PushButton" X="300" Y="203" Width="56" Height="17" Cancel="yes" Text="取消">
           <Publish Event="EndDialog" Value="Exit">1</Publish>
@@ -124,6 +141,7 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="RuriMenu" Name="Rurimecha" />
       </Directory>
+      <Directory Id="DesktopFolder" />
     </Directory>
     <DirectoryRef Id="RuriMenu">
       <Component Id="StartMenuShortcuts" Guid="{4257548F-9B8E-4DB3-8FE1-3CC8E520B2F7}">
@@ -137,9 +155,21 @@
                        Type="string" Value="[INSTALLFOLDER]" />
       </Component>
     </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="{C676A217-282E-4DFB-AF16-9CB8A09C5797}" Win64="yes">
+        <Shortcut Id="RuriDesktopShortcut" Name="Rurimecha" Target="[INSTALLFOLDER]Rurimecha.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\Rurimecha" Name="DesktopShortcut"
+                       Type="string" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
     <Feature Id="Main" Title="Rurimecha" Level="1">
       <ComponentGroupRef Id="PayloadFiles" />
       <ComponentRef Id="StartMenuShortcuts" />
+      <Feature Id="DesktopShortcutFeature" Title="桌面快捷方式" Level="2" Display="hidden">
+        <Condition Level="1">RURI_DESKTOP_SHORTCUT="1"</Condition>
+        <ComponentRef Id="DesktopShortcut" />
+      </Feature>
     </Feature>
   </Product>
 </Wix>

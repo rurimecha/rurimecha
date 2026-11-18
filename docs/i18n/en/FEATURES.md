@@ -40,7 +40,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Audio pages, bottom controls, transcript windows, and local playback provide 10-second back/forward buttons; seeking while paused keeps playback paused.
 - Pause while media loads or buffers. Open work details from a work name on the player page; screen readers announce the current time and total duration on the progress bar.
 - Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles stay visible inside Ruri and over other apps, return after unlocking, and reveal a close button when tapped.
-- Open Windows from Start and install updates from Ruri → Check for updates. Windows/Linux installers select and validate listen IP/port. Windows uninstall can retain data or explicitly clear it while keeping original media.
+- Open Rurimecha from Start or choose to add a desktop shortcut during installation. Install updates from Ruri → Check for updates. Windows and Linux installers let you choose and check the listen IP and port. Windows keeps application data by default on uninstall. You can opt to clear it while keeping original media.
 - With a server license, preview and save favorite ranges for replay or lists. Clips reference originals and need them to remain available.
 - Linux, Windows, and Docker include media tools for loudness normalization, compatible transcoding, and embedded subtitles. See [media tools](USAGE.md#preparing-media-tools).
 - Other WebDAV players can browse folders and play originals using Ruri credentials. Access is read-only. Configure certificates, separate HTTP/HTTPS ports, and optional HTTPS redirects.
