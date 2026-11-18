@@ -15,7 +15,7 @@
 | GET | /sources/{source}/remote-works | 浏览来源作品；支持 page、page_size、q、search_field 和 sort |
 | GET | /sources/{source}/remote-facets | 读取来源已有的社团、声优或标签；使用 field= circle、voice 或 tag |
 | GET | /sources/{source}/remote-works/{code} | 查看 RJ 作品资料和音轨树 |
-| GET | /sources/{source}/remote-works/{code}/cover | 查看来源封面 |
+| GET | /sources/{source}/remote-works/{code}/cover | 查看来源原始封面，或用 `?size=thumbnail` 读取列表缩略图 |
 | GET | /works/{work}/remote-cover | 读取已入库作品的来源封面 |
 | POST | /sources/{source}/remote-works/{code}/import | 入库或刷新选中的 RJ 作品 |
 | GET | /works/{work}/remote-download | 管理员查看作品可选目录树、完整副本状态及最近一次保存任务 |
@@ -28,6 +28,8 @@
 | GET / DELETE | /scan-jobs/{job} | 任务详情/删除终态历史 |
 | POST | /scan-jobs/{job}/cancel | 请求取消，无请求体 |
 | GET | /scan-jobs/{job}/issues | 扫描问题分页 |
+
+来源作品列表中的 `cover_url` 默认返回原图。列表可请求 `GET /sources/{source}/remote-works/{code}/cover?size=thumbnail`，返回保持比例、最长边不超过 192 像素的 JPEG。原图与缩略图的 ETag 独立；未知尺寸返回 400。
 
 ## 来源
 

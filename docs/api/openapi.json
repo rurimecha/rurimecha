@@ -20834,7 +20834,7 @@
           "scan"
         ],
         "summary": "remoteWorkCover",
-        "description": "Read a catalog cover image.",
+        "description": "Read the original remote catalog cover, or request a list thumbnail. size=thumbnail returns a JPEG up to 192 pixels on the longer edge, preserving aspect ratio without upscaling. Unknown sizes return 400. Original and thumbnail have distinct ETags.",
         "parameters": [
           {
             "name": "source",
@@ -20851,13 +20851,43 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            },
+            "description": "Omit for the original; use thumbnail for catalog lists."
           }
         ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
-              "application/json": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
@@ -20882,6 +20912,41 @@
           },
           "502": {
             "description": "Error"
+          },
+          "206": {
+            "description": "Partial image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "416": {
+            "description": "Range not satisfiable"
           }
         }
       }
