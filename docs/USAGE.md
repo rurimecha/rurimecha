@@ -139,7 +139,7 @@ Windows Docker Desktop 用户可在宿主机 PowerShell 中、Compose 文件所�
 - **Linux**。在服务器下载并解压官方 x86-64 完整包。服务安装在新版解压目录运行 `sudo ./install.sh`，沿用原监听设置和数据目录。手动安装先停止 Ruri，再用原 `-data-dir` 启动新版。
 - **Docker**。在原 Compose 目录的 `.env` 将 `RURI_IMAGE` 改为 `docker.io/rurimecha/rurimecha:<新版本>`，再运行 `docker compose pull core` 和 `docker compose up -d core`。保留原数据卷和媒体挂载。自定义编排按原部署方式替换镜像。
 
-Ruri 会在启动时自动升级支持的数据库。需要升级数据库时，数据目录下会保存一个名为 `core.db.before-v…` 的备份文件夹。升级完成后，用原账号登录即可继续使用。若启动失败，请保留数据目录，检查空间和写入权限，并根据启动提示核对版本后再重试。
+Ruri 会在启动时自动升级支持的数据库。升级数据库前，Ruri 会在应用数据目录中创建 `core.db.before-v…` 临时备份文件夹，并在升级成功后自动删除。升级后，用原账号登录即可继续使用。若新版启动失败，请保留应用数据目录和其中已有的备份，检查磁盘剩余空间和写入权限，根据启动提示核对版本后再重试。
 
 ## Windows 卸载
 

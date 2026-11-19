@@ -124,7 +124,7 @@ Select **Check for updates** in **Settings → Version and updates**. When Andro
 - **Linux.** Download and extract the official x86-64 server package on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
 - **Docker.** Set `RURI_IMAGE` in the original Compose `.env` to `docker.io/rurimecha/rurimecha:<new-version>`, then run `docker compose pull core` and `docker compose up -d core`. Keep the existing data volume and media mounts. For custom deployments, replace the image using your existing deployment method.
 
-Supported databases upgrade on startup. Before an upgrade, Ruri creates a `core.db.before-v…` backup folder in the data directory. Sign in with the same account afterward. If startup fails, keep the data folder, check free space and write permissions, and follow the version message before retrying.
+Ruri automatically upgrades supported databases on startup. Before upgrading the database, it creates a temporary backup in a `core.db.before-v…` folder in the data directory. Ruri automatically deletes this backup after a successful upgrade. Sign in with your existing account to continue. If startup fails, keep the data directory and any backup folder it contains. Check free disk space and write permissions, and follow the startup message to verify the version before retrying.
 
 ## Uninstalling on Windows
 
