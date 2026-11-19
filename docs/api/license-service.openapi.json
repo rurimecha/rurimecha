@@ -536,8 +536,30 @@
                 "required": [
                   "name",
                   "email",
-                  "max_activations",
                   "kind"
+                ],
+                "oneOf": [
+                  {
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "trial"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "max_activations"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "paid"
+                        ]
+                      }
+                    }
+                  }
                 ],
                 "properties": {
                   "name": {
@@ -553,7 +575,8 @@
                   "max_activations": {
                     "type": "integer",
                     "minimum": 1,
-                    "maximum": 100
+                    "maximum": 100,
+                    "description": "The number of devices that can be bound. Defaults to 2 for a trial when omitted."
                   },
                   "order_ref": {
                     "type": "string",
