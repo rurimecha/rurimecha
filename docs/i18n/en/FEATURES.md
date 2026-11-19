@@ -54,10 +54,10 @@ Open Player settings → Video quality while watching a video. Supported videos 
 
 ## Mobile listening and privacy
 
-- On Android, add a folder on the phone to browse and play files by folder or work. You can also discover LAN servers or enter an address. Use background playback, media keys, full-screen video, and queue restoration.
+- On Android, the home page opens **Library on this device** or **Connect to a server** directly. Add a folder on the phone to browse and play files by folder or work. If the server is unreachable, discover another LAN server or enter an address on the server selection screen. Use background playback, media keys, full-screen video, and queue restoration.
 - In the Android local library, refresh folders and works, read media information, and view background tasks. Browse ASMR.one or add a Kikoeru-compatible source and choose files to download to your phone.
 - Android playback settings can measure and normalize each audio track, create compatible copies using supported device formats, and extract full embedded text tracks as WebVTT.
-- Sign in to the server to download originals, text, covers, and available text subtitles. Completed downloads play offline in Local library; downloads, queues, favorites, and progress stay on the phone.
+- Sign in to a server to download originals, text, covers, and available text subtitles. Check progress under **Download tasks**. Play earlier and new downloads from the **Downloaded media** source in **Library on this device**. Use **Download location** to choose a folder for new downloads. Existing files stay where they are.
 - Privacy mode hides covers, videos, and text, with a 3-second reveal. Android asks before speaker playback and pauses when headphones/Bluetooth disconnect.
 - Delete individual history records or clear your own history, including resume positions.
 

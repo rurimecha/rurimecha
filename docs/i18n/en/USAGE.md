@@ -287,25 +287,28 @@ Open Saved clips in the account menu to replay, queue, add to playlists/collecti
 
 ## Listening on Android
 
-To organize files on your phone, open the local library and add a folder in the system picker. After scanning, browse by folder or work and play your files. Adding or removing a folder keeps its original files. If access is lost, select the folder again to grant access.
+From the Android home page, choose **Library on this device** or **Connect to a server**. To organize files on your phone, add a folder in the local library and grant access in the system picker. After scanning, browse by folder or work and play your files. Adding or removing a folder keeps its original files. If access is lost, select the folder again to grant access.
 
 Open **Background tasks** in the local library to track scanning, organizing, and reading media information. If the app closes during a scan, reopen the local library to continue. To refresh one work or folder, choose **Refresh options** from its menu. In **Folders**, you can browse ASMR.one or add a Kikoeru-compatible source, then choose files from an online work to download to your phone.
 
 Turn on loudness normalization in local playback settings to measure each audio track while you listen. Playback keeps its original level until the measurement finishes. Choose **Play a compatible copy** to generate a copy at a quality your device supports, then continue from the current position. You can switch back to the original file at any time. Choose **Extract embedded subtitles**, select a text track, and save the WebVTT file in the system picker.
 
-To listen to a server library, select Connect to server, discover a LAN server or enter its address, and sign in. If nothing appears, check that both devices share a LAN and discovery is enabled.
+To listen to a server library, choose **Connect to a server**, discover a LAN server or enter its address, and sign in. If the server is unreachable, Ruri returns to server selection, where you can retry the address or choose another server. If discovery finds nothing, check that both devices share a LAN and discovery is enabled.
 
 Before playback, open My → Playback settings to change Direct source connections. On uses the phone's own connection; turn it off to use the server's source proxy or if direct playback fails. The same setting is available in playback details.
 
 ### Downloading for offline listening
 
-1. Choose edition/format in work details, then Download to device and select files. A file menu can download individual media. Sign in to the source server while downloading.
-2. Open Downloaded media from the connection page, login page, or account menu to pause, resume, cancel, and view progress. Cancel keeps completed files. Retry missing covers/subtitles.
-3. After completion, listen from Downloaded media without network, sign-in, or an active license. Local versions in online details also opens downloads.
+1. Choose an edition and format in the work details, then choose **Download to this device** and select files. Use a file’s menu to download it individually. Sign in to the source server while downloading.
+2. Open **Download tasks** from the menu or the work details to see server download progress, pause, resume, or cancel. Canceling keeps completed files.
+   Use **Delete local download** to remove a server download from the device library and delete its copies in app storage. Use your file manager to delete files from a folder you chose.
+3. When the download finishes, open **Downloaded media** under **Library on this device → Folder** to listen offline. Open the local library after updating to find your earlier downloads in the same source. You can still play them after signing out or switching servers.
 
-Downloads include originals, saved text, covers, and available text subtitles. Your phone must support the original format; download another format if needed. Wi-Fi/wired only is the default; disabling this may use mobile data. Up to 500 files per request and 500 downloaded editions are supported.
+To select where your phone saves files, open **Download location** from the menu or download dialog, select **Choose folder**, and grant access. New downloads from servers and online sources in the local library use this folder. Previously downloaded files stay where they are. Choose **App storage** to restore the default. If the selected folder becomes unavailable, choose it again and grant access.
 
-Local playback supports background controls, notifications, repeat, shuffle, sleep timer, transcripts, and full-screen video. Local queue, favorites, and progress are separate. Restored queues start paused. Refresh work details updates only text, covers, and subtitles and requires signing in to the original server with the same account. Deleting local versions removes only phone copies. Sign-out/server changes keep downloads; uninstalling or clearing app data deletes downloads and records. Download again on a new phone. Clips saved on a server require a connection to the original licensed server.
+Server downloads include originals, saved text, covers, and available text subtitles. If your phone cannot play the original format, choose another format on the server and download again. Wi-Fi or wired networks are used by default. Turning off that limit may use mobile data. You can download up to 500 files at a time and keep up to 500 downloaded server editions.
+
+Local playback supports background controls, notifications, repeat, shuffle, sleep timer, transcripts, and full-screen video. Local queue, favorites, and progress stay on the phone. Restored queues start paused. Uninstalling Ruri or clearing its data removes downloads in app storage and local records. To find files in a folder you chose, open your phone’s file manager. Clips saved on a server require a connection to the original licensed server.
 
 ## Privacy mode and listening history
 
