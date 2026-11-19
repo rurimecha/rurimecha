@@ -289,6 +289,8 @@ Open Saved clips in the account menu to replay, queue, add to playlists/collecti
 
 To organize files on your phone, open the local library and add a folder in the system picker. After scanning, browse by folder or work and play your files. Adding or removing a folder keeps its original files. If access is lost, select the folder again to grant access.
 
+Open **Background tasks** in the local library to track scanning, organizing, and reading media information. If the app closes during a scan, reopen the local library to continue. To refresh one work or folder, choose **Refresh options** from its menu. In **Folders**, you can browse ASMR.one or add a Kikoeru-compatible source, then choose files from an online work to download to your phone.
+
 To listen to a server library, select Connect to server, discover a LAN server or enter its address, and sign in. If nothing appears, check that both devices share a LAN and discovery is enabled.
 
 Before playback, open My → Playback settings to change Direct source connections. On uses the phone's own connection; turn it off to use the server's source proxy or if direct playback fails. The same setting is available in playback details.
@@ -467,7 +469,7 @@ To investigate a problem, open Detailed diagnostics in Management, enable and sa
 
 ## Listening statistics and recommendations
 
-Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. Playback from the server library is recorded; the phone’s local library is excluded.
+Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. The phone’s local library keeps its own listening statistics. Connect to a server to view that server’s statistics.
 
 In work details, select My rating and choose one to five stars. Open it again to change or remove your rating. Your account rates the whole archived work across its formats and playback groups. Cards show your rating separately from the public rating.
 

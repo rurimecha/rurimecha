@@ -55,6 +55,7 @@ Open Player settings → Video quality while watching a video. Supported videos 
 ## Mobile listening and privacy
 
 - On Android, add a folder on the phone to browse and play files by folder or work. You can also discover LAN servers or enter an address. Use background playback, media keys, full-screen video, and queue restoration.
+- In the Android local library, refresh folders and works, read media information, and view background tasks. Browse ASMR.one or add a Kikoeru-compatible source and choose files to download to your phone.
 - Sign in to the server to download originals, text, covers, and available text subtitles. Completed downloads play offline in Local library; downloads, queues, favorites, and progress stay on the phone.
 - Privacy mode hides covers, videos, and text, with a 3-second reveal. Android asks before speaker playback and pauses when headphones/Bluetooth disconnect.
 - Delete individual history records or clear your own history, including resume positions.
@@ -73,7 +74,7 @@ Open Player settings → Video quality while watching a video. Supported videos 
 
 ## Listening statistics and recommendations
 
-- Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. Playback from the server library is recorded; the phone’s local library is excluded.
+- Open Listening & recommendations from the sidebar or account menu. Listening statistics shows your time, calendar, monthly trends, and leading works, voices, circles and tags. Choose 30 days, 12 months, a year or all time. The phone’s local library keeps its own listening statistics. Connect to a server to view that server’s statistics.
 - In work details, select My rating and choose one to five stars. Open it again to change or remove your rating. Your account rates the whole archived work across its formats and playback groups. Cards show your rating separately from the public rating.
 - For you offers You might like, Try something different and Listen again. Open a work or play it directly, and use Refresh picks to change the selection. Deleting a resume record keeps your statistics and ratings.
 
