@@ -291,6 +291,8 @@ To organize files on your phone, open the local library and add a folder in the 
 
 Open **Background tasks** in the local library to track scanning, organizing, and reading media information. If the app closes during a scan, reopen the local library to continue. To refresh one work or folder, choose **Refresh options** from its menu. In **Folders**, you can browse ASMR.one or add a Kikoeru-compatible source, then choose files from an online work to download to your phone.
 
+Turn on loudness normalization in local playback settings to measure each audio track while you listen. Playback keeps its original level until the measurement finishes. Choose **Play a compatible copy** to generate a copy at a quality your device supports, then continue from the current position. You can switch back to the original file at any time. Choose **Extract embedded subtitles**, select a text track, and save the WebVTT file in the system picker.
+
 To listen to a server library, select Connect to server, discover a LAN server or enter its address, and sign in. If nothing appears, check that both devices share a LAN and discovery is enabled.
 
 Before playback, open My → Playback settings to change Direct source connections. On uses the phone's own connection; turn it off to use the server's source proxy or if direct playback fails. The same setting is available in playback details.
