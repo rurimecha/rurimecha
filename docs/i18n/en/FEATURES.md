@@ -30,7 +30,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 - With an active server license, administrators can choose a local or remote gateway in **AI configuration**. With a local gateway, add and test provider models. With a remote gateway, connect using its address and access token. Choose a model for each feature you use.
 - In the Android local library, open **AI configuration**. Choose the local gateway to add a provider, enter its key, find models, and test the connection. To use a remote gateway, choose it and enter the connection details. Ruri remembers the model for each gateway. After saving, start translating from a work’s details. Cloud models still require internet access on the phone.
-- Translate scripts, work details, and folder or file display names, or generate archive suggestions. Online models receive the selected text. Review results before applying them. The original text and media files are kept.
+- Translate scripts, work details, and folder or file display names, or generate archive suggestions. Translate a whole folder or work by choosing a target language and whether to skip existing names. Switch between original names and translations in the current interface language with one button.
 
 ## Playback, resuming, and collecting
 

@@ -207,7 +207,11 @@ As an administrator, open **AI configuration**, choose a gateway, and enable AI.
 - For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration and select **Load local gateway models**.
 - For **Remote gateway**, enter its address and access token, then select **Test connection and load models**.
 
-Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review the result before saving a translation or applying archive suggestions. The original text and media files are kept.
+Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
+
+To translate several names at once, choose **Translate names in bulk** from a folder’s or work’s action menu. Choose the target language, then choose whether to skip existing names in that language and select **Start translation**. Skipping is on by default. Turn it off to replace existing names in the selected language. A folder includes its indexed subfolders and files. A work includes the files and folders assigned to it. Online models receive the names. Check progress or cancel from the name translation tasks. Completed names are kept. The Android local library uses the model set up on the phone.
+
+Use the original/translated names button next to Privacy to change how folders and files appear. Ruri shows translated names in the interface language and uses the original when a translation is missing. Use **Set display name** to edit or clear an individual translation. Original file names and paths are kept.
 
 ## Collections and playlists
 
@@ -438,7 +442,7 @@ Administrators can enable Guest experience in User management. Guests enter from
 
 Use the language button on the connection/login page or account menu to select 简体中文, 繁體中文, 日本語, English, or Follow system. Signed-in choices are also in Appearance & browsing preferences and saved with your account for other devices. Signed-out choices stay on this device and return after signing out. Offline local playback uses the most recently used language.
 
-Follow system uses a supported device language, choosing Traditional Chinese for Traditional Chinese regions and Simplified Chinese for other Chinese regions, or English if none match. Switching the interface does not rename works, files, or collections, or change metadata, audio, or subtitle languages; choose those independently in their menus. Installers currently use Simplified Chinese. Management/CLI tools primarily use English; historical release notes are Chinese and English.
+Follow system uses a supported device language, choosing Traditional Chinese for Traditional Chinese regions and Simplified Chinese for other Chinese regions, or English if none match. In translated names mode, file and folder translations follow the interface language. Choose metadata, audio, and subtitle languages in their own menus. Installers currently use Simplified Chinese. Management and command-line tools primarily use English. Historical release notes are in Chinese and English.
 
 
 ## Circles, voice actors and illustrators

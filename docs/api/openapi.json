@@ -24390,6 +24390,237 @@
         }
       }
     },
+    "/agent/node-name-jobs": {
+      "get": {
+        "operationId": "listNodeNameJobs",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List recent node name translation jobs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJobList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "operationId": "startNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Start a node name translation job",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeNameJobInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/node-name-jobs/preview": {
+      "post": {
+        "operationId": "previewNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Count names for a node name translation job",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Number of indexed, translated and eligible names. Does not invoke a model.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNamePreview"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeNameJobInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/node-name-jobs/{job}": {
+      "get": {
+        "operationId": "getNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Get a node name translation job",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/agent/node-name-jobs/{job}/cancel": {
+      "post": {
+        "operationId": "cancelNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Cancel a node name translation job",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
     "/agent/jobs": {
       "get": {
         "operationId": "listWorkTranslationJobs",
@@ -36738,6 +36969,176 @@
         ],
         "additionalProperties": false
       },
+      "NodeNameJobInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "directory_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "work_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "target_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ]
+          },
+          "skip_existing": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "target_locale"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "directory_id"
+            ],
+            "not": {
+              "required": [
+                "work_id"
+              ]
+            }
+          },
+          {
+            "required": [
+              "work_id"
+            ],
+            "not": {
+              "required": [
+                "directory_id"
+              ]
+            }
+          }
+        ]
+      },
+      "NodeNamePreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "existing": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "eligible": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "total",
+          "existing",
+          "eligible"
+        ]
+      },
+      "NodeNameJob": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "canceling",
+              "succeeded",
+              "partial",
+              "failed",
+              "canceled",
+              "interrupted"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/NodeNameJobInput"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "processed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "translated": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "conflicted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "input",
+          "total",
+          "processed",
+          "translated",
+          "skipped",
+          "conflicted",
+          "failed",
+          "created_at"
+        ]
+      },
+      "NodeNameJobList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NodeNameJob"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "NodeAlias": {
         "type": "object",
         "additionalProperties": false,
@@ -36746,7 +37147,8 @@
             "type": "string"
           },
           "alias": {
-            "type": "string"
+            "type": "string",
+            "description": "Deprecated. Always an empty string on the node name editing endpoint."
           },
           "localized_aliases": {
             "$ref": "#/components/schemas/LocalizedNodeAliases"
@@ -36780,16 +37182,17 @@
               "ja",
               "en"
             ],
-            "description": "Omit to change the shared display name. Supply a language to change only its display name."
+            "description": "Language whose display name is set or cleared."
           }
         },
         "required": [
-          "alias"
+          "alias",
+          "locale"
         ]
       },
       "LocalizedNodeAliases": {
         "type": "object",
-        "description": "Display names keyed by interface language. Use the exact language, the shared alias if available, then the original name. Alias values are display text only.",
+        "description": "Display names keyed by interface language. Use the exact interface language, then the original name. Original-name mode uses the original directly. Ignore historical shared aliases.",
         "additionalProperties": false,
         "properties": {
           "zh-Hans": {
