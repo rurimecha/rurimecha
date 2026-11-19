@@ -35456,6 +35456,19 @@
           "server_url": {
             "type": "string",
             "description": "Effective license service address."
+          },
+          "device_type": {
+            "type": "string",
+            "enum": ["windows", "linux", "docker", "android"],
+            "description": "Display platform for device administrators."
+          },
+          "system_device_name": {
+            "type": "string",
+            "description": "Registered display name for device administrators."
+          },
+          "suggested_system_device_name": {
+            "type": "string",
+            "description": "Locally available name that an administrator can choose to register."
           }
         }
       },
@@ -35476,7 +35489,13 @@
           "device_name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 80
+            "maxLength": 80,
+            "description": "User-entered device nickname."
+          },
+          "system_device_name": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Optional registered display name. An empty string clears it."
           }
         }
       },

@@ -317,7 +317,9 @@ Open **Server license** on the server to activate treasured clips, AI, and smart
 
 Choose **Activate license** and enter your key and a device name. Once activated, the page shows the expiry and enabled features. After renewal, select **Update license** and enter the original key. Activation, updates, and binding release require internet access on that device. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
 
-Before changing devices, choose **Release binding** to free the slot and keep your media and library data. If the release is pending, connect to the internet and retry. If the old device cannot start, contact the license provider with your purchase information. Keep the data volume and host identifier when changing a container image.
+Before changing devices, choose **Release binding** to free the slot and keep your media and library data. If the release is pending, connect to the internet and retry. Keep the data volume and host identifier when changing a container image.
+
+If you cannot use the old device, look up your license on the [official website](https://rurimecha.top/en/). Open the first email and select **View licenses**. Check the device nickname, name, type, and activation time. Request a release for the old device, then open the second email and confirm it. Each link is valid for 15 minutes. Once the slot is free, you can use the same key to activate a new device while the license is valid. The old device's existing offline authorization can remain valid until it expires. If you cannot access the original mailbox, contact the license provider with your purchase information.
 
 If your provider gives you a different address, open **Advanced settings**, enter the HTTPS address, and save. Save a blank value to restore the default service. Your current license remains usable after the change.
 
