@@ -8,8 +8,8 @@
 
 | 方法与路径 | 请求及响应 |
 | --- | --- |
-| `GET /license` | `state`、`configured`、`capabilities`，已有可验证证书时附 `customer`、`license_id`、RFC3339 `expires_at`。管理员还可读取 `device_type`、已登记的 `system_device_name` 以及可用的 `suggested_system_device_name` |
-| `POST /license/activate` | `{"license_key":"…","device_name":"家里的服务器","system_device_name":"homeserver"}`。密钥 32..256 字节，备注 1..80 个 Unicode 字符。`system_device_name` 可选、最多 80 字符，空字符串清除登记的设备名。成功返回当前状态 |
+| `GET /license` | `state`、`configured`、`capabilities`，已有可验证证书时附 `customer`、`license_id`、RFC3339 `expires_at`。管理员还可读取 `device_type` 和已知的 `device_name` |
+| `POST /license/activate` | `{"license_key":"…","device_name":"客厅服务器"}`。密钥 32..256 字节，设备名称 1..80 个 Unicode 字符。Core 自动登记可读取的运行环境主机名。成功返回当前状态 |
 | `POST /license/deactivate` | 必须提交空对象 `{}`；返回 `{"ok":true}` |
 
 状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.multi_user`、`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前服务器授权能力。手机本机授权含 AI 和珍藏片段。允许增加其他键，客户端应忽略未知键。
@@ -38,7 +38,7 @@
 - `POST /admin/licenses/{license}/key` 接受空对象并返回新密钥。原密钥此后不能激活，许可身份、证书和绑定保持不变。
 - `GET /admin/activations?license_id=…` 分页读取历史，`POST /admin/activations/{activation}/release` 接受空对象并幂等释放指定绑定。`GET /admin/events` 分页读取事件，可选 license_id。
 - 列表默认 limit=50，范围 1..100，offset>=0；用户和许可证支持最多 254 字符的 q 字面检索。许可证列表仅带本页活跃绑定，历史单独查询；items/total/limit/offset 或 licenses/activations/total/limit/offset 来自同一读取事务。
-- `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 license_key/device_name/instance_key/host_id、目标 `target`（`server` 或 `android`）及可选 existing_license_id。新 Core 请求携带目标，并验证新签发证书的目标与设备类型一致。已有无目标证书可按原宿主、实例密钥和期限继续离线使用，主动更新可换取带目标的证书。反激活接受 certificate/proof。
+- `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 `license_key`、`device_name`、`instance_key`、`host_id`、目标 `target`（`server` 或 `android`）以及可选设备信息和 `existing_license_id`。官网用户查询和释放确认仅展示设备名称和类型。采集的主机名或型号、设备标识和实例公钥仅供授权管理员查看。新 Core 请求携带目标，并验证签发证书的目标。已有无目标证书可按原宿主、实例密钥和期限继续离线使用，主动更新可换取带目标的证书。反激活接受 `certificate` 和 `proof`。
 - `POST /v1/self`、`POST /v1/release` 始终返回 503 `self_service_unavailable`。丢失设备的名额可通过官网邮箱验证流程释放指定绑定，参见 [授权中心契约](license-service.openapi.json)。发行方管理员也可核对后处理。
 
 授权中心错误对象含稳定 error.code 与 request_id。常见额外代码：customer_conflict/order_conflict 为 409；self_service_unavailable/license_schema_mismatch/license_not_configured 为 503；request_too_large 为 413；rate_limited 为 429。管理 PUT 为完整替换，按最后提交生效。停用、缩短期限和释放不能即时撤销离线副本，既有证书可能继续使用至原到期日。

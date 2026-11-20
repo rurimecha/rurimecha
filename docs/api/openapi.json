@@ -35462,13 +35462,9 @@
             "enum": ["windows", "linux", "docker", "android"],
             "description": "Display platform for device administrators."
           },
-          "system_device_name": {
+          "device_name": {
             "type": "string",
-            "description": "Registered display name for device administrators."
-          },
-          "suggested_system_device_name": {
-            "type": "string",
-            "description": "Locally available name that an administrator can choose to register."
+            "description": "Device name shown in license lookup. Returned to device administrators when known."
           }
         }
       },
@@ -35490,12 +35486,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 80,
-            "description": "User-entered device nickname."
-          },
-          "system_device_name": {
-            "type": "string",
-            "maxLength": 80,
-            "description": "Optional registered display name. An empty string clears it."
+            "description": "User-entered device name for license lookup. The server registers its own host name when available."
           }
         }
       },

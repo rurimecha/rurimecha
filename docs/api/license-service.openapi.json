@@ -799,7 +799,7 @@
     "/admin/activations": {
       "get": {
         "operationId": "listActivationHistory",
-        "description": "Paginated active and released bindings for one license.",
+        "description": "Paginated active and released bindings for one license, including administrator-only device information.",
         "responses": {
           "200": {
             "description": "Success",
@@ -1161,7 +1161,8 @@
                   "device_name": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 80
+                    "maxLength": 80,
+                    "description": "User-chosen device name shown in license lookup."
                   },
                   "instance_key": {
                     "type": "string"
@@ -1185,7 +1186,7 @@
                   "system_device_name": {
                     "type": "string",
                     "maxLength": 80,
-                    "description": "Optional user-supplied system device label. An empty string clears this label. Omit this field to preserve the last supplied label."
+                    "description": "Host name or device model supplied by the application. Visible only to administrators. An omitted value preserves an existing record."
                   },
                   "device_type": {
                     "type": "string",
@@ -1782,7 +1783,7 @@
     "/public/release/preview": {
       "post": {
         "operationId": "previewDeviceRelease",
-        "description": "Read only the device details bound to an unexpired release token. The token remains usable for explicit confirmation.",
+        "description": "Read the display name, device type, and release state for an unexpired token. The token remains usable for explicit confirmation.",
         "parameters": [
           {
             "name": "Origin",
@@ -2305,7 +2306,8 @@
           "system_device_name": {
             "type": "string",
             "nullable": true,
-            "maxLength": 80
+            "maxLength": 80,
+            "description": "Collected host name or model, visible to administrators."
           },
           "device_type": {
             "type": "string",
@@ -2326,6 +2328,14 @@
               "android",
               null
             ]
+          },
+          "host_id": {
+            "type": "string",
+            "description": "Device identifier digest available in administrator binding history."
+          },
+          "instance_key": {
+            "type": "string",
+            "description": "Installation public key available in administrator binding history."
           }
         }
       },
@@ -2542,20 +2552,12 @@
         "additionalProperties": false,
         "required": [
           "device_name",
-          "system_device_name",
           "device_type",
-          "target",
-          "created_at",
-          "deactivated_at"
+          "released"
         ],
         "properties": {
           "device_name": {
             "type": "string"
-          },
-          "system_device_name": {
-            "type": "string",
-            "nullable": true,
-            "maxLength": 80
           },
           "device_type": {
             "type": "string",
@@ -2565,26 +2567,12 @@
               "linux",
               "docker",
               "android",
-              null
-            ]
-          },
-          "target": {
-            "type": "string",
-            "nullable": true,
-            "enum": [
               "server",
-              "android",
               null
             ]
           },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deactivated_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+          "released": {
+            "type": "boolean"
           }
         }
       },
@@ -2594,11 +2582,7 @@
         "required": [
           "id",
           "device_name",
-          "system_device_name",
-          "device_type",
-          "target",
-          "created_at",
-          "deactivated_at"
+          "device_type"
         ],
         "properties": {
           "id": {
@@ -2606,11 +2590,6 @@
           },
           "device_name": {
             "type": "string"
-          },
-          "system_device_name": {
-            "type": "string",
-            "nullable": true,
-            "maxLength": 80
           },
           "device_type": {
             "type": "string",
@@ -2620,26 +2599,9 @@
               "linux",
               "docker",
               "android",
-              null
-            ]
-          },
-          "target": {
-            "type": "string",
-            "nullable": true,
-            "enum": [
               "server",
-              "android",
               null
             ]
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deactivated_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           }
         }
       }
