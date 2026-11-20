@@ -49,8 +49,8 @@
 `GET /info` 发布 `agent.node_name_jobs` 能力。管理员可用 [名称接口](scanning.md) 分语言编辑或生成单项译名，也可创建一个后台任务批量保存。
 
 - `POST /agent/node-name-jobs/preview` 与 `POST /agent/node-name-jobs` 都接受 `{"directory_id":"节点 ID","target_locale":"en","skip_existing":true}`。`directory_id` 与 `work_id` 任选其一。支持 `zh-Hans`、`zh-Hant`、`ja` 和 `en`。省略 `skip_existing` 时为 true，仅计算所选语言的已有译名。
-- 目录范围为选中目录和已索引的子树，包括可用文件和目录。媒体来源的显示名称独立于目录节点。作品范围为当前归属该作品的可用文件和目录，分组、类型筛选和分页不影响范围。独立子作品使用自己的范围。预览返回 `total`、`existing` 和 `eligible`，无需调用模型。
-- 创建返回 `202`、任务对象与 `Location`。使用 `GET /agent/node-name-jobs` 读取近期任务，`GET /agent/node-name-jobs/{job}` 读取一项，`POST /agent/node-name-jobs/{job}/cancel` 请求取消。任务包含 `input`、`state`、`total`、`processed`、`translated`、`skipped`、`conflicted`、`failed`，以及时间和可选 `error_code`。同一库已有进行中的任务时返回 `409 agent_busy`。
+- 目录范围为选中目录和已索引的子树，包括可用文件和目录。媒体来源的显示名称独立于目录节点。作品范围为当前归属该作品的可用文件和目录，分组、类型筛选和分页不影响范围。独立子作品使用自己的范围。预览返回 `total`、`existing`、`eligible` 和目标语言的默认名称翻译提示词 `prompt`，无需调用模型。
+- 创建可传 `prompt` 临时覆盖名称翻译提示词，最多 4,000 个字符，不得全为空白或包含空字符。省略或传空字符串使用默认提示词。名称翻译提示词随该任务发给模型，不写入 AI 设置或任务历史。创建返回 `202`、任务对象与 `Location`。使用 `GET /agent/node-name-jobs` 读取近期任务，`GET /agent/node-name-jobs/{job}` 读取一项，`POST /agent/node-name-jobs/{job}/cancel` 请求取消。任务包含 `input`、`state`、`total`、`processed`、`translated`、`skipped`、`conflicted`、`failed`，以及时间和可选 `error_code`。同一库已有进行中的任务时返回 `409 agent_busy`。
 - 每批发送目录名称和文件名主体。结果校验成功后仅保存指定语言，保存时复核节点范围、原名和别名修订。`skip_existing=false` 允许替换任务开始时已有的目标译名。任务进行中的手工修改保留并计入冲突。已保存的译名在任务失败、取消或中断后保留。任务结束的状态包括 `succeeded`、`partial`、`failed`、`canceled` 和 `interrupted`。
 
 ## 归档建议

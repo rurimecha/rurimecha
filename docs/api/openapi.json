@@ -37263,6 +37263,12 @@
           "skip_existing": {
             "type": "boolean",
             "default": true
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 4000,
+            "writeOnly": true,
+            "description": "Optional name translation instructions for this job. Omit or use an empty string for the default. Custom instructions are not recorded in job history or AI settings."
           }
         },
         "required": [
@@ -37306,12 +37312,17 @@
           "eligible": {
             "type": "integer",
             "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Default name translation prompt in the target language."
           }
         },
         "required": [
           "total",
           "existing",
-          "eligible"
+          "eligible",
+          "prompt"
         ]
       },
       "NodeNameJob": {
