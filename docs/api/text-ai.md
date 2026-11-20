@@ -36,6 +36,10 @@
 
 读取候选和最新的 [元数据编辑快照](metadata-scraping.md)，核对项目 `work_revision`。用户确认后，在同一次 `PATCH /works/{work}/metadata-editor` 用快照的 `If-Match` 提交选中的目标语言字段，可分别选择标题、简介和详细介绍。变更后的作品需重新核对，过期的确认返回 `412`。
 
+从元数据编辑器发起翻译时，`GET /works/{work}/metadata-editor` 的 `translation_fields` 列出含文字的可选字段。创建任务传入其中属于 `source_locale` 的 `editor_fields`，与旧的 `fields` 互斥。`skip_existing` 默认为 true，会跳过目标语言已有文字的整个字段。设置为 false 可重新生成。
+
+对应任务项的 `editor_values` 按目标语言字段返回 `value` 和可核对的文本位置 `paths`。确认时提交 `PATCH /works/{work}/metadata-editor`，传 `translation_job` 与 `translated_fields`，后者按目标字段列出与 `paths` 顺序一致的核对文字。沿用 `If-Match`，与手动 `values`、`unlock` 互斥。确认会保存并保护所选目标字段，文本以外的数据按草稿保留。
+
 ## 台本翻译
 
 `POST /nodes/{node}/transcript-drafts` 接受现有轨道 `track` 和读取编辑器时取得的 `revision`，返回独立草稿、`201`、`Location` 和草稿 ETag。保留原文与现有时间，轨道修订变化返回 `412`。已有草稿可直接翻译。
@@ -50,7 +54,7 @@
 
 - `POST /agent/node-name-jobs/preview` 与 `POST /agent/node-name-jobs` 都接受 `{"directory_id":"节点 ID","target_locale":"en","skip_existing":true}`。`directory_id` 与 `work_id` 任选其一。支持 `zh-Hans`、`zh-Hant`、`ja` 和 `en`。省略 `skip_existing` 时为 true，仅计算所选语言的已有译名。
 - 目录范围为选中目录和已索引的子树，包括可用文件和目录。媒体来源的显示名称独立于目录节点。作品范围为当前归属该作品的可用文件和目录，分组、类型筛选和分页不影响范围。独立子作品使用自己的范围。预览返回 `total`、`existing`、`eligible` 和目标语言的默认名称翻译提示词 `prompt`，无需调用模型。
-- 创建可传 `prompt` 临时覆盖名称翻译提示词，最多 4,000 个字符，不得全为空白或包含空字符。省略或传空字符串使用默认提示词。名称翻译提示词随该任务发给模型，不写入 AI 设置或任务历史。创建返回 `202`、任务对象与 `Location`。使用 `GET /agent/node-name-jobs` 读取近期任务，`GET /agent/node-name-jobs/{job}` 读取一项，`POST /agent/node-name-jobs/{job}/cancel` 请求取消。任务包含 `input`、`state`、`total`、`processed`、`translated`、`skipped`、`conflicted`、`failed`，以及时间和可选 `error_code`。同一库已有进行中的任务时返回 `409 agent_busy`。
+- 创建可传 `prompt` 临时覆盖名称翻译提示词，最多 4,000 个字符，不得全为空白或包含空字符。省略或传空字符串时，Ruri 不发送系统提示词。要使用默认提示词，请将预览返回的 `prompt` 随创建请求提交。名称翻译提示词随该任务发给模型，不写入 AI 设置或任务历史。创建返回 `202`、任务对象与 `Location`。使用 `GET /agent/node-name-jobs` 读取近期任务，`GET /agent/node-name-jobs/{job}` 读取一项，`POST /agent/node-name-jobs/{job}/cancel` 请求取消。任务包含 `input`、`state`、`total`、`processed`、`translated`、`skipped`、`conflicted`、`failed`，以及时间和可选 `error_code`。同一库已有进行中的任务时返回 `409 agent_busy`。
 - 每批发送目录名称和文件名主体。结果校验成功后仅保存指定语言，保存时复核节点范围、原名和别名修订。`skip_existing=false` 允许替换任务开始时已有的目标译名。任务进行中的手工修改保留并计入冲突。已保存的译名在任务失败、取消或中断后保留。任务结束的状态包括 `succeeded`、`partial`、`failed`、`canceled` 和 `interrupted`。
 
 ## 归档建议

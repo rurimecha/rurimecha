@@ -34761,6 +34761,12 @@
             "type": "object",
             "additionalProperties": {}
           },
+          "translation_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "locked_fields": {
             "type": "array",
             "items": {
@@ -34788,6 +34794,20 @@
           "values": {
             "type": "object",
             "additionalProperties": {}
+          },
+          "translation_job": {
+            "type": "string",
+            "description": "Metadata job ID when confirming reviewed translations."
+          },
+          "translated_fields": {
+            "type": "object",
+            "description": "Selected target fields mapped to reviewed strings in draft path order. Use with translation_job and omit values and unlock.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           },
           "unlock": {
             "type": "array",
@@ -37268,7 +37288,7 @@
             "type": "string",
             "maxLength": 4000,
             "writeOnly": true,
-            "description": "Optional name translation instructions for this job. Omit or use an empty string for the default. Custom instructions are not recorded in job history or AI settings."
+            "description": "Optional name translation instructions for this job. Omit or use an empty string to send no system message. Custom instructions are not recorded in job history or AI settings."
           }
         },
         "required": [
@@ -39112,6 +39132,17 @@
               ]
             }
           },
+          "editor_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skip_existing": {
+            "type": "boolean",
+            "default": true,
+            "description": "Skip editor fields with text in the target language."
+          },
           "expected_revisions": {
             "type": "object",
             "additionalProperties": {
@@ -39146,6 +39177,26 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "editor_values": {
+            "type": "object",
+            "description": "Review drafts keyed by target editor field.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "value": {},
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [{"type": "integer"}, {"type": "string"}]
+                    }
+                  }
+                }
+              },
+              "required": ["value", "paths"]
             }
           },
           "description_parts": {
@@ -39189,6 +39240,15 @@
             "items": {
               "type": "string"
             }
+          },
+          "editor_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skip_existing": {
+            "type": "boolean"
           },
           "expected_revisions": {
             "type": "object",
