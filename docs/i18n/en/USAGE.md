@@ -204,18 +204,18 @@ Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on m
 
 ## AI translation and archive suggestions
 
-In the Android local library, open **AI configuration**. Choose the local gateway to add a provider, enter its key, find models, and test the connection. To use a remote gateway, choose it and enter the connection details. Ruri remembers the model for each gateway. After saving, start translating from a work’s details. Cloud models still require internet access on the phone.
+In the Android local library, open **AI configuration**. Choose the local gateway to add a provider, enter its key, find models, and test the connection. To use a remote gateway, choose it, enter the connection details, and select **Test and save**. Ruri remembers the model for each gateway. After saving, start translating from a work’s details. Cloud models still require internet access on the phone.
 
 As an administrator, open **AI configuration**, choose a gateway, and enable AI.
 
-- For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration and select **Load local gateway models**.
-- For **Remote gateway**, enter its address and access token, then select **Test connection and load models**.
+- For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration. The model list refreshes automatically.
+- For **Remote gateway**, enter its address and access token, then select **Test and save**. Ruri applies the address and token after the test succeeds.
 
 In **Manage local gateway**, open **Model usage and call history** to see up to 1,000 recent calls and the token counts reported by providers. This is also available in the Android local library. For a remote gateway, open that gateway’s management page.
 
 The built-in gateway in Ruri for Windows and the Android local library can use the device’s system proxy to reach online models. After changing the proxy, load models again, run another test, or start a new translation. Model requests already underway keep their current connection.
 
-Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
+Enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
 
 To translate several names at once, choose **Translate names in bulk** from a folder’s or work’s action menu. Choose the target language, then choose whether to skip existing names in that language and select **Start translation**. Skipping is on by default. Turn it off to replace existing names in the selected language. A folder includes its indexed subfolders and files. A work includes the files and folders assigned to it. Online models receive the names. Check progress or cancel from the name translation tasks. Completed names are kept. The Android local library uses the model set up on the phone.
 
