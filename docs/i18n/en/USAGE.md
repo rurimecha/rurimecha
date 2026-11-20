@@ -144,6 +144,8 @@ Change each operation independently in Folder actions → Automatic processing. 
 
 The directory page includes an ASMR.one source: browse and select works to add without entering a website address. Administrators can edit its name, proxy and download folder. This built-in source cannot be removed. User-added sources with the same address remain separate; the voice actor page always opens the built-in ASMR.one source. Adding a work does not download its files; select and save files when needed.
 
+Online sources in Ruri for Windows and in the Android local library can use the device’s system proxy. To choose a proxy for one source, enter it in that source’s settings. After changing the system proxy, refresh the directory or retry. Playback or downloads already underway keep their current connection.
+
 In Directories, open the source menu and select Set server download folder. Use the folder button to browse, or enter a server path. Select Test write access to check the folder. Saving checks again. A missing folder will be created. If the check fails, choose another folder or grant the Ruri service account write access and save again. Clear the path and save to turn off server downloads for this source.
 
 For a kikoeru-compatible library, select that source type and enter its address. Browse and select works to add; optionally choose a server download folder to save files. Search at the top right finds works (expand search on a phone, then submit). Circle, tag, and voice actor tabs have their own name filters; open an entry to see works and return to the same list.
@@ -206,6 +208,8 @@ As an administrator, open **AI configuration**, choose a gateway, and enable AI.
 
 - For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration and select **Load local gateway models**.
 - For **Remote gateway**, enter its address and access token, then select **Test connection and load models**.
+
+The built-in gateway in Ruri for Windows and the Android local library can use the device’s system proxy to reach online models. After changing the proxy, load models again, run another test, or start a new translation. Model requests already underway keep their current connection.
 
 Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
 
