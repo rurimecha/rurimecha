@@ -12,7 +12,7 @@
 | `POST /license/activate` | `{"license_key":"…","device_name":"家里的服务器","system_device_name":"homeserver"}`。密钥 32..256 字节，备注 1..80 个 Unicode 字符。`system_device_name` 可选、最多 80 字符，空字符串清除登记的设备名。成功返回当前状态 |
 | `POST /license/deactivate` | 必须提交空对象 `{}`；返回 `{"ok":true}` |
 
-状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前服务器授权能力。手机本机授权含 AI 和珍藏片段。允许增加其他键，客户端应忽略未知键。
+状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.multi_user`、`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前服务器授权能力。手机本机授权含 AI 和珍藏片段。允许增加其他键，客户端应忽略未知键。
 
 激活及续期需要 Core 连接发行方激活服务。同一许可证、同一实例密钥重复激活复用绑定名额，可在线更新期限和宿主机信息；到期日由云端许可证决定，重新激活不会重置期限。激活密钥只用于本次请求，不在 Core 持久保存或写入日志。超时后可安全重试。
 

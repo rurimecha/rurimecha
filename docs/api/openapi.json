@@ -11440,7 +11440,7 @@
         "tags": [
           "accounts"
         ],
-        "summary": "Sign in and issue a 30-day other session. Active observed IP quota is shared with DAV. At most 256 unexpired credentials; reject excess without eviction.",
+        "summary": "Sign in and issue a 30-day session. Non-built-in accounts require active server authorization. With valid credentials and no authorization, returns 403 account_license_required.",
         "responses": {
           "200": {
             "description": "Success",

@@ -2,7 +2,7 @@
 
 **Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
 
-**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and server smart routing require a license. Ordinary playback, downloads, and shared accounts are available to eligible users.
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and server smart routing require a license. Ordinary playback and downloads follow account permissions. Creating and using additional accounts requires an active server license.
 
 **Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three installations. The final plan will be announced later. Activate premium features separately on the phone and server. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
 
@@ -332,7 +332,7 @@ If you cannot use the old device, look up your license on the [official website]
 
 If your provider gives you a different address, open **Advanced settings**, enter the HTTPS address, and save. Save a blank value to restore the default service. Your current license remains usable after the change.
 
-Administrators can create accounts in **User management**. Users share media and keep separate collections, playlists, preferences, and progress. Disabling an account under **Access permissions** ends its sessions and WebDAV access. If prompted to sign in after updating, sign in again.
+Activate the server license, then create accounts in **User management**. If the license expires, the built-in administrator can still sign in. Other accounts lose access until the license is reactivated, and their data is kept. Ask those users to sign in again after reactivation. Users share media and keep separate collections, playlists, preferences, and progress. Disabling an account under **Access permissions** ends its sessions and WebDAV access. If prompted to sign in after updating, sign in again.
 
 Account & sessions → Login sessions & WebDAV shows current device names, client types, sign-in IPs, and login/expiry times. Revoke unused sessions. IPs reflect sign-in and do not track later network changes. Browsers show browser/OS names, Android device models, and desktop clients computer names. Signed-out/expired history is not retained here.
 
@@ -447,7 +447,7 @@ Sign in with the displayed username and new password. Names and data are kept; d
 
 ## Guest experience
 
-Administrators can enable Guest experience in User management. Guests enter from the login page without a password to browse/play, but cannot edit works or save collections/progress. Turning it off ends access; it can be enabled again. Public demos should use a dedicated library with permission to stream the works.
+With an active server license, administrators can enable Guest experience in User management. Guests enter from the login page without a password to browse/play, but cannot edit works or save collections/progress. Turning it off ends access; it can be enabled again. Public demos should use a dedicated library with permission to stream the works.
 
 ## Choosing the interface language
 

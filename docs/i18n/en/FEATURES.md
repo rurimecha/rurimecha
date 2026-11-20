@@ -65,11 +65,11 @@ Open Player settings → Video quality while watching a video. Supported videos 
 
 - Initial setup requires a random default administrator password. Windows desktop fills it in automatically; browsers show Windows, Linux, and Docker instructions. Choose your own password to enter the library; the default then expires.
 - During testing, enter your own email on the website to receive a free trial automatically, once per address. Activate within 7 days and use it for 31 days after first activation. Retry later or look up an existing license if the email does not arrive.
-- Administrators can add accounts in **User management**. Users share media and keep separate collections, playlists, preferences, and progress.
+- With an active server license, administrators can add accounts in **User management** and other accounts can sign in. Users share media and keep separate collections, playlists, preferences, and progress.
 - Configure LAN ranges and per-user remote access. Nginx can provide HTTPS over an HTTP server; same-host Nginx and default Docker bridge deployment need no Trusted proxies entry.
 - Inspect active device names, client types, sign-in IPs/times, and revoke unused sessions.
 - Export system data, all work details, or one work; restore with new media paths. Missing media can retain details until files return and are scanned again.
-- Enable/disable guests for password-free demo browsing/playback. Guests cannot save personal content; disabling ends guest access.
+- With an active server license, enable guests for password-free demo browsing and playback. Guests cannot save personal content; disabling ends guest access.
 - Administrators can review problems and operation results, and enable detailed diagnostics in Settings while investigating an issue.
 - Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.
 

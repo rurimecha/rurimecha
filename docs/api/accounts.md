@@ -39,8 +39,8 @@
 
 `GET /auth/sessions` 仅列出自身未过期会话（无令牌），标记 current。`DELETE /auth/sessions/{session}` 只撤销自己的一个会话；`POST /auth/sessions/revoke` 只撤销自身全部会话。会话固定有效 30 天，每账户最多 256 个，不自动挤掉其他设备。未授权访问 401；长媒体连接每分钟复查账号、会话和网络访问资格。
 
-账号登录、普通播放、下载及 WebDAV 依照账号权限和网络设置使用。正确凭据的登录遇到停用或远程访问限制时返回 403 `account_disabled` 或 `remote_access_denied`。更新前受产品授权约束的旧会话须重新登录；已撤销的会话保持失效。既有令牌失效返回 401。客户端可以更换网络地址，仍须符合 [网络访问规则](network.md)。
+账号登录、普通播放、下载及 WebDAV 依照账号权限和网络设置使用。正确凭据的登录遇到停用或远程访问限制时返回 403 `account_disabled` 或 `remote_access_denied`。内置管理员账号无需产品授权。其他账号和游客须有有效服务器授权。正确密码遇到授权无效时返回 403 `account_license_required`。非内置账号会话仅在同一段连续有效的服务器授权期内可用。授权中断后重新激活，旧会话保持失效。既有令牌失效返回 401。客户端可以更换网络地址，仍须符合 [网络访问规则](network.md)。
 
 ## 游客体验
 
-管理员通过 `GET /settings/guest` 查看开关，通过 `PUT /settings/guest` 提交 `{"enabled":true|false}`。新安装及升级后默认关闭。关闭时撤销所有游客会话。`GET /auth/guest` 公开返回开关状态；开启后同源浏览器可用 `POST /auth/guest` 获取一小时的 HttpOnly 会话 Cookie，响应不包含令牌。游客使用固定 `guest` 身份，只能读取普通成员可读的媒体资料并播放；`POST /playback/resolve` 和退出登录可用，其他写入、WebDAV、Android 专用接口、来源浏览及管理接口均返回 403。游客不能修改共享资料，也不保存收藏、列表或收听进度。游客仍受服务器授权和网络远程访问设置约束。演示应使用专用实例及可公开播放的媒体。
+管理员通过 `GET /settings/guest` 查看开关，通过 `PUT /settings/guest` 提交 `{"enabled":true|false}`。新安装及升级后默认关闭。关闭时撤销所有游客会话。`GET /auth/guest` 公开返回开关状态；启用游客功能与游客登录都需要有效的服务器授权。开启后同源浏览器可用 `POST /auth/guest` 获取一小时的 HttpOnly 会话 Cookie，响应不包含令牌。游客使用固定 `guest` 身份，只能读取普通成员可读的媒体资料并播放；`POST /playback/resolve` 和退出登录可用，其他写入、WebDAV、Android 专用接口、来源浏览及管理接口均返回 403。游客不能修改共享资料，也不保存收藏、列表或收听进度。游客仍受服务器授权和网络远程访问设置约束。演示应使用专用实例及可公开播放的媒体。
