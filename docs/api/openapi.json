@@ -24073,6 +24073,71 @@
         }
       }
     },
+    "/ai-gateway/activity/retention": {
+      "put": {
+        "operationId": "setLocalAIGatewayCallRetention",
+        "summary": "Set the number of recent call details saved",
+        "description": "Trims excess old call details immediately and keeps usage totals. Set limit to 0 to keep only usage totals. expected_limit must match the current setting to prevent unintended trimming. The default is 1,000.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "limit",
+                  "expected_limit"
+                ],
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "expected_limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated the call detail limit"
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "409": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "413": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "415": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "500": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        },
+        "tags": [
+          "Text AI"
+        ]
+      }
+    },
     "/ai-gateway/activity": {
       "get": {
         "operationId": "getLocalAIGatewayActivity",
@@ -24101,7 +24166,7 @@
             "$ref": "#/components/responses/AIGatewayAdminError"
           }
         },
-        "description": "Requires a Ruri administrator session and active server AI authorization. Up to 1,000 completed model call attempts per gateway, including model connection tests. Usage aggregates cover all retained attempts, and token totals include provider-reported counts only. The newest 50 records are returned first. Use next_offset for older records and refresh to see new calls. No request content, response content or credentials are included.",
+        "description": "Requires a Ruri administrator session and active server AI authorization. Totals include all recorded calls by default. Optional inclusive UTC dates filter both cumulative model usage and retained call details. Token totals only include provider-reported counts. The newest 50 matching details are returned first. Details are limited by the configured retention setting. No request content, response content or credentials are included.",
         "parameters": [
           {
             "name": "offset",
@@ -24109,8 +24174,26 @@
             "schema": {
               "type": "integer",
               "minimum": 0,
-              "maximum": 999,
+              "maximum": 9999,
               "default": 0
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "First UTC calendar day, inclusive. Omit for no lower bound.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Last UTC calendar day, inclusive. Omit for no upper bound.",
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -25582,7 +25665,8 @@
           "models",
           "calls",
           "retention_limit",
-          "save_failed"
+          "save_failed",
+          "max_retention_limit"
         ],
         "properties": {
           "models": {
@@ -25603,10 +25687,15 @@
           },
           "retention_limit": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 0,
+            "maximum": 10000
           },
           "save_failed": {
             "type": "boolean"
+          },
+          "max_retention_limit": {
+            "type": "integer",
+            "const": 10000
           }
         }
       },

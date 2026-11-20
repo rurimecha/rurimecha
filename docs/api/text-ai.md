@@ -24,7 +24,9 @@
 
 `POST /ai-gateway/test` 接收 `{"model":"已保存的模型别名"}`，向已启用模型发送一次合成的结构化请求。成功返回 `{"ok":true,"model":"已保存的模型别名"}`。该测试可能消耗供应商额度，配置保持原值。
 
-`GET /ai-gateway/activity?offset=0` 需要 Ruri 管理员会话及有效服务器 AI 授权。返回 `models`（按别名汇总）、`calls`（分页调用记录）、`retention_limit` 和 `save_failed`。保留最近完成的 1,000 次调用，包含管理页发起的模型测试。默认从最新记录开始返回至多 50 条，返回 `next_offset` 时可用该值请求下一页。每条包含 RFC3339 时间、模型别名、耗时、结果和供应商可用的用量。用量缺失时省略 `usage`；汇总只累计报告过的词元数。请求文字、回复、原始上游错误及凭据不进入记录。无法读取记录时返回 `503 activity_unavailable`。
+`GET /ai-gateway/activity` 需要 Ruri 管理员会话及有效服务器 AI 授权。可传 `from` 和 `to`（UTC 日期，`YYYY-MM-DD`，含当天），分别省略时无该端范围限制。返回 `models`（所选日期的累计用量）、`calls`（该范围内保留的明细）、`retention_limit`、`max_retention_limit` 和 `save_failed`。默认返回至多 50 条最新明细，返回 `next_offset` 时可传该值请求下一页。每条明细包含 RFC3339 时间、模型别名、耗时、结果和供应商提供的用量。测试模型也计入用量。用量缺失时省略 `usage`。累计用量包含升级时仍保有的旧记录和之后的新调用。
+
+`PUT /ai-gateway/activity/retention` 需要同一管理员权限，传入 `limit` 和上次读取的 `expected_limit`。设置范围为 0–10,000，默认为 1,000。减少上限立即删除超出的旧明细，设 0 时仅保留累计用量。成功返回 204。上限已被其他客户端更改时返回 `409 retention_changed`，应刷新后再操作。
 
 ## 作品资料翻译
 
