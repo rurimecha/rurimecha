@@ -287,6 +287,8 @@ Open Saved clips in the account menu to replay, queue, add to playlists/collecti
 
 ## Listening on Android
 
+Download the APK for your device from the [official release page](https://github.com/rurimecha/rurimecha/releases/latest). Choose `arm64-v8a` for most phones, `armeabi-v7a` for 32-bit ARM devices, or `x86_64` for x86-64 devices. If an older app cannot download the update, get the matching APK from the release page and install it over the existing app to keep your local data.
+
 From the Android home page, choose **Library on this device** or **Connect to a server**. To organize files on your phone, add a folder in the local library and grant access in the system picker. After scanning, browse by folder or work and play your files. Adding or removing a folder keeps its original files. If access is lost, select the folder again to grant access.
 
 Open **Background tasks** in the local library to track scanning, organizing, and reading media information. If the app closes during a scan, reopen the local library to continue. To refresh one work or folder, choose **Refresh options** from its menu. In **Folders**, you can browse ASMR.one or add a Kikoeru-compatible source, then choose files from an online work to download to your phone.
