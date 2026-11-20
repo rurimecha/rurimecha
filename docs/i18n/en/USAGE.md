@@ -8,14 +8,14 @@
 
 ## Installation and first sign-in
 
-Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux x86-64, Docker Linux x86-64, and Windows x64. Install the Android APK separately and connect it to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
+Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux x86-64, Docker Linux x86-64, and Windows x64. Install the Android APK separately to use files on your phone or to connect to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
 
 ### Windows installation
 
-1. Open the `.msi`, select Next, and choose an installation location. A `Rurimecha` subfolder is added unless that is already the selected folder name; upgrades keep the existing folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
+1. Open the `.msi`, select **下一步** (Next), and choose an installation location. A `Rurimecha` subfolder is added unless that is already the selected folder name; upgrades keep the existing folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
 2. Choose a listen IP and port. Defaults are `0.0.0.0` and `8080`, accepting connections on all local IPv4 addresses. Use `127.0.0.1` for access only from this computer. A specific IP must belong to this computer. If the availability check fails, free the port or choose another. Reinstallation and upgrades retain existing network settings by default.
-3. To add a desktop shortcut, select **安装后创建桌面快捷方式** on the installation options page. The box is unchecked for new installations. You can also open **Rurimecha** from Start after installation. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
-4. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
+3. To add a desktop shortcut, select **安装后创建桌面快捷方式** on the installation options page. The box is unchecked for new installations. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
+4. Open **Rurimecha** from Start. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
 
 Closing the window hides it in the tray while Ruri keeps running. Double-click the tray icon to reopen; right-click it and choose **Exit Ruri** to stop or update. Data stays in `%LOCALAPPDATA%\Rurimecha\data`, independently of the installation folder. See Connection and network for access from other devices.
 
@@ -117,7 +117,7 @@ Change your password in Account & sessions → Change password, entering the cur
 
 **Older Android clients are incompatible with the new server. Update both together.**
 
-Select **Check for updates** in **Settings → Version and updates**. When Android is connected to a server, you can check the app and server separately. You can also check the app from the connection screen or local library settings. If the check fails, try again or open the [official release page](https://github.com/rurimecha/rurimecha/releases/latest).
+Open **Account and sessions** from the account menu, then choose **Check for updates** under **Version and updates**. When Android is connected to a server, you can check the app and server separately. You can also check the app from the connection screen or local library settings. If the check fails, try again or open the [official release page](https://github.com/rurimecha/rurimecha/releases/latest).
 
 - **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. When connected to Windows from a browser or phone, upgrade on the server PC.
 - **Android.** Choose **Download and install** and confirm in the system installer. Follow the system prompt if it asks you to allow installation. You can still use the current app if you cancel or installation fails. Installing over the existing app keeps your local library, license, and access to selected folders.
@@ -130,13 +130,13 @@ Ruri automatically upgrades supported databases on startup. Before upgrading the
 
 Exit from the tray first, then uninstall Rurimecha in Windows Settings → Installed apps. The wizard keeps data by default for reinstallation.
 
-Selecting the option to also clear local application data permanently deletes accounts, library details, collections, progress, transcripts saved to Ruri, settings, and local license information in `%LOCALAPPDATA%\Rurimecha\data`. Original media in source folders is kept. Export a migration package first to retain data, and deactivate before uninstalling if moving the license. Upgrades never perform this cleanup. Cleanup refuses linked or in-use data folders; exit and check the path before retrying, and never delete the media behind a link.
+Selecting the option to also clear local application data permanently deletes accounts, library details, collections, progress, transcripts saved to Ruri, settings, and local license information in `%LOCALAPPDATA%\Rurimecha\data`. Original media in source folders is kept. Export a migration package first to keep your library data. To use the license on another device, open **Server license** and choose **Release binding** before uninstalling. Upgrades never perform this cleanup. Cleanup refuses linked or in-use data folders; exit and check the path before retrying, and never delete the media behind a link.
 
 If the wizard reports extra files or folders in the data directory, move the items you added out of the directory and try again, or clear the cleanup checkbox.
 
 ## Adding media folders
 
-1. As administrator, choose Add media path and select a server folder. Windows desktop opens the system picker; a browser can select a drive/folder or enter a full path such as `C:\Music`. In Docker, use `/media/library`.
+1. Sign in as an administrator and select **Add media path** on Home. On the media sources page, select **Add source** and choose **Server folder**. Pick the folder containing your audio or video. In the Windows desktop app, select the folder icon next to the path to open the Windows folder picker. In a browser connected to Windows, select a drive and folder or enter a path such as `C:\Music`. Docker users can choose `/media/library`.
 2. Enable needed operations: automatic scanning finds files, archiving organizes works, metadata fetching gets details for RJ-numbered works, and media information extraction reads duration and tracks.
 3. Browse files through media sources, or use the library for organized works. View progress and results in Background tasks.
 
@@ -160,7 +160,7 @@ In a work’s **Included content** section, choose **All files** from the file t
 
 Search titles, voice actors, circles, or RJ numbers. A partial number such as `RJ12` finds prefixes. After at least two characters, wait for suggestions; source and path distinguish duplicate copies. Enter or Search opens all results. Title-only search covers saved titles in all languages. Temporary library search and filters clear when leaving; work type, sorting, and view are retained.
 
-Cards show up to two lines of tags; All tags shows the rest. Missing circles, voice actors, or tags show unknown placeholders, with the empty tag action disabled. Authors appear as voice actors. Cards at the same width have equal height.
+On a work card, select **All tags** to view all tags for the work. Find authors alongside voice actors.
 
 Linked originals and language editions share a library entry. Choose View other product editions to select a server copy by source/path, play it, open its files, or edit details as administrator. Choose product edition and metadata language independently: listen to Japanese while reading English, for example. Metadata-only editions have no playable server files.
 
@@ -324,7 +324,9 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 Open **Server license** on the server to activate treasured clips, AI, and smart routing. When Android is connected to a server, those features use the server license. Open **Device license** in the Android local library to activate local treasured clips and work details translation. The same license key works on both. Each activation uses one slot.
 
-Choose **Activate license** and enter your license key and a name that identifies the device. Once activated, the page shows the expiry and enabled features. After renewal, select **Update license**, enter the original key, and confirm the device name. Activation, updates, and binding release require internet access on that device. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
+While the device is online, choose **Activate license** and enter your license key. You can keep the default device name or change it to something easy to recognize, such as “Living room PC.” After activation, the page shows the device name, expiry date, and enabled features. After renewing, select **Update license** and enter the original key. Activation, updates, and binding release require internet access. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
+
+During activation or an update, Ruri sends the server hostname or Android device model, when available, to the license service so its administrators can verify the device. When you look up your license on the website, you’ll see the name you chose on the license page and the device type.
 
 Before changing devices, choose **Release binding** to free the slot and keep your media and library data. If the release is pending, connect to the internet and retry. Keep the data volume and host identifier when changing a container image.
 
@@ -471,6 +473,8 @@ A periodic check that finds no changes does not repeat organization, metadata fe
 
 Administrators can open System logs in Settings. Needs attention shows problems first; choose All records for operation results and expand details when reporting an issue. Task details contain progress, failed items, and retry options.
 
+Finished tasks and runtime logs are kept for up to 48 hours. Open a task to retry unfinished items. After the record expires, start again from the work or source.
+
 To investigate a problem, open Detailed diagnostics in Management, enable and save it, reproduce the problem, then disable and save it. The setting applies to the whole server and survives restarts. Disabling stops new diagnostic records; existing records remain within the storage limit. Choose Diagnostics in the log filter to view them. Leave it off for everyday use.
 
 
@@ -488,8 +492,6 @@ For you offers You might like, Try something different and Listen again. Open a 
 Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices; switching resumes at the current position after buffering. Unsupported videos offer only Original format. This applies to local sources and readable kikoeru-compatible videos. Direct playback depends on your device. Compatible Auto uses a default quality budget; it does not continuously adapt to network speed.
 
 Administrators can set maximum transcoded height, video bitrate and worker threads per task in Processing settings. Use 0 for no height/bitrate limit. Threads accept 1–64; 0 uses one worker. Limits apply to new transcoding tasks and do not restrict original-format direct playback. Transcoding preserves source files, does not upscale the picture and retains the source frame rate.
-
-Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.
 
 ## Deleting works and managing exclusions
 

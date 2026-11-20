@@ -12,14 +12,14 @@ The demo offers guest access; guest favorites and listening progress are not sav
 
 ![Ruri library](docs/screenshots/library.webp)
 
-- Find works by cover, voice actor, circle, tags, or RJ number; edit details and fetch supported metadata.
+- Find works by cover, voice actor, circle, tags, or RJ number. Edit or fetch work details, and choose More voice actors to browse beyond your library.
 - Organize works in collections, save exact track order in playlists, and browse smart discovery.
 - Follow timed transcripts, use the sleep timer, seek by 10 seconds, and resume playback.
 - Hide covers and text with privacy mode; Android supports background playback and floating subtitles.
 
-Install the MSI on Windows or run the server on Linux or Docker. Install the Android APK to add folders on your phone or connect to a server. Ordinary playback and downloads, creating user accounts, and browsing more voice actors are free. Completed downloads play offline.
+Install the MSI on Windows x64, then open Rurimecha from Start. On Linux or Docker, follow the server installation guide. Install the Android APK to play files on your phone or connect to a server. The built-in administrator can play and download regular tracks without a server license. Completed downloads play offline.
 
-Saved clips, AI, and Smart routing on the server require a license. Use the same key to activate the server and Android separately, one slot each. A server library uses that server’s license. For work translation on Android, choose the on-device or remote gateway. Cloud models require an Internet connection.
+Saved clips, AI, multi-user accounts, and Smart routing on the server require a license. With an active server license, the administrator can create separate accounts for others. Use the same key to activate the server and Android separately, one slot each. A server library uses that server’s license. For work translation on Android, choose the on-device or remote gateway. Cloud models require an Internet connection.
 
 Check for updates under Settings → Version and updates or on the Android connection screen. Open the new MSI on Windows or follow the Android system installer. On Linux, run the new installer on the host. For Docker, replace the image using the guide.
 

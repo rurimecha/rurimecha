@@ -9,7 +9,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## Organizing your library
 
-- Root folders and subfolders offer the same eight refresh operations as individual works, with separate metadata, images, media information, scanning, and organization, plus language selection and manual-edit protection. When inspecting media information for a work with no root folder and files in multiple local sources, choose the source to inspect. Scanning and media inspection are available for local sources.
+- Use the refresh menu on a folder or work to update details or images, read media information, scan, or organize files separately. You can choose the language and keep manual edits when updating details. Scanning and media inspection are available for local sources. If a work has no folder of its own and draws files from multiple local sources, choose the source to inspect.
 - File-type filters stay during continuous browsing and temporary page changes within one source; another source or work starts with default file types. Filters can be cleared or saved explicitly.
 - Choose All files in a work to browse every playback group’s files and attachments. Select a filename to read text, zoom in on an image, or page through a PDF.
 - Delete individual works while keeping originals and ignoring their own files and ordinary subfolders; independent child works remain. Review and lift deleted-work and folder exclusions in Settings. Cleared information and references are not restored.
@@ -50,7 +50,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ### Video quality and transcoding limits
 
-Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices; switching resumes at the current position after buffering. Unsupported videos offer only Original format. This applies to local sources and readable kikoeru-compatible videos. Direct playback depends on your device. Compatible Auto uses a default quality budget; it does not continuously adapt to network speed.
+Open Player settings → Video quality while watching a video. Supported videos offer resolution and bitrate choices. When you switch, playback buffers and resumes at the current position. This applies to local sources and readable kikoeru-compatible videos. Videos that offer only Original format play if your device supports that format. Compatible playback in Auto uses a preset quality. If your connection slows down, choose a lower quality manually.
 
 ## Mobile listening and privacy
 
@@ -71,7 +71,7 @@ Open Player settings → Video quality while watching a video. Supported videos 
 - Export system data, all work details, or one work; restore with new media paths. Missing media can retain details until files return and are scanned again.
 - With an active server license, enable guests for password-free demo browsing and playback. Guests cannot save personal content; disabling ends guest access.
 - Administrators can review problems and operation results, and enable detailed diagnostics in Settings while investigating an issue.
-- Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library metadata, favorites, listening progress and subtitle drafts are retained. This upgrade discards old task history and removes the old database backup after successful migration.
+- Finished tasks and runtime logs are kept for up to 48 hours. After completion, details show unfinished items for retry; successes remain in the totals. Once a record expires, start again from its work or source. Library details, favorites, listening progress and subtitle drafts remain available.
 
 ## Listening statistics and recommendations
 
@@ -84,6 +84,6 @@ Open Player settings → Video quality while watching a video. Supported videos 
 - Server packages support Linux/Windows x64 and Docker Linux x86-64; no ARM package is provided.
 - Compatible sources can play files provided by the source. Available video quality, transcoding, embedded subtitle and volume normalization options depend on the file and the media tools available to the server.
 - WebDAV has no upload, rename, delete, or progress sync. Reverse proxies need a dedicated domain root; subpaths are unsupported.
-- Browsers cannot read a computer's real hostname. Session names help identify sign-ins but do not prove device identity.
+- Web sessions show the browser and operating system. Use these alongside the sign-in time to recognize your sessions.
 
 [Installation and user guide](USAGE.md)
