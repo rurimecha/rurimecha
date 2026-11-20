@@ -24073,6 +24073,52 @@
         }
       }
     },
+    "/ai-gateway/activity": {
+      "get": {
+        "operationId": "getLocalAIGatewayActivity",
+        "summary": "Get model usage and call history",
+        "responses": {
+          "200": {
+            "description": "Retained model usage and one page of calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayActivity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        },
+        "description": "Requires a Ruri administrator session and active server AI authorization. Up to 1,000 completed model call attempts per gateway, including model connection tests. Usage aggregates cover all retained attempts, and token totals include provider-reported counts only. The newest 50 records are returned first. Use next_offset for older records and refresh to see new calls. No request content, response content or credentials are included.",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 999,
+              "default": 0
+            }
+          }
+        ],
+        "tags": [
+          "Text AI"
+        ]
+      }
+    },
     "/ai-gateway/settings": {
       "get": {
         "operationId": "getLocalAIGatewaySettings",
@@ -25441,6 +25487,129 @@
       }
     },
     "schemas": {
+      "AIGatewayModelUsage": {
+        "type": "object",
+        "required": [
+          "model",
+          "calls",
+          "failed",
+          "reported_calls",
+          "prompt_tokens",
+          "completion_tokens",
+          "total_tokens"
+        ],
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "calls": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reported_calls": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "prompt_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "completion_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_tokens": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "AIGatewayCall": {
+        "type": "object",
+        "required": [
+          "time",
+          "model",
+          "duration_ms",
+          "outcome"
+        ],
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "model": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outcome": {
+            "type": "string",
+            "description": "succeeded, canceled or a stable gateway failure code."
+          },
+          "usage": {
+            "type": "object",
+            "required": [
+              "prompt_tokens",
+              "completion_tokens",
+              "total_tokens"
+            ],
+            "properties": {
+              "prompt_tokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "completion_tokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total_tokens": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      },
+      "AIGatewayActivity": {
+        "type": "object",
+        "required": [
+          "models",
+          "calls",
+          "retention_limit",
+          "save_failed"
+        ],
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayModelUsage"
+            }
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayCall"
+            }
+          },
+          "next_offset": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "retention_limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "save_failed": {
+            "type": "boolean"
+          }
+        }
+      },
       "Identifier": {
         "type": "object",
         "properties": {

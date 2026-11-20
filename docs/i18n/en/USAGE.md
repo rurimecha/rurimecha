@@ -211,6 +211,8 @@ As an administrator, open **AI configuration**, choose a gateway, and enable AI.
 - For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration and select **Load local gateway models**.
 - For **Remote gateway**, enter its address and access token, then select **Test connection and load models**.
 
+In **Manage local gateway**, open **Model usage and call history** to see up to 1,000 recent calls and the token counts reported by providers. This is also available in the Android local library. For a remote gateway, open that gateway’s management page.
+
 The built-in gateway in Ruri for Windows and the Android local library can use the device’s system proxy to reach online models. After changing the proxy, load models again, run another test, or start a new translation. Model requests already underway keep their current connection.
 
 Enable each feature you want to use, choose its model, and save your settings. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.

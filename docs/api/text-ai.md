@@ -24,6 +24,8 @@
 
 `POST /ai-gateway/test` 接收 `{"model":"已保存的模型别名"}`，向已启用模型发送一次合成的结构化请求。成功返回 `{"ok":true,"model":"已保存的模型别名"}`。该测试可能消耗供应商额度，配置保持原值。
 
+`GET /ai-gateway/activity?offset=0` 需要 Ruri 管理员会话及有效服务器 AI 授权。返回 `models`（按别名汇总）、`calls`（分页调用记录）、`retention_limit` 和 `save_failed`。保留最近完成的 1,000 次调用，包含管理页发起的模型测试。默认从最新记录开始返回至多 50 条，返回 `next_offset` 时可用该值请求下一页。每条包含 RFC3339 时间、模型别名、耗时、结果和供应商可用的用量。用量缺失时省略 `usage`；汇总只累计报告过的词元数。请求文字、回复、原始上游错误及凭据不进入记录。无法读取记录时返回 `503 activity_unavailable`。
+
 ## 作品资料翻译
 
 `POST /agent/jobs` 使用 `work_ids`、`target_locale` 及可选 `source_locale`、`fields`（`title`、`description`）、`expected_revisions`。每项任务可指定一个目标语言，支持简体中文、繁体中文、日语和英语。省略源语言时使用每部作品的原始语言。结果为 `202` 与任务 `Location`。
