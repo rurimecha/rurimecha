@@ -24062,10 +24062,10 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/AIGatewayAdminError"
+            "$ref": "#/components/responses/AIGatewayPageAccessError"
           },
           "403": {
-            "$ref": "#/components/responses/AIGatewayAdminError"
+            "$ref": "#/components/responses/AIGatewayPageAccessError"
           },
           "503": {
             "$ref": "#/components/responses/AIGatewayAdminError"
@@ -24324,52 +24324,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "id",
-                  "kind"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 256
-                  },
-                  "kind": {
-                    "type": "string",
-                    "enum": [
-                      "openai",
-                      "anthropic",
-                      "gemini",
-                      "deepseek",
-                      "openrouter",
-                      "openai_compatible"
-                    ]
-                  },
-                  "base_url": {
-                    "type": "string",
-                    "description": "Provider service base URL. Required for openai_compatible."
-                  },
-                  "proxy_mode": {
-                    "type": "string",
-                    "enum": [
-                      "system",
-                      "direct",
-                      "custom"
-                    ],
-                    "description": "Proxy mode for this provider. Omit to preserve the mode of an existing provider with the same ID, or to use system for a new provider."
-                  },
-                  "proxy_url": {
-                    "type": "string",
-                    "writeOnly": true,
-                    "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL."
-                  },
-                  "key": {
-                    "type": "string",
-                    "writeOnly": true
-                  }
-                }
+                "$ref": "#/components/schemas/AIGatewayProviderDraft"
               }
             }
           }
@@ -24433,7 +24388,7 @@
           "Text AI"
         ],
         "summary": "Test a local AI gateway model",
-        "description": "Administrator only. Send one synthetic structured-output request using a saved and enabled model alias and its provider proxy settings. Settings remain unchanged. The provider may charge for this test.",
+        "description": "Administrator only. Send one synthetic structured-output request using either a saved, enabled model alias or a draft provider and model. A draft uses its current proxy settings and can reuse matching saved credentials. Draft tests are transient. The provider may charge for this test.",
         "requestBody": {
           "required": true,
           "content": {
@@ -25572,6 +25527,21 @@
       }
     },
     "responses": {
+      "AIGatewayPageAccessError": {
+        "description": "An administrator session is required. Browser requests accepting HTML can receive a localized sign-in or access message.",
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/responses/AIGatewayAdminError/content/application~1json/schema"
+            }
+          }
+        }
+      },
       "AIGatewayAdminError": {
         "description": "Gateway settings, model test or Core access error. Use error.code for client behavior. Core access errors can include error.request_id.",
         "content": {
@@ -38975,8 +38945,7 @@
           },
           "proxy_url": {
             "type": "string",
-            "writeOnly": true,
-            "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL."
+            "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL. Administrator-only settings responses return the full saved URL, including any URL credentials."
           },
           "proxy_address": {
             "type": "string",
@@ -39010,8 +38979,8 @@
         "properties": {
           "alias": {
             "type": "string",
-            "pattern": "^[!-~]{1,128}$",
-            "description": "Unique model name available to Core task profiles."
+            "pattern": "^[!-~]{0,256}$",
+            "description": "Optional unique name used in AI configuration. An empty or omitted alias uses the upstream model ID with a numeric suffix when it would duplicate another name. Responses include the saved alias."
           },
           "provider": {
             "type": "string",
@@ -39035,7 +39004,6 @@
           }
         },
         "required": [
-          "alias",
           "provider",
           "model",
           "json_mode",
@@ -39079,19 +39047,106 @@
         ],
         "additionalProperties": false
       },
-      "AIGatewayModelTestInput": {
+      "AIGatewayProviderDraft": {
         "type": "object",
-        "properties": {
-          "model": {
-            "type": "string",
-            "pattern": "^[!-~]{1,128}$",
-            "description": "Saved local model alias."
-          }
-        },
+        "additionalProperties": false,
         "required": [
-          "model"
+          "id",
+          "kind"
         ],
-        "additionalProperties": false
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "openai",
+              "anthropic",
+              "gemini",
+              "deepseek",
+              "openrouter",
+              "openai_compatible"
+            ]
+          },
+          "base_url": {
+            "type": "string",
+            "description": "Provider service base URL. Required for openai_compatible."
+          },
+          "proxy_mode": {
+            "type": "string",
+            "enum": [
+              "system",
+              "direct",
+              "custom"
+            ],
+            "description": "Proxy mode for this provider. Omit to preserve the mode of an existing provider with the same ID, or to use system for a new provider."
+          },
+          "proxy_url": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL."
+          },
+          "key": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "AIGatewayModelTestInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string",
+                "pattern": "^[!-~]{1,256}$",
+                "description": "Saved local model alias."
+              }
+            },
+            "required": [
+              "model"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "draft": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "$ref": "#/components/schemas/AIGatewayProviderDraft"
+                  },
+                  "model": {
+                    "type": "string",
+                    "pattern": "^[!-~]{1,256}$",
+                    "description": "Upstream model ID."
+                  },
+                  "json_mode": {
+                    "type": "string",
+                    "enum": [
+                      "json_schema",
+                      "json_object"
+                    ]
+                  }
+                },
+                "required": [
+                  "provider",
+                  "model",
+                  "json_mode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "draft"
+            ],
+            "additionalProperties": false
+          }
+        ]
       },
       "AIGatewayModelTestResult": {
         "type": "object",

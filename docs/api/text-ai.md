@@ -12,23 +12,23 @@
 
 ## 本地网关管理
 
-`GET /ai-gateway/manage` 打开内置网关的 HTML 管理页。页面使用 Core 管理员会话，可增改、启用或停用供应商和模型。供应商密钥用于访问对应的模型服务。
+`GET /ai-gateway/manage` 打开内置网关的 HTML 管理页。页面使用 Core 管理员会话，可增改、启用或停用供应商和模型。供应商密钥用于访问对应的模型服务。浏览器打开后收到未登录或需要管理员权限的响应时，可显示 HTML 提示。语言优先使用 `lang`，其次使用 `Accept-Language`。
 
 `GET /ai-gateway/settings` 返回同一内置网关的配置与 ETag。`PUT /ai-gateway/settings` 用该 ETag 作为 `If-Match` 提交完整配置，成功后返回保存结果及新 ETag。`providers` 和 `models` 可用空数组，`timeout_seconds` 可为 1 至 3600，`max_concurrent` 可为 1 至 64。
 
 - 供应商用唯一 `id` 标识，填写 `kind` 与 `enabled`，可指定 `base_url`。`openai_compatible` 必须填写服务地址。远端使用 HTTPS，本机回环地址可使用 HTTP。`key_env` 表示启动时配置的环境变量引用，管理页可以沿用该引用。若需要换用新的环境变量，请在服务器启动配置处理。
 - 返回的 `has_key` 表示已配置可用密钥，缺省为 `false`。密钥用只写字段 `key` 提交。同一供应商类型和服务地址下，省略 `key` 保留密钥，空字符串清除密钥及其环境变量引用。更换带有密钥的供应商类型或服务地址时，需明确设置新密钥或清除旧密钥。
 - 每个供应商独立选择 `proxy_mode`。`system` 使用网关宿主的代理设置，`direct` 不在应用内选择代理，`custom` 使用指定的 `proxy_url`。新供应商省略模式时使用 `system`，已有供应商省略模式时沿用该 ID 的设置。
-- `proxy_url` 仅写，适用于 `custom`，支持 HTTP、HTTPS、SOCKS5、SOCKS5H 及可选的 URL 用户名和密码。已有供应商继续使用 `custom` 时，省略 `proxy_url` 保留保存的代理地址和凭据，提供新地址则完整替换。保存其他模式会清除原自定义地址。响应中的 `proxy_address` 只含协议、主机和端口，`has_proxy_credentials` 表示地址带有凭据。
-- 模型使用唯一 `alias`、所选供应商的 `provider` ID、供应商的 `model` ID、`json_mode`（`json_schema` 或 `json_object`）及 `enabled`。供应商和模型都已启用时，该别名才可用于本地 AI 功能。
+- `proxy_url` 适用于 `custom`，支持 HTTP、HTTPS、SOCKS5、SOCKS5H 及可选的 URL 用户名和密码。管理员读取和保存响应提供完整地址，响应禁止缓存。已有供应商继续使用 `custom` 时，省略 `proxy_url` 保留保存的地址，提供新地址则完整替换。保存其他模式会清除原自定义地址。兼容字段 `proxy_address` 只含协议、主机和端口，`has_proxy_credentials` 表示地址带有凭据。
+- 模型使用所选供应商的 `provider` ID、供应商的 `model` ID、`json_mode`（`json_schema` 或 `json_object`）及 `enabled`。可选的 `alias` 留空时按模型名生成，重名时附加数字后缀。显式填写的别名须唯一，可使用 1 至 256 个非空格可见 ASCII 字符。响应返回保存后的别名，供应商和模型都已启用时才可在本地 AI 功能中选择。
 
 保存成功后，新请求使用保存的配置。缺少当前修订返回 `428`，修订过期返回 `412`，请重新读取配置。保存或验证失败时原配置保留。内置网关不可用时返回 `503`。
 
 `POST /ai-gateway/provider-models` 接收当前供应商的 `id`、`kind`，可选 `base_url`、`key`、`proxy_mode` 和 `proxy_url`。省略模式或地址时按保存设置的规则沿用。供应商 ID、类型和有效服务地址都相同时，省略 `key` 可用已保存的密钥。空字符串表示本次查询不带密钥。返回 `{"models":["供应商模型 ID"]}`，可以为空，不保存此次输入。代理模式或地址不合法时返回 `400 provider_proxy_invalid`，供应商没有提供列表时返回 `422 provider_models_unsupported`，可手动填写模型 ID。
 
-`POST /ai-gateway/test` 接收 `{"model":"已保存的模型别名"}`，按照已保存的供应商代理设置向已启用模型发送一次合成的结构化请求。成功返回 `{"ok":true,"model":"已保存的模型别名"}`。该测试可能消耗供应商额度，配置保持原值。
+`POST /ai-gateway/test` 接收 `{"model":"已保存的模型别名"}` 或 `{"draft":{"provider":{...},"model":"供应商模型 ID","json_mode":"json_schema"}}`。两种方式任选其一，向供应商发送一次合成的结构化请求。草稿的 `provider` 与获取模型列表使用同一字段和凭据沿用规则。测试可能消耗供应商额度。草稿测试不保存设置或调用记录。成功返回 `{"ok":true,"model":"测试的模型"}`，`model` 为已保存的别名或草稿中的供应商模型 ID。
 
-`GET /ai-gateway/activity` 需要 Ruri 管理员会话及有效服务器 AI 授权。可传 `from` 和 `to`（UTC 日期，`YYYY-MM-DD`，含当天），分别省略时无该端范围限制。返回 `models`（所选日期的累计用量）、`calls`（该范围内保留的明细）、`retention_limit`、`max_retention_limit` 和 `save_failed`。默认返回至多 50 条最新明细，返回 `next_offset` 时可传该值请求下一页。每条明细包含 RFC3339 时间、模型别名、耗时、结果和供应商提供的用量。测试模型也计入用量。用量缺失时省略 `usage`。累计用量包含升级时仍保有的旧记录和之后的新调用。
+`GET /ai-gateway/activity` 需要 Ruri 管理员会话及有效服务器 AI 授权。可传 `from` 和 `to`（UTC 日期，`YYYY-MM-DD`，含当天），分别省略时无该端范围限制。返回 `models`（所选日期的累计用量）、`calls`（该范围内保留的明细）、`retention_limit`、`max_retention_limit` 和 `save_failed`。默认返回至多 50 条最新明细，返回 `next_offset` 时可传该值请求下一页。每条明细包含 RFC3339 时间、模型别名、耗时、结果和供应商提供的用量。通过已保存别名发起的测试计入用量。用量缺失时省略 `usage`。累计用量包含升级时仍保有的旧记录和之后的新调用。
 
 `PUT /ai-gateway/activity/retention` 需要同一管理员权限，传入 `limit` 和上次读取的 `expected_limit`。设置范围为 0–10,000，默认为 1,000。减少上限立即删除超出的旧明细，设 0 时仅保留累计用量。成功返回 204。上限已被其他客户端更改时返回 `409 retention_changed`，应刷新后再操作。
 

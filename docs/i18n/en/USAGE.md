@@ -206,7 +206,7 @@ Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on m
 
 In the Android local library, open **AI configuration** to add a provider, enter its key, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 
-For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. Save and test the model, then return to **AI configuration**. The model list refreshes automatically.
+For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
 
 In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
 
@@ -214,9 +214,9 @@ Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for eac
 
 - **Use system proxy** is the default. It uses the proxy configured on the device or server that runs the library.
 - **Ignore proxy** makes Ruri connect directly to the provider. Transparent forwarding on the network can still apply.
-- **Use a custom proxy** takes the full address from your proxy service, such as `http://127.0.0.1:7890`. For a server library, enter an address the server can reach. `127.0.0.1` refers to the server itself.
+- **Use a custom proxy** takes the full address from your proxy service, such as `http://127.0.0.1:10808`. You can view and edit the full saved address, including any username and password it contains. For a server library, enter an address the server can reach. `127.0.0.1` refers to the server itself.
 
-Once saved, this choice applies to new requests to fetch, test, or use the provider’s models. To check the connection after a change, fetch the model list again or run a model test.
+Fetching the model list and testing a model use the proxy settings currently entered. A test sends one sample request and may count against your provider quota. Once saved, these settings also apply to new requests to that provider.
 
 Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
 
