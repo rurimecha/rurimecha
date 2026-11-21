@@ -2,6 +2,8 @@
 
 以下 AI 路径相对 `/api/v1`，需管理员会话和有效服务器授权。授权状态见 `GET /license` 的 `capabilities.ai`。浏览器的写请求使用同源会话与 Origin/Referer。可通过 `GET /info` 的 `agent.text_gateway` 能力识别支持文字网关的 Core。机器可读定义见 [OpenAPI](openapi.json)。
 
+默认 Ruri 构建使用文字 AI 网关 `github.com/rurimecha/ai-gateway`。单独部署文字网关使用同一项目。历史音频模型网关 `ruri-ai-gateway` 已废弃，仅供代码参考。
+
 ## 连接和模型设置
 
 - `GET /agent/settings` 读取当前配置和 ETag。`gateway_mode` 为 `local` 或 `remote`，旧配置按 `remote` 读取。`profiles` 对应已选择模式，`profiles_by_mode` 返回分别保留的 `local` 和 `remote` 用途配置。`base_url` 与 `has_token` 始终表示已保存的远程连接，推理令牌只在提交时使用。
