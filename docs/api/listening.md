@@ -4,6 +4,8 @@
 
 - `GET /listening/recent?limit=50&offset=0`：当前账户最近进度，按更新时间倒序、节点 ID 排序，返回 `items/total/limit/offset`；条目含原始 name 与当前显示 alias（无别名为空）。
 - `GET /listening/progress/{node}`：返回 node_id、name、alias、position_seconds、completed、revision、updated_at；没有记录的已索引普通文件返回位置 0、完成 false、修订从返回值读取，删除后不会重置为 1。单项响应 name/alias 可为空，列表包含索引名称。
+
+最近收听条目和已索引普通文件的单项进度可附带 `localized_aliases`，使用[节点显示名规则](scanning.md)。
 - `PUT /listening/progress/{node}`：完整替换 `{ "position_seconds": 123.5, "completed": false }`；必须是当前可用媒体；`If-Match: "progress-<node>:<revision>"`，过期 412。位置是原文件时间，有限数，0..604800 秒。不按 RJ、标题或跨格式推断时间轴。
 
 - `DELETE /listening/progress/{node}`：删除当前账户该资源的续播位置与完成状态，支持普通媒体及本人珍藏片段；要求当前 `If-Match`，修订过期返回 412，成功 204。删除后 GET 返回位置 0、完成 false 和新的修订。

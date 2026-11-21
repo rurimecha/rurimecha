@@ -3,7 +3,7 @@
   "info": {
     "title": "Ruri Cloud Authorization Center",
     "version": "1.0.0",
-    "description": "Single-tier product licensing, test applications, and email-verified authorization lookup. Administrative API requests require an independent bearer credential. /v1/self and /v1/release are unavailable. Confirm the supported routes with your service provider."
+    "description": "Single-tier product licensing, test applications, and email-verified authorization lookup and device release. Administrative API requests require an independent bearer credential. License-key-only /v1/self and /v1/release remain unavailable."
   },
   "servers": [
     {
@@ -536,8 +536,30 @@
                 "required": [
                   "name",
                   "email",
-                  "max_activations",
                   "kind"
+                ],
+                "oneOf": [
+                  {
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "trial"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "max_activations"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "paid"
+                        ]
+                      }
+                    }
+                  }
                 ],
                 "properties": {
                   "name": {
@@ -553,7 +575,8 @@
                   "max_activations": {
                     "type": "integer",
                     "minimum": 1,
-                    "maximum": 100
+                    "maximum": 100,
+                    "description": "The number of devices that can be bound. Defaults to 2 for a trial when omitted."
                   },
                   "order_ref": {
                     "type": "string",
@@ -776,7 +799,7 @@
     "/admin/activations": {
       "get": {
         "operationId": "listActivationHistory",
-        "description": "Paginated active and released bindings for one license.",
+        "description": "Paginated active and released bindings for one license, including administrator-only device information.",
         "responses": {
           "200": {
             "description": "Success",
@@ -1062,7 +1085,7 @@
     "/v1/activate": {
       "post": {
         "operationId": "activate",
-        "description": "Reuse one active binding for the same license and instance key; online rebinding changes host metadata without consuming another slot. Status, expiry and activation quota are checked together. Certificate grants product rurimecha with no feature list; see licensing.md.",
+        "description": "Reuse one active binding for the same license and instance key. A targetless legacy binding acquires its target when renewed by a current client, without using a new slot. A binding with an explicit target cannot switch targets. Separate instance keys each consume a slot. A signed certificate has a server or android target and grants product rurimecha without a feature list. Older clients may omit target and receive a legacy certificate until their binding has an explicit target. See licensing.md.",
         "responses": {
           "200": {
             "description": "Success",
@@ -1090,7 +1113,14 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/Forbidden"
+            "description": "Activation rejected, including license_device_changed when the binding already has a different target.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -1131,7 +1161,8 @@
                   "device_name": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 80
+                    "maxLength": 80,
+                    "description": "User-chosen device name shown in license lookup."
                   },
                   "instance_key": {
                     "type": "string"
@@ -1143,6 +1174,29 @@
                   },
                   "existing_license_id": {
                     "type": "string"
+                  },
+                  "target": {
+                    "type": "string",
+                    "enum": [
+                      "server",
+                      "android"
+                    ],
+                    "description": "Required for current clients. The issuer signs this target into the certificate."
+                  },
+                  "system_device_name": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "Host name or device model supplied by the application. Visible only to administrators. An omitted value preserves an existing record."
+                  },
+                  "device_type": {
+                    "type": "string",
+                    "enum": [
+                      "windows",
+                      "linux",
+                      "docker",
+                      "android"
+                    ],
+                    "description": "Optional device platform. Android requires target android. Windows, Linux, and Docker require target server. Omit this field to preserve the last supplied platform."
                   }
                 }
               }
@@ -1572,7 +1626,7 @@
     "/public/lookup/open": {
       "post": {
         "operationId": "openAuthorizationLookup",
-        "description": "Consume a one-use lookup token and return licenses including their current keys.",
+        "description": "Consume a one-use lookup token, return licenses and their active device bindings, and set a short-lived same-origin session cookie for requesting a device release email. The session only permits sending a second verification email to the verified address. The cookie expires after 15 minutes.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1613,10 +1667,241 @@
                   }
                 }
               }
+            },
+            "headers": {
+              "Set-Cookie": {
+                "description": "Secure, HttpOnly, SameSite=Strict lookup session cookie.",
+                "schema": {
+                  "type": "string"
+                }
+              }
             }
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/public/lookup/release-request": {
+      "post": {
+        "operationId": "requestDeviceReleaseEmail",
+        "description": "Send a one-use device release link to the address verified by the current lookup session. The link is valid for 15 minutes and applies only to the selected active binding. Requests share the daily email budget and are limited per verified customer.",
+        "security": [
+          {
+            "lookupSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Must match the request origin."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "activation_id"
+                ],
+                "properties": {
+                  "activation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "zh-Hans",
+                      "zh-Hant",
+                      "ja",
+                      "en"
+                    ],
+                    "default": "zh-Hans"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "ok"
+                  ],
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/public/release/preview": {
+      "post": {
+        "operationId": "previewDeviceRelease",
+        "description": "Read the display name, device type, and release state for an unexpired token. The token remains usable for explicit confirmation.",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Must match the request origin."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$",
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupDeviceDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/public/release/confirm": {
+      "post": {
+        "operationId": "confirmDeviceRelease",
+        "description": "Consume the token and release its selected binding atomically. A concurrent release of the same binding returns released false. Expired, already-used, or mismatched tokens return 403. An existing offline certificate may remain valid until its original expiry.",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Must match the request origin."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$",
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "released"
+                  ],
+                  "properties": {
+                    "released": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -2017,6 +2302,40 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "system_device_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 80,
+            "description": "Collected host name or model, visible to administrators."
+          },
+          "device_type": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "windows",
+              "linux",
+              "docker",
+              "android",
+              null
+            ]
+          },
+          "target": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "server",
+              "android",
+              null
+            ]
+          },
+          "host_id": {
+            "type": "string",
+            "description": "Device identifier digest available in administrator binding history."
+          },
+          "instance_key": {
+            "type": "string",
+            "description": "Installation public key available in administrator binding history."
           }
         }
       },
@@ -2180,7 +2499,8 @@
           "license_key",
           "kind",
           "max_activations",
-          "revoked"
+          "revoked",
+          "devices"
         ],
         "properties": {
           "license_key": {
@@ -2213,6 +2533,75 @@
           },
           "revoked": {
             "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "devices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LookupDevice"
+            }
+          }
+        }
+      },
+      "LookupDeviceDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "device_name",
+          "device_type",
+          "released"
+        ],
+        "properties": {
+          "device_name": {
+            "type": "string"
+          },
+          "device_type": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "windows",
+              "linux",
+              "docker",
+              "android",
+              "server",
+              null
+            ]
+          },
+          "released": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LookupDevice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "device_name",
+          "device_type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "device_name": {
+            "type": "string"
+          },
+          "device_type": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "windows",
+              "linux",
+              "docker",
+              "android",
+              "server",
+              null
+            ]
           }
         }
       }
@@ -2304,6 +2693,11 @@
         "type": "http",
         "scheme": "bearer",
         "description": "Independent management credential, not Cloudflare API token"
+      },
+      "lookupSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-ruri_lookup"
       }
     }
   }

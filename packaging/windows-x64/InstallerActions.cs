@@ -6,8 +6,10 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using WixToolset.Dtf.WindowsInstaller;
+using FileAttributes = System.IO.FileAttributes;
 
 public static class InstallerActions
 {
@@ -172,45 +174,87 @@ public static class InstallerActions
         return ActionResult.Success;
     }
 
-    // Only the application's data folder is removed. Media paths are never passed here.
+    // Only these Core-owned locations are eligible for removal. Additional files
+    // in the data directory may belong to the user, even inside a cache folder.
+    private static readonly Regex CoreDataFolders = new Regex(
+        @"\A(?:ai-gateway|audio-preparation|images|license|logs|tls|transcodes|" +
+        @"voice-catalog(?:/(?:covers|profiles))?|media-tools(?:/(?:ffmpeg-[\w.-]+|\.preparing-\d+))?|" +
+        @"core\.db\.before-v\d+-\d+)\z", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private static readonly Regex CoreDataFiles = new Regex(@"\A(?:" +
+        @"core\.lock|(?:core|scrape-results|media-results)\.db(?:-wal|-shm|-journal)?|" +
+        @"network\.json|default-admin-password\.txt|api-token|setup-code|\.(?:network|default-admin-password)-\d+|" +
+        @"core\.db\.before-v\d+-\d+/core\.db(?:-wal|-shm|-journal)?|" +
+        @"ai-gateway/(?:settings\.json|\.gateway-settings-\d+)|" +
+        @"audio-preparation/(?:\.lock|format|clip-[a-f0-9]{24}\.wav)|" +
+        @"images/(?:[a-f0-9]{64}-[a-f0-9]{64}|\.(?:image|ruri)-\d+)|" +
+        @"license/(?:identity\.json|license\.lock|\.identity-\d+)|" +
+        @"logs/(?:core\.jsonl(?:\.\d+)?|\.log-retention-\d+)|" +
+        @"tls/[a-f0-9]{32}\.(?:crt|key)|" +
+        @"transcodes/(?:[a-f0-9]{64}\.audio|ruri-\d+\.part)|" +
+        @"voice-catalog/(?:catalog\.json|profiles/[a-f0-9]{32}\.json|covers/[a-f0-9]{32}\.img|(?:(?:profiles|covers)/)?\.voice-\d+)|" +
+        @"media-tools/(?:ffmpeg-[\w.-]+|\.preparing-\d+)/(?:ffmpeg\.exe|ffprobe\.exe|LICENSE\.txt|download)" +
+        @")\z", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    private sealed class UnsafeDataException : IOException
+    {
+        public UnsafeDataException(string message) : base(message) {}
+    }
+
     public static void ClearDataDirectory(string directory)
     {
-        if (!Directory.Exists(directory)) return;
-        RejectLink(Directory.GetParent(directory).FullName);
-        RejectLinks(directory);
-        string lockPath = Path.Combine(directory, "core.lock");
+        var root = new DirectoryInfo(directory);
+        FileAttributes rootAttributes;
+        try { rootAttributes = File.GetAttributes(root.FullName); }
+        catch (FileNotFoundException) { return; }
+        catch (DirectoryNotFoundException) { return; }
+        RejectLink(rootAttributes);
+        if ((rootAttributes & FileAttributes.Directory) == 0)
+            throw new UnsafeDataException("应用数据路径不是文件夹。请检查数据位置后重试，或取消勾选数据清理。");
+        for (DirectoryInfo parent = root.Parent; parent != null; parent = parent.Parent)
+            RejectLink(parent.Attributes);
+
+        var entries = new List<FileSystemInfo>();
+        InspectDataEntries(root, "", entries);
+        string lockPath = Path.Combine(root.FullName, "core.lock");
         using (File.Open(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
         {
-            foreach (string path in Directory.GetFileSystemEntries(directory))
+            foreach (FileSystemInfo entry in entries)
             {
-                if (string.Equals(path, lockPath, StringComparison.OrdinalIgnoreCase)) continue;
-                if (Directory.Exists(path)) Directory.Delete(path, true);
-                else File.Delete(path);
+                if (string.Equals(entry.FullName, lockPath, StringComparison.OrdinalIgnoreCase)) continue;
+                RejectLink(File.GetAttributes(entry.FullName));
+                entry.Delete();
             }
         }
         File.Delete(lockPath);
-        Directory.Delete(directory);
+        root.Delete();
     }
 
-    private static void RejectLink(string path)
+    private static void RejectLink(FileAttributes attributes)
     {
-        if ((File.GetAttributes(path) & System.IO.FileAttributes.ReparsePoint) != 0)
-            throw new IOException("数据目录包含链接，未清除数据。请检查该目录后手动处理。");
+        if ((attributes & FileAttributes.ReparsePoint) != 0)
+            throw new UnsafeDataException("数据目录包含链接，未清除数据。请检查该目录后重试，或取消勾选数据清理。");
     }
 
-    private static void RejectLinks(string directory)
+    private static void InspectDataEntries(DirectoryInfo directory, string prefix, List<FileSystemInfo> entries)
     {
-        RejectLink(directory);
-        foreach (string path in Directory.GetFileSystemEntries(directory))
+        foreach (FileSystemInfo entry in directory.GetFileSystemInfos())
         {
-            RejectLink(path);
-            if (Directory.Exists(path)) RejectLinks(path);
+            RejectLink(entry.Attributes);
+            string relativePath = prefix + entry.Name;
+            var child = entry as DirectoryInfo;
+            if (!(child != null ? CoreDataFolders : CoreDataFiles).IsMatch(relativePath))
+                throw new UnsafeDataException("数据目录含有额外文件或文件夹。请先将额外资料移出数据目录再重试，或取消勾选数据清理。");
+            if (child != null) InspectDataEntries(child, relativePath + "/", entries);
+            entries.Add(entry);
         }
     }
 
     [CustomAction]
     public static ActionResult PrepareRemoveData(Session session)
     {
+        if (session["RollbackDisabled"] != "")
+            return Fail(session, "当前的 Windows 安装设置不支持同时清理数据。请取消勾选数据清理后卸载。", null);
         var data = new CustomActionData();
         data.Add("Directory", DataDirectory());
         session["RemoveUserData"] = data.ToString();
@@ -221,7 +265,8 @@ public static class InstallerActions
     public static ActionResult RemoveUserData(Session session)
     {
         try { ClearDataDirectory(session.CustomActionData["Directory"]); return ActionResult.Success; }
-        catch (Exception error) { return Fail(session, "无法清除应用数据。请退出 Ruri，检查目录权限及链接后重试；媒体来源目录不受影响。", error); }
+        catch (UnsafeDataException error) { return Fail(session, error.Message, null); }
+        catch (Exception error) { return Fail(session, "无法完成应用数据清理。请退出 Ruri、确认数据目录可写后重试，或取消勾选数据清理。", error); }
     }
 
     private static ActionResult Fail(Session session, string message, Exception error)

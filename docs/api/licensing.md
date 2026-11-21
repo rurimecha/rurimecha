@@ -1,6 +1,6 @@
 # 产品授权管理
 
-单档授权绑定 Core 实例，实例内所有账户共享。证书表示产品 `rurimecha` 在有限期内已获授权，不携带功能清单、程序版本或数据库结构摘要。当前程序决定哪些功能需要产品授权；增加或调整这些功能不会导致既有证书失效，也不要求重新绑定。普通媒体的 Web 播放与 `/dav/` 依照现有账户规则开放。珍藏片段要求有效产品授权。
+单档授权按安装实例绑定。服务器和 Android 本机库分别向授权中心激活和验证，服务器实例内的账户共享该服务器授权。证书表示产品 `rurimecha` 在有限期内已获授权，不携带功能清单、程序版本或数据库结构摘要。调整功能范围不会导致既有证书失效。服务器上的珍藏片段、AI 和智能选路需要有效服务器授权。Android 本机库的珍藏片段、AI 和智能选路需要有效本机授权。普通媒体播放与下载、多用户和更多声优依照现有账号访问规则。
 
 ## Core 管理接口
 
@@ -8,17 +8,17 @@
 
 | 方法与路径 | 请求及响应 |
 | --- | --- |
-| `GET /license` | `state`、`configured`、`capabilities`，已有可验证证书时附 `customer`、`license_id`、RFC3339 `expires_at` |
-| `POST /license/activate` | `{"license_key":"…","device_name":"我的服务器"}`，密钥 32..256 字节，名称 1..80 个 Unicode 字符；成功返回当前状态 |
+| `GET /license` | `state`、`configured`、`capabilities`，已有可验证证书时附 `customer`、`license_id`、RFC3339 `expires_at`。管理员还可读取 `device_type` 和已知的 `device_name` |
+| `POST /license/activate` | `{"license_key":"…","device_name":"客厅服务器"}`。密钥 32..256 字节，设备名称 1..80 个 Unicode 字符。Core 自动登记可读取的运行环境主机名。成功返回当前状态 |
 | `POST /license/deactivate` | 必须提交空对象 `{}`；返回 `{"ok":true}` |
 
-状态 `active` 表示有效；其余为对应 `license_*` 代码。`capabilities.android_playback`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 是当前程序的能力状态，允许增加其他键；未知键忽略。它用于展示当前可用的功能。
+状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.multi_user`、`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前实例的授权能力。手机本机授权含 AI、珍藏片段和智能选路。允许增加其他键，客户端应忽略未知键。
 
 激活及续期需要 Core 连接发行方激活服务。同一许可证、同一实例密钥重复激活复用绑定名额，可在线更新期限和宿主机信息；到期日由云端许可证决定，重新激活不会重置期限。激活密钥只用于本次请求，不在 Core 持久保存或写入日志。超时后可安全重试。
 
 更换其他许可证前必须先反激活，`license_deactivation_required` 为 409；更新同一许可证不需反激活。
 
-反激活先持久保存停用状态，再联网释放名额。网络失败后 `state=license_deactivation_pending`，安卓播放已被禁用，管理员应重试反激活。云端成功而响应丢失也可重试，不重复释放其他绑定。反激活不要求旧证书仍未到期或宿主机仍匹配，不撤销账户登录。云端自助释放不能通知离线副本，旧副本可能使用至既有证书到期。
+反激活先持久保存停用状态，再联网释放名额。网络失败后 `state=license_deactivation_pending`，增值功能已停用，管理员应重试反激活。云端成功而响应丢失也可重试，不重复释放其他绑定。反激活不要求旧证书仍未到期或宿主机仍匹配。云端释放不能通知离线副本，旧副本可能使用至既有证书到期。
 
 ## 错误
 
@@ -38,12 +38,12 @@
 - `POST /admin/licenses/{license}/key` 接受空对象并返回新密钥。原密钥此后不能激活，许可身份、证书和绑定保持不变。
 - `GET /admin/activations?license_id=…` 分页读取历史，`POST /admin/activations/{activation}/release` 接受空对象并幂等释放指定绑定。`GET /admin/events` 分页读取事件，可选 license_id。
 - 列表默认 limit=50，范围 1..100，offset>=0；用户和许可证支持最多 254 字符的 q 字面检索。许可证列表仅带本页活跃绑定，历史单独查询；items/total/limit/offset 或 licenses/activations/total/limit/offset 来自同一读取事务。
-- `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 license_key/device_name/instance_key/host_id，可选 existing_license_id；反激活接受 certificate/proof。
-- `POST /v1/self`、`POST /v1/release` 当前始终返回 503 self_service_unavailable。不提供密钥持有人查看全部云端绑定或远程解绑的权限。当前使用 Core 本机管理员反激活或联系发行方管理员处理。
+- `POST /v1/activate`、`POST /v1/deactivate` 保持前述签名与绑定语义。激活接受 `license_key`、`device_name`、`instance_key`、`host_id`、目标 `target`（`server` 或 `android`）以及可选设备信息和 `existing_license_id`。官网用户查询和释放确认仅展示设备名称和类型。采集的主机名或型号、设备标识和实例公钥仅供授权管理员查看。新 Core 请求携带目标，并验证签发证书的目标。已有无目标证书可按原宿主、实例密钥和期限继续离线使用，主动更新可换取带目标的证书。反激活接受 `certificate` 和 `proof`。
+- `POST /v1/self`、`POST /v1/release` 始终返回 503 `self_service_unavailable`。丢失设备的名额可通过官网邮箱验证流程释放指定绑定，参见 [授权中心契约](license-service.openapi.json)。发行方管理员也可核对后处理。
 
 授权中心错误对象含稳定 error.code 与 request_id。常见额外代码：customer_conflict/order_conflict 为 409；self_service_unavailable/license_schema_mismatch/license_not_configured 为 503；request_too_large 为 413；rate_limited 为 429。管理 PUT 为完整替换，按最后提交生效。停用、缩短期限和释放不能即时撤销离线副本，既有证书可能继续使用至原到期日。
 
-授权生效后可创建和使用其他账号。未激活或授权失效时，只有内置管理员可以访问网页和 WebDAV，Android 播放仍要求有效授权。参见 [账号与会话](accounts.md)。
+创建和使用账号依照 [账号与会话](accounts.md)。产品授权失效时保留资料、账号和播放队列。
 
 付费通行证在创建后七天内且从未激活时可办理退款，超过七天仍可激活。测试通行证在发放后七天内激活。同一许可证首次激活开始计算31天，重复激活及换机沿用原期限。激活期限已过返回 `license_activation_window_expired`，退款处理中返回 `license_refund_pending`，已退款返回 `license_refunded`，均为403。云端 `rate_limited` 由Core以429传递。
 

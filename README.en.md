@@ -6,18 +6,24 @@ Find your collection by voice actor, circle, title, or RJ number. Choose a versi
 
 [Try the demo](https://asmr.rurimecha.top/) · [Download](https://github.com/rurimecha/rurimecha/releases/latest) · [User guide](docs/i18n/en/USAGE.md)
 
+> **Older Android clients are incompatible with the new server. Update both together.**
+
 The demo offers guest access; guest favorites and listening progress are not saved.
 
 ![Ruri library](docs/screenshots/library.webp)
 
-- Find works by cover, voice actor, circle, tags, or RJ number; edit details and fetch supported metadata.
+- Find works by cover, voice actor, circle, tags, or RJ number. Edit or fetch work details, and choose More voice actors to browse beyond your library.
 - Organize works in collections, save exact track order in playlists, and browse smart discovery.
 - Follow timed transcripts, use the sleep timer, seek by 10 seconds, and resume playback.
 - Hide covers and text with privacy mode; Android supports background playback and floating subtitles.
 
-Windows has an MSI installer with no command line. Linux and Docker run a Ruri server; Android connects to a running server. The built-in administrator can use the web app and WebDAV without a license. Android online playback, downloads, and saved clips need an active server license. Completed downloads play offline.
+Install the MSI on Windows x64, then open Rurimecha from Start. On Linux or Docker, follow the server installation guide. Install the Android APK to play files on your phone or connect to a server. The built-in administrator can play and download regular tracks without a server license. Completed downloads play offline.
 
-Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to 3 server bindings; clients such as Android do not use additional bindings. The final plan will be announced later. Existing free features will remain free. Current free trial licenses require an application and review, first activation within 7 days of issue, and last 31 days after first activation.
+Saved clips, AI, multi-user accounts, and Smart routing on the server require a license. With an active server license, the administrator can create separate accounts for others. Use the same key to activate the server and Android separately, one slot each. A server library uses that server’s license. To translate work details in the Android local library, choose a model in AI configuration. Cloud models require an Internet connection.
+
+Check for updates under Settings → Version and updates or on the Android connection screen. Open the new MSI on Windows or follow the Android system installer. On Linux, run the new installer on the host. For Docker, replace the image using the guide.
+
+Request a free trial key by email on the Ruri website. Activate within 7 days of issue and use it for 31 days after first activation. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three devices sharing a key. See the official announcement for the final plan. [Ruri website](https://rurimecha.top/)
 
 [Features](docs/i18n/en/FEATURES.md) · [User guide](docs/i18n/en/USAGE.md)
 

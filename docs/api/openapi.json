@@ -115,6 +115,47 @@
         "security": []
       }
     },
+    "/updates/latest": {
+      "get": {
+        "operationId": "getLatestServerUpdate",
+        "tags": [
+          "system"
+        ],
+        "summary": "Check the latest official server release",
+        "description": "Checks the production GitHub release for the running server platform and architecture. Requires an administrator or member session. Performs no installation. Build numbers and platform assets are verified against metadata from the same release.",
+        "responses": {
+          "200": {
+            "description": "Check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerUpdateCheck"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "description": "Could not verify release metadata (update_check_failed).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/info": {
       "get": {
         "operationId": "getInfo",
@@ -122,7 +163,7 @@
           "system"
         ],
         "summary": "getInfo",
-        "description": "getInfo",
+        "description": "Discover the API version and supported capabilities. The playback.android_account_session capability indicates Android media routes use normal account session authorization for ordinary media.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3193,7 +3234,7 @@
           "scan"
         ],
         "summary": "createSource",
-        "description": "createSource",
+        "description": "createSource The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "responses": {
           "201": {
             "description": "Success",
@@ -3256,7 +3297,7 @@
             "$ref": "#/components/responses/Error"
           },
           "422": {
-            "description": "Remote site or media contract is not supported."
+            "$ref": "#/components/responses/Error"
           },
           "502": {
             "description": "Remote site is unavailable."
@@ -3356,7 +3397,7 @@
           "scan"
         ],
         "summary": "replaceSource",
-        "description": "Rename a configured media root with If-Match. Root disabling is unsupported; enabled may be omitted or true only.",
+        "description": "Rename a configured media root with If-Match. Root disabling is unsupported; enabled may be omitted or true only. The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3410,6 +3451,9 @@
             "$ref": "#/components/responses/Error"
           },
           "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
             "$ref": "#/components/responses/Error"
           }
         },
@@ -11396,7 +11440,7 @@
         "tags": [
           "accounts"
         ],
-        "summary": "Sign in and issue a 30-day other session. Active observed IP quota is shared with DAV. At most 256 unexpired credentials; reject excess without eviction.",
+        "summary": "Sign in and issue a 30-day session. Non-built-in accounts require active server authorization. With valid credentials and no authorization, returns 403 account_license_required.",
         "responses": {
           "200": {
             "description": "Success",
@@ -12132,7 +12176,7 @@
           "metadata-scraper"
         ],
         "summary": "startScrapeJob",
-        "description": "Metadata scraping currently supports DLsite RJ/BJ/VJ; FANZA is paused. Before persistence, omit works with no valid supported code or only a paused FANZA code. Mixed requests contain only remaining items and totals. If all selected works are omitted, return 400 no_scrapable_works without creating a job. Missing works and conflicting identifiers remain explicit failed items. Images-only requests remain independent of product identifiers. Shared successful cache and explicit force behavior are unchanged. See metadata-scraping.md.",
+        "description": "Metadata scraping currently supports DLsite RJ/BJ/VJ; FANZA is paused. Before persistence, omit works with no valid supported code or only a paused FANZA code. Mixed requests contain only remaining items and totals. If all selected works are omitted, return 400 no_scrapable_works without creating a job. Missing works and conflicting identifiers remain explicit failed items. Images-only requests remain independent of product identifiers. Successful cached content stays usable. Terminal failures wait for an explicit retry. See metadata-scraping.md.",
         "parameters": [],
         "responses": {
           "202": {
@@ -13016,6 +13060,7 @@
           "catalog"
         ],
         "summary": "retryFailedScrape",
+        "description": "Retries failed targets from a completed scrape job. Successful cached images are reused.",
         "responses": {
           "202": {
             "description": "Success",
@@ -16076,6 +16121,247 @@
         ]
       }
     },
+    "/nodes/{node}/preview": {
+      "get": {
+        "operationId": "getFilePreview",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read an authenticated text or PDF preview",
+        "description": "Read an available indexed file from a local or imported Kikoeru-compatible source. TXT, MD, MARKDOWN, SRT, VTT, LRC, ASS and SSA are returned as plain UTF-8 text, with a 2 MiB input limit. Text requires no encoding selection and supports UTF-8, UTF-16 with BOM, and inferred Shift-JIS and GB18030. PDFs are returned as original bytes after signature validation, with a 32 MiB limit. See presentation.md for stable errors and access details.",
+        "responses": {
+          "200": {
+            "description": "Preview",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Requested byte range",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Unchanged local file"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "description": "File precondition failed"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "416": {
+            "description": "Unsatisfiable byte range"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "head": {
+        "operationId": "headFilePreview",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Read an authenticated text or PDF preview",
+        "description": "Read an available indexed file from a local or imported Kikoeru-compatible source. TXT, MD, MARKDOWN, SRT, VTT, LRC, ASS and SSA are returned as plain UTF-8 text, with a 2 MiB input limit. Text requires no encoding selection and supports UTF-8, UTF-16 with BOM, and inferred Shift-JIS and GB18030. PDFs are returned as original bytes after signature validation, with a 32 MiB limit. See presentation.md for stable errors and access details.",
+        "responses": {
+          "200": {
+            "description": "Preview",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Requested byte range",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Accept-Ranges": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bytes"
+                  ]
+                }
+              },
+              "Content-Disposition": {
+                "description": "PDF responses use attachment disposition.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Unchanged local file"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "description": "File precondition failed"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "416": {
+            "description": "Unsatisfiable byte range"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "node",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "Opaque identity, retained as text."
+          }
+        }
+      ]
+    },
     "/nodes/{node}/embedded-artwork": {
       "get": {
         "operationId": "getEmbeddedArtwork",
@@ -18056,7 +18342,7 @@
         "tags": [
           "accounts"
         ],
-        "description": "Administrator only. The server must have active product authorization to create an additional account. New accounts are enabled and local-only.",
+        "description": "Administrator only. New accounts are enabled and local-only.",
         "responses": {
           "201": {
             "description": "Success",
@@ -18824,6 +19110,7 @@
           "licensing"
         ],
         "summary": "Current product authorization; all authenticated users",
+        "description": "An active server license enables AI, treasured clips, and smart routing. Account access, ordinary playback, and downloads follow account and network rules.",
         "responses": {
           "200": {
             "description": "Success",
@@ -19809,6 +20096,82 @@
             "$ref": "#/components/responses/Error"
           }
         }
+      },
+      "post": {
+        "operationId": "importTrackAsTranscriptDraft",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Copy an existing subtitle track to a draft",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptDraft"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptTrackImport"
+              }
+            }
+          }
+        }
       }
     },
     "/transcript-drafts/{draft}": {
@@ -20395,7 +20758,7 @@
           "presentation"
         ],
         "summary": "Read node display alias",
-        "description": "Shared display-only alias for an indexed node or draft member. Does not change original name, path, ownership, search or sort order.",
+        "description": "Read the shared and language-specific display names for an indexed node or draft member. Includes the current ETag.",
         "responses": {
           "200": {
             "description": "Success",
@@ -20470,7 +20833,7 @@
           "presentation"
         ],
         "summary": "Set or clear node display alias",
-        "description": "Shared display-only alias for an indexed node or draft member. Does not change original name, path, ownership, search or sort order.",
+        "description": "Administrator only. Set or clear one display name using the current alias ETag. Omit locale to change the shared name. An explicit locale changes only that language.",
         "responses": {
           "200": {
             "description": "Success",
@@ -20553,6 +20916,108 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/NodeAliasInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nodes/{node}/alias/translation": {
+      "post": {
+        "operationId": "translateNodeAlias",
+        "tags": [
+          "presentation"
+        ],
+        "summary": "Preview a translated node display name",
+        "description": "Administrator only. Suggest a name from the original name of an available indexed node. The preview leaves every stored alias and revision unchanged. Review it and PUT the selected locale using the alias ETag to save.",
+        "responses": {
+          "200": {
+            "description": "Translation suggestion and the unchanged alias ETag",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeAliasTranslation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "408": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Opaque identity, retained as text."
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current resource ETag from GET."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeAliasTranslationInput"
               }
             }
           }
@@ -20831,7 +21296,7 @@
           "scan"
         ],
         "summary": "remoteWorkCover",
-        "description": "Read a catalog cover image.",
+        "description": "Read the original remote catalog cover, or request a list thumbnail. size=thumbnail returns a JPEG up to 192 pixels on the longer edge, preserving aspect ratio without upscaling. Unknown sizes return 400. Original and thumbnail have distinct ETags.",
         "parameters": [
           {
             "name": "source",
@@ -20848,13 +21313,43 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "thumbnail"
+              ]
+            },
+            "description": "Omit for the original; use thumbnail for catalog lists."
           }
         ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
-              "application/json": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
@@ -20879,6 +21374,41 @@
           },
           "502": {
             "description": "Error"
+          },
+          "206": {
+            "description": "Partial image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "416": {
+            "description": "Range not satisfiable"
           }
         }
       }
@@ -21061,7 +21591,7 @@
           "scan"
         ],
         "summary": "startRemoteDownload",
-        "description": "Save one file to the source download folder. Repeat to resume a partial save.",
+        "description": "Save one file to the source download folder. Repeat to resume a partial save. The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "parameters": [
           {
             "name": "node",
@@ -21100,6 +21630,9 @@
           },
           "502": {
             "description": "Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
           }
         }
       }
@@ -22741,7 +23274,7 @@
           "scan"
         ],
         "summary": "Save explicitly selected work files to the source server download folder",
-        "description": "Administrator only. node_ids must be a nonempty unique selection of file IDs from this work tree. Directory IDs and files outside the work are rejected. Original paths are retained, complete copies are skipped, and only two saves may run at once. Overlapping file selections return 409 download_busy. File failures do not stop the other selected files; retry the original selection to skip completed copies and resume unfinished files. Closing the dialog does not cancel the task; process restart marks it interrupted. Task details and selection expire after 48 hours.",
+        "description": "Administrator only. node_ids must be a nonempty unique selection of file IDs from this work tree. Directory IDs and files outside the work are rejected. Original paths are retained, complete copies are skipped, and only two saves may run at once. Overlapping file selections return 409 download_busy. File failures do not stop the other selected files; retry the original selection to skip completed copies and resume unfinished files. Closing the dialog does not cancel the task; process restart marks it interrupted. Task details and selection expire after 48 hours. The server tests a nonempty download destination before saving it or starting a download. It returns 422 download_folder_unwritable or download_folder_publish_failed if the check fails.",
         "parameters": [
           {
             "name": "work",
@@ -22785,6 +23318,9 @@
             "$ref": "#/components/responses/Error"
           },
           "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
             "$ref": "#/components/responses/Error"
           }
         },
@@ -23292,6 +23828,1794 @@
           }
         }
       }
+    },
+    "/sources/test-download-directory": {
+      "post": {
+        "operationId": "testDownloadDirectory",
+        "tags": [
+          "scan"
+        ],
+        "summary": "Test the server download folder",
+        "description": "Administrator only. Tests an absolute path with the same staging and no-overwrite file publication operations as downloads. Creates the folder and staging directory if needed and removes the probe files. Does not change source settings.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "download_path"
+                ],
+                "properties": {
+                  "download_path": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The server can save files in this directory."
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/agent/settings": {
+      "get": {
+        "operationId": "getTextAISettings",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read text AI settings",
+        "description": "Read enablement and model profiles for the embedded gateway.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextAISettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putTextAISettings",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Save text AI settings",
+        "description": "Save AI enablement and replace the embedded gateway's profiles. Omitted gateway mode defaults to local.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextAISettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAISettingsInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/settings/test": {
+      "post": {
+        "operationId": "testTextAIConnection",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Connect to the configured text gateway",
+        "description": "List the embedded gateway's configured model aliases. This operation saves no settings and makes no inference request.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextAIConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAISettingsInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai-gateway/manage": {
+      "get": {
+        "operationId": "getLocalAIGatewayManagementPage",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Open local AI gateway management",
+        "description": "Administrator-only same-origin management page for providers and models in the Core instance's embedded gateway.",
+        "responses": {
+          "200": {
+            "description": "HTML management page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayPageAccessError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayPageAccessError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/activity/retention": {
+      "put": {
+        "operationId": "setLocalAIGatewayCallRetention",
+        "summary": "Set the number of recent call details saved",
+        "description": "Trims excess old call details immediately and keeps usage totals. Set limit to 0 to keep only usage totals. expected_limit must match the current setting to prevent unintended trimming. The default is 1,000.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "limit",
+                  "expected_limit"
+                ],
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "expected_limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated the call detail limit"
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "409": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "413": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "415": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "500": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        },
+        "tags": [
+          "Text AI"
+        ]
+      }
+    },
+    "/ai-gateway/activity": {
+      "get": {
+        "operationId": "getLocalAIGatewayActivity",
+        "summary": "Get model usage and call history",
+        "responses": {
+          "200": {
+            "description": "Retained model usage and one page of calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayActivity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        },
+        "description": "Requires a Ruri administrator session and active server AI authorization. Totals include all recorded calls by default. Optional inclusive UTC dates filter both cumulative model usage and retained call details. Token totals only include provider-reported counts. The newest 50 matching details are returned first. Details are limited by the configured retention setting. No request content, response content or credentials are included.",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9999,
+              "default": 0
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "First UTC calendar day, inclusive. Omit for no lower bound.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Last UTC calendar day, inclusive. Omit for no upper bound.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "tags": [
+          "Text AI"
+        ]
+      }
+    },
+    "/ai-gateway/settings": {
+      "get": {
+        "operationId": "getLocalAIGatewaySettings",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read local AI gateway settings",
+        "description": "Administrator only. Read provider and model settings and their current revision. A configured provider credential is indicated by has_key.",
+        "responses": {
+          "200": {
+            "description": "Current gateway settings",
+            "headers": {
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewaySettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putLocalAIGatewaySettings",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Save local AI gateway settings",
+        "description": "Administrator only. Replace the complete gateway settings under the current revision. Supply empty provider or model arrays when applicable. Valid saved settings take effect for subsequent requests. Omit a provider key to keep it when the provider type and service address are unchanged; send an empty key to clear its credential. A change of type or address requires an explicit credential decision.",
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current gateway ETag, including quotation marks."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIGatewaySettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved gateway settings without credentials",
+            "headers": {
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewaySettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "412": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "413": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "415": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "428": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "500": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/provider-models": {
+      "post": {
+        "operationId": "discoverLocalAIGatewayProviderModels",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List models offered by a local AI gateway provider",
+        "description": "Administrator only. Query the current provider draft without saving. Omitting the key reuses a saved credential only when the provider ID, kind and effective address match. An empty key queries without a credential. Discovery applies the provider draft's proxy mode and URL without saving them.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIGatewayProviderDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upstream model IDs. The list can be empty.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "models"
+                  ],
+                  "properties": {
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "413": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "415": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "422": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "429": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "502": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/test": {
+      "post": {
+        "operationId": "testLocalAIGatewayModel",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Test a local AI gateway model",
+        "description": "Administrator only. Send one synthetic structured-output request using either a saved, enabled model alias or a draft provider and model. The model may override the provider default request method. A draft uses its current proxy settings and can reuse matching saved credentials. Draft tests do not save settings or activity. The provider may charge for this test. A 502 response can report responses_required, protocol_unsupported, upstream_model_unavailable, upstream_auth_failed, output_format_unsupported, upstream_connection_failed, upstream_response_incomplete, model_output_truncated, invalid_model_output, or upstream_error. Only responses_required confirms that switching to Responses is appropriate. An upstream key rejection is distinct from a 401 management-session error.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIGatewayModelTestInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The configured provider returned the expected structured result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayModelTestResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "413": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "415": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "422": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "429": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "502": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "504": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/agent/models": {
+      "get": {
+        "operationId": "listTextAIModels",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List configured text models",
+        "description": "List model aliases from the embedded text gateway.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextAIModels"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/agent/node-name-jobs": {
+      "get": {
+        "operationId": "listNodeNameJobs",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List recent node name translation jobs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJobList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "operationId": "startNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Start a node name translation job",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeNameJobInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/node-name-jobs/preview": {
+      "post": {
+        "operationId": "previewNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Count names for a node name translation job",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "200": {
+            "description": "Number of indexed, translated and eligible names. Does not invoke a model.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNamePreview"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeNameJobInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/node-name-jobs/{job}": {
+      "get": {
+        "operationId": "getNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Get a node name translation job",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/agent/node-name-jobs/{job}/cancel": {
+      "post": {
+        "operationId": "cancelNodeNameJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Cancel a node name translation job",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeNameJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/agent/metadata-translation-prompt": {
+      "get": {
+        "operationId": "getWorkTranslationPrompt",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read the default editable work translation prompt without invoking a model",
+        "responses": {
+          "200": {
+            "description": "Default editable translation instructions in Chinese. Requires an administrator session and a server AI entitlement.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prompt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "prompt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/agent/jobs": {
+      "get": {
+        "operationId": "listWorkTranslationJobs",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List metadata translation jobs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WorkTranslationJob"
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createWorkTranslationJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Generate metadata translation candidates",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkTranslationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkTranslationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/jobs/{job}": {
+      "get": {
+        "operationId": "getWorkTranslationJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read a metadata translation job",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkTranslationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/works/{work}/translation-job": {
+      "get": {
+        "operationId": "getOpenWorkTranslationJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Find the open translation for a work",
+        "description": "Returns the work's running job or pending result, or a null job when neither exists.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/WorkTranslationJob"
+                        },
+                        {
+                          "type": "object",
+                          "nullable": true,
+                          "enum": [
+                            null
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "job"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/agent/jobs/{job}/discard": {
+      "post": {
+        "operationId": "discardWorkTranslationResult",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Discard a pending translation result",
+        "description": "Closes the result without editing the work. Only pending results can be discarded.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkTranslationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/agent/jobs/{job}/cancel": {
+      "post": {
+        "operationId": "cancelWorkTranslationJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Request cancellation of a metadata translation job",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkTranslationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/transcript-drafts/{draft}/translations": {
+      "post": {
+        "operationId": "createTranscriptTranslation",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Generate a translation proposal",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptProposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "draft",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptTranslationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transcript-drafts/{draft}/proposals": {
+      "get": {
+        "operationId": "listTranscriptProposals",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List transcript proposals",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TranscriptProposalSummary"
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "draft",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/transcript-proposals/{proposal}": {
+      "get": {
+        "operationId": "getTranscriptProposal",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read transcript proposal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptProposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "proposal",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/transcript-proposals/{proposal}/cancel": {
+      "post": {
+        "operationId": "cancelTranscriptProposal",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Request cancellation of an active proposal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptProposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "proposal",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/transcript-proposals/{proposal}/resume": {
+      "post": {
+        "operationId": "resumeTranscriptProposal",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Continue an interrupted proposal",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptProposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "proposal",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/transcript-proposals/{proposal}/apply": {
+      "post": {
+        "operationId": "applyTranscriptProposal",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Confirm a proposal for the current draft revision",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptDraft"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "proposal",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/sources/{source}/archive-suggestions": {
+      "post": {
+        "operationId": "previewArchiveSuggestions",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Generate and preview archive edits",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchiveSuggestionPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveSuggestionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources/{source}/archive-suggestions/apply": {
+      "post": {
+        "operationId": "applyArchiveSuggestions",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Confirm the exact archive edit batch",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchiveSuggestionApplied"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          },
+          "502": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveSuggestionApply"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -23323,6 +25647,54 @@
       }
     },
     "responses": {
+      "AIGatewayPageAccessError": {
+        "description": "An administrator session is required. Browser requests accepting HTML can receive a localized sign-in or access message.",
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/responses/AIGatewayAdminError/content/application~1json/schema"
+            }
+          }
+        }
+      },
+      "AIGatewayAdminError": {
+        "description": "Gateway settings, model test or Core access error. Use error.code for client behavior. Core access errors can include error.request_id.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "request_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                }
+              },
+              "required": [
+                "error"
+              ]
+            }
+          }
+        }
+      },
       "Error": {
         "description": "Structured error. Use error.code for client behavior and request_id for troubleshooting. See protocol.md for status meanings.",
         "headers": {
@@ -23340,6 +25712,135 @@
       }
     },
     "schemas": {
+      "AIGatewayModelUsage": {
+        "type": "object",
+        "required": [
+          "model",
+          "calls",
+          "failed",
+          "reported_calls",
+          "prompt_tokens",
+          "completion_tokens",
+          "total_tokens"
+        ],
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "calls": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reported_calls": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "prompt_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "completion_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_tokens": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "AIGatewayCall": {
+        "type": "object",
+        "required": [
+          "time",
+          "model",
+          "duration_ms",
+          "outcome"
+        ],
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "model": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outcome": {
+            "type": "string",
+            "description": "succeeded, canceled or a stable gateway failure code."
+          },
+          "usage": {
+            "type": "object",
+            "required": [
+              "prompt_tokens",
+              "completion_tokens",
+              "total_tokens"
+            ],
+            "properties": {
+              "prompt_tokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "completion_tokens": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total_tokens": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      },
+      "AIGatewayActivity": {
+        "type": "object",
+        "required": [
+          "models",
+          "calls",
+          "retention_limit",
+          "save_failed",
+          "max_retention_limit"
+        ],
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayModelUsage"
+            }
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayCall"
+            }
+          },
+          "next_offset": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "retention_limit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "save_failed": {
+            "type": "boolean"
+          },
+          "max_retention_limit": {
+            "type": "integer",
+            "const": 10000
+          }
+        }
+      },
       "Identifier": {
         "type": "object",
         "properties": {
@@ -24104,6 +26605,9 @@
           "alias": {
             "type": "string",
             "description": "Shared display alias for the node, empty when unset."
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           }
         },
         "required": [
@@ -24602,6 +27106,9 @@
             "type": "string",
             "description": "Display-only alias, empty when unset. Original name and path remain unchanged."
           },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
+          },
           "source_kind": {
             "type": "string",
             "enum": [
@@ -25094,6 +27601,72 @@
         ],
         "additionalProperties": false
       },
+      "ServerUpdateCheck": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "status"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "current"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "no_asset"
+                ]
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "version",
+              "build_number",
+              "asset_name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available"
+                ]
+              },
+              "version": {
+                "type": "string"
+              },
+              "build_number": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "asset_name": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
       "Info": {
         "type": "object",
         "properties": {
@@ -25111,12 +27684,37 @@
             "items": {
               "type": "string"
             }
+          },
+          "build_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Packaged Core build number, when supplied at build time."
+          },
+          "os": {
+            "type": "string",
+            "description": "Server runtime operating system, such as linux or windows."
+          },
+          "arch": {
+            "type": "string",
+            "description": "Server runtime architecture, such as amd64."
+          },
+          "deployment_type": {
+            "type": "string",
+            "enum": [
+              "linux-systemd",
+              "linux-manual",
+              "windows",
+              "container"
+            ],
+            "description": "How Core was installed, omitted when unknown."
           }
         },
         "required": [
           "api_version",
           "version",
-          "capabilities"
+          "capabilities",
+          "os",
+          "arch"
         ],
         "additionalProperties": false
       },
@@ -28445,6 +31043,9 @@
             "type": "string",
             "description": "Display-only alias, empty when unset. Original name and path remain unchanged."
           },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
+          },
           "source_kind": {
             "type": "string",
             "enum": [
@@ -29368,7 +31969,8 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "default": 2
+            "default": 2,
+            "description": "Additional attempts for each product metadata fetch or image download in one retrieval round."
           },
           "cache_max_age_hours": {
             "type": "integer",
@@ -29381,7 +31983,9 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3600,
-            "default": 300
+            "default": 300,
+            "deprecated": true,
+            "description": "Legacy value preserved for compatibility. Failed requests wait for an explicit retry."
           },
           "image_cache_max_bytes": {
             "type": "integer",
@@ -29512,7 +32116,8 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "default": 2
+            "default": 2,
+            "description": "Additional attempts for each product metadata fetch or image download in one retrieval round."
           },
           "cache_max_age_hours": {
             "type": "integer",
@@ -29525,7 +32130,9 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3600,
-            "default": 300
+            "default": 300,
+            "deprecated": true,
+            "description": "Legacy value preserved for compatibility. Failed requests wait for an explicit retry."
           },
           "image_cache_max_bytes": {
             "type": "integer",
@@ -29908,7 +32515,7 @@
           },
           "image_error": {
             "type": "string",
-            "description": "Empty or sanitized image failure code: unsupported_image_url, image_unavailable, image_limit. Successful old bytes may remain available."
+            "description": "Empty or sanitized image failure code: unsupported_image_url, image_unavailable, image_limit, image_cache_capacity, or image_retry_required. Previously downloaded images may remain available."
           },
           "locale_results": {
             "type": "object",
@@ -30980,6 +33587,9 @@
           "alias": {
             "type": "string",
             "description": "Display-only alias, empty when unset. Original name and path remain unchanged."
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           }
         },
         "required": [
@@ -31045,6 +33655,9 @@
           "alias": {
             "type": "string",
             "description": "Display-only alias, empty when unset. Image matching still uses the original name."
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           }
         },
         "required": [
@@ -31186,6 +33799,9 @@
               "unknown"
             ],
             "description": "Published subtitle availability, including eligible subtitles shared by audio versions."
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           }
         }
       },
@@ -31621,7 +34237,8 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3,
-            "default": 2
+            "default": 2,
+            "description": "Additional attempts for each product metadata fetch or image download in one retrieval round."
           },
           "cache_max_age_hours": {
             "type": "integer",
@@ -31634,7 +34251,9 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 3600,
-            "default": 300
+            "default": 300,
+            "deprecated": true,
+            "description": "Legacy value preserved for compatibility. Failed requests wait for an explicit retry."
           },
           "image_cache_max_bytes": {
             "type": "integer",
@@ -32170,6 +34789,9 @@
             "type": "string",
             "description": "Display-only alias, empty when unset. Original name and path remain unchanged."
           },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
+          },
           "work": {
             "$ref": "#/components/schemas/WorkDisplay",
             "description": "Current work summary with the same display policy as the library. Present for known work references."
@@ -32232,6 +34854,9 @@
             "items": {
               "$ref": "#/components/schemas/CollectionEntryView"
             }
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           }
         },
         "required": [
@@ -32278,6 +34903,12 @@
             "type": "object",
             "additionalProperties": {}
           },
+          "translation_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "locked_fields": {
             "type": "array",
             "items": {
@@ -32305,6 +34936,20 @@
           "values": {
             "type": "object",
             "additionalProperties": {}
+          },
+          "translation_job": {
+            "type": "string",
+            "description": "Metadata job ID when confirming reviewed translations."
+          },
+          "translated_fields": {
+            "type": "object",
+            "description": "Selected target fields mapped to reviewed strings in draft path order. Use with translation_job and omit values and unlock.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           },
           "unlock": {
             "type": "array",
@@ -32387,6 +35032,9 @@
           "alias": {
             "type": "string",
             "description": "Display-only alias, empty when unset. Original name and path remain unchanged."
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           }
         },
         "required": [
@@ -33216,6 +35864,11 @@
           },
           "capabilities": {
             "type": "object",
+            "properties": {
+              "ai": { "type": "boolean" },
+              "treasured_clips": { "type": "boolean" },
+              "smart_routing": { "type": "boolean", "description": "Available with an active license for the current server or Android local library." }
+            },
             "additionalProperties": {
               "type": "boolean"
             }
@@ -33223,6 +35876,15 @@
           "server_url": {
             "type": "string",
             "description": "Effective license service address."
+          },
+          "device_type": {
+            "type": "string",
+            "enum": ["windows", "linux", "docker", "android"],
+            "description": "Display platform for device administrators."
+          },
+          "device_name": {
+            "type": "string",
+            "description": "Device name shown in license lookup. Returned to device administrators when known."
           }
         }
       },
@@ -33243,7 +35905,8 @@
           "device_name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 80
+            "maxLength": 80,
+            "description": "User-entered device name for license lookup. The server registers its own host name when available."
           }
         }
       },
@@ -34736,6 +37399,187 @@
         ],
         "additionalProperties": false
       },
+      "NodeNameJobInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "directory_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "work_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "target_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ]
+          },
+          "skip_existing": {
+            "type": "boolean",
+            "default": true
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 4000,
+            "writeOnly": true,
+            "description": "Optional name translation instructions for this job. Omit or use an empty string to send no system message. Custom instructions are not recorded in job history or AI settings."
+          }
+        },
+        "required": [
+          "target_locale"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "directory_id"
+            ],
+            "not": {
+              "required": [
+                "work_id"
+              ]
+            }
+          },
+          {
+            "required": [
+              "work_id"
+            ],
+            "not": {
+              "required": [
+                "directory_id"
+              ]
+            }
+          }
+        ]
+      },
+      "NodeNamePreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "existing": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "eligible": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Default name translation prompt in the target language."
+          }
+        },
+        "required": [
+          "total",
+          "existing",
+          "eligible",
+          "prompt"
+        ]
+      },
+      "NodeNameJob": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "canceling",
+              "succeeded",
+              "partial",
+              "failed",
+              "canceled",
+              "interrupted"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/NodeNameJobInput"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "processed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "translated": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "conflicted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "input",
+          "total",
+          "processed",
+          "translated",
+          "skipped",
+          "conflicted",
+          "failed",
+          "created_at"
+        ]
+      },
+      "NodeNameJobList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NodeNameJob"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "NodeAlias": {
         "type": "object",
         "additionalProperties": false,
@@ -34744,7 +37588,11 @@
             "type": "string"
           },
           "alias": {
-            "type": "string"
+            "type": "string",
+            "description": "Deprecated. Always an empty string on the node name editing endpoint."
+          },
+          "localized_aliases": {
+            "$ref": "#/components/schemas/LocalizedNodeAliases"
           },
           "revision": {
             "type": "string",
@@ -34754,6 +37602,7 @@
         "required": [
           "node_id",
           "alias",
+          "localized_aliases",
           "revision"
         ]
       },
@@ -34764,10 +37613,103 @@
           "alias": {
             "type": "string",
             "maxLength": 255,
-            "description": "One display label; empty string restores the original name. UTF-8; no path separators or control characters."
+            "description": "UTF-8 display name of up to 1024 bytes and 255 characters, with no surrounding whitespace, control characters or path separators. An empty value clears the selected name."
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "description": "Language whose display name is set or cleared."
           }
         },
         "required": [
+          "alias",
+          "locale"
+        ]
+      },
+      "LocalizedNodeAliases": {
+        "type": "object",
+        "description": "Display names keyed by interface language. Use the exact interface language, then the original name. Original-name mode uses the original directly. Ignore historical shared aliases.",
+        "additionalProperties": false,
+        "properties": {
+          "zh-Hans": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "zh-Hant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "ja": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "en": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        }
+      },
+      "NodeAliasTranslationInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_language": {
+            "type": "string",
+            "enum": [
+              "",
+              "und",
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "description": "Omit or use und to have the model infer the original language."
+          },
+          "target_language": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ],
+            "description": "Display language for the suggestion. Must differ from an explicit source language."
+          }
+        },
+        "required": [
+          "target_language"
+        ]
+      },
+      "NodeAliasTranslation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ]
+          },
+          "alias": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "locale",
           "alias"
         ]
       },
@@ -35943,6 +38885,1049 @@
             "minimum": 0
           }
         }
+      },
+      "TextModelProfile": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string"
+          },
+          "fallback_model": {
+            "type": "string"
+          },
+          "language_models": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 86400
+          },
+          "max_turns": {
+            "type": "integer"
+          },
+          "output_tokens": {
+            "type": "integer",
+            "minimum": 128,
+            "maximum": 32768
+          },
+          "guidance": {
+            "type": "string"
+          }
+        }
+      },
+      "TextAISettingsInput": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "gateway_mode": {
+            "$ref": "#/components/schemas/TextAIGatewayMode"
+          },
+          "base_url": {
+            "type": "string",
+            "deprecated": true,
+            "enum": [
+              ""
+            ],
+            "description": "Omit this legacy field."
+          },
+          "profiles": {
+            "$ref": "#/components/schemas/TextModelProfiles"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true,
+            "deprecated": true,
+            "enum": [
+              null
+            ],
+            "description": "Omit this legacy field."
+          }
+        }
+      },
+      "TextAISettings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "gateway_mode": {
+            "$ref": "#/components/schemas/TextAIGatewayMode"
+          },
+          "base_url": {
+            "type": "string",
+            "deprecated": true,
+            "description": "Legacy field, always empty."
+          },
+          "profiles": {
+            "$ref": "#/components/schemas/TextModelProfiles"
+          },
+          "profiles_by_mode": {
+            "type": "object",
+            "description": "The embedded gateway's model profiles, also returned as profiles.",
+            "properties": {
+              "local": {
+                "$ref": "#/components/schemas/TextModelProfiles"
+              }
+            },
+            "required": [
+              "local"
+            ],
+            "additionalProperties": false
+          },
+          "has_token": {
+            "type": "boolean",
+            "deprecated": true,
+            "description": "Legacy field, always false."
+          },
+          "revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled",
+          "gateway_mode",
+          "base_url",
+          "profiles",
+          "profiles_by_mode",
+          "has_token",
+          "revision"
+        ]
+      },
+      "TextAIGatewayMode": {
+        "type": "string",
+        "enum": [
+          "local"
+        ],
+        "default": "local",
+        "description": "The embedded gateway."
+      },
+      "TextModelProfiles": {
+        "type": "object",
+        "description": "Model profiles keyed by text task purpose for one gateway mode.",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/TextModelProfile"
+        }
+      },
+      "AIGatewayProvider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,128}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "openai",
+              "anthropic",
+              "gemini",
+              "deepseek",
+              "openrouter",
+              "openai_compatible"
+            ]
+          },
+          "text_protocol": {
+            "type": "string",
+            "enum": [
+              "chat_completions",
+              "responses"
+            ],
+            "description": "Default text request method for OpenAI, DeepSeek, OpenRouter, and OpenAI-compatible services. Omit for Chat Completions. Other provider kinds use their fixed request method."
+          },
+          "base_url": {
+            "type": "string",
+            "description": "Optional provider API address, required for openai_compatible. Use HTTPS or loopback HTTP. Changing a credentialed provider's type or address requires an explicit key decision."
+          },
+          "key_env": {
+            "type": "string",
+            "description": "Startup-configured credential reference, if present. The management API cannot assign a new environment reference."
+          },
+          "has_key": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "True if a credential is available. An omitted value means false."
+          },
+          "proxy_mode": {
+            "type": "string",
+            "enum": [
+              "system",
+              "direct",
+              "custom"
+            ],
+            "description": "Proxy mode for this provider. Omit to preserve the mode of an existing provider with the same ID, or to use system for a new provider."
+          },
+          "proxy_url": {
+            "type": "string",
+            "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL. Administrator-only settings responses return the full saved URL, including any URL credentials."
+          },
+          "proxy_address": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Saved custom proxy scheme, host, and port with credentials removed."
+          },
+          "has_proxy_credentials": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "True if the custom proxy uses URL credentials. Omitted when false."
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string",
+            "writeOnly": true,
+            "maxLength": 4096,
+            "description": "New provider credential. When its type and address are unchanged, omit to retain the existing credential. Send an empty string to clear the stored credential including any environment reference."
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "AIGatewayModel": {
+        "type": "object",
+        "properties": {
+          "alias": {
+            "type": "string",
+            "pattern": "^[!-~]{0,256}$",
+            "description": "Optional unique name used in AI configuration. An empty or omitted alias uses the upstream model ID with a numeric suffix when it would duplicate another name. Responses include the saved alias."
+          },
+          "provider": {
+            "type": "string",
+            "description": "A provider ID in the same gateway settings."
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[!-~]{1,256}$",
+            "description": "Upstream model ID."
+          },
+          "text_protocol": {
+            "type": "string",
+            "enum": [
+              "",
+              "chat_completions",
+              "responses"
+            ],
+            "description": "Model-specific text request method. Omit or send an empty string to use the provider default."
+          },
+          "json_mode": {
+            "type": "string",
+            "enum": [
+              "json_schema",
+              "json_object"
+            ]
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "A model appears in the local catalog only when it and its provider are enabled."
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "json_mode",
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "AIGatewaySettings": {
+        "type": "object",
+        "properties": {
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayProvider"
+            },
+            "maxItems": 256
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayModel"
+            },
+            "maxItems": 256
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600
+          },
+          "max_concurrent": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          }
+        },
+        "required": [
+          "providers",
+          "models",
+          "timeout_seconds",
+          "max_concurrent"
+        ],
+        "additionalProperties": false
+      },
+      "AIGatewayProviderDraft": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "openai",
+              "anthropic",
+              "gemini",
+              "deepseek",
+              "openrouter",
+              "openai_compatible"
+            ]
+          },
+          "text_protocol": {
+            "type": "string",
+            "enum": [
+              "chat_completions",
+              "responses"
+            ],
+            "description": "Default text request method for OpenAI, DeepSeek, OpenRouter, and OpenAI-compatible services. Omit for Chat Completions. Other provider kinds use their fixed request method."
+          },
+          "base_url": {
+            "type": "string",
+            "description": "Provider service base URL. Required for openai_compatible."
+          },
+          "proxy_mode": {
+            "type": "string",
+            "enum": [
+              "system",
+              "direct",
+              "custom"
+            ],
+            "description": "Proxy mode for this provider. Omit to preserve the mode of an existing provider with the same ID, or to use system for a new provider."
+          },
+          "proxy_url": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL."
+          },
+          "key": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "AIGatewayModelTestInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string",
+                "pattern": "^[!-~]{1,256}$",
+                "description": "Saved local model alias."
+              }
+            },
+            "required": [
+              "model"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "draft": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "$ref": "#/components/schemas/AIGatewayProviderDraft"
+                  },
+                  "model": {
+                    "type": "string",
+                    "pattern": "^[!-~]{1,256}$",
+                    "description": "Upstream model ID."
+                  },
+                  "text_protocol": {
+                    "type": "string",
+                    "enum": [
+                      "",
+                      "chat_completions",
+                      "responses"
+                    ],
+                    "description": "Model-specific text request method. Omit or send an empty string to use the provider default."
+                  },
+                  "json_mode": {
+                    "type": "string",
+                    "enum": [
+                      "json_schema",
+                      "json_object"
+                    ]
+                  }
+                },
+                "required": [
+                  "provider",
+                  "model",
+                  "json_mode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "draft"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "AIGatewayModelTestResult": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "model": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ok",
+          "model"
+        ],
+        "additionalProperties": false
+      },
+      "TextAIModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tools": {
+            "type": "boolean"
+          },
+          "json_output": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "operations",
+          "languages",
+          "tools"
+        ]
+      },
+      "TextAIModels": {
+        "type": "object",
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TextAIModel"
+            }
+          }
+        },
+        "required": [
+          "models"
+        ]
+      },
+      "TextAIConnection": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TextAIModel"
+            }
+          }
+        },
+        "required": [
+          "valid",
+          "models"
+        ]
+      },
+      "WorkTranslationInput": {
+        "type": "object",
+        "properties": {
+          "review_required": {
+            "type": "boolean",
+            "default": false,
+            "description": "Require a single work and editor_fields. Keep the result available for review until applied or discarded. An existing translation for the same work can return 409 translation_review_pending."
+          },
+          "work_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "source_locale": {
+            "type": "string"
+          },
+          "target_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "title",
+                "description"
+              ]
+            }
+          },
+          "editor_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skip_existing": {
+            "type": "boolean",
+            "default": true,
+            "description": "Skip editor fields with text in the target language."
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 4000,
+            "writeOnly": true,
+            "description": "Optional system prompt for this job. Omit or send an empty string to send no system prompt. To use the default, send the Chinese template from /agent/metadata-translation-prompt. Nonempty values may not be all whitespace or contain NUL. Output rules still apply. Excluded from job history and AI settings."
+          },
+          "expected_revisions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "use_fallback_model": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "work_ids",
+          "target_locale"
+        ]
+      },
+      "WorkTranslationItem": {
+        "type": "object",
+        "properties": {
+          "work_id": {
+            "type": "string"
+          },
+          "work_revision": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "candidate_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "editor_values": {
+            "type": "object",
+            "description": "Review drafts keyed by target editor field.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "value": {},
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [{"type": "integer"}, {"type": "string"}]
+                    }
+                  }
+                }
+              },
+              "required": ["value", "paths"]
+            }
+          },
+          "description_parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DescriptionPart"
+            }
+          }
+        },
+        "required": [
+          "work_id",
+          "work_revision",
+          "state",
+          "error",
+          "candidate_ids"
+        ]
+      },
+      "WorkTranslationJob": {
+        "type": "object",
+        "properties": {
+          "review_required": {
+            "type": "boolean",
+            "description": "True for the background review workflow."
+          },
+          "review_state": {
+            "type": "string",
+            "enum": [
+              "waiting",
+              "pending",
+              "applied",
+              "discarded"
+            ],
+            "description": "Omitted on legacy jobs and on managed jobs that end without a result."
+          },
+          "id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "source_locale": {
+            "type": "string"
+          },
+          "target_locale": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "editor_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skip_existing": {
+            "type": "boolean"
+          },
+          "expected_revisions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "used_fallback_model": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string"
+          },
+          "settings_revision": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkTranslationItem"
+            }
+          }
+        }
+      },
+      "TranscriptTrackImport": {
+        "type": "object",
+        "properties": {
+          "track": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "track",
+          "revision"
+        ]
+      },
+      "TranscriptTranslationInput": {
+        "type": "object",
+        "properties": {
+          "request_key": {
+            "type": "string"
+          },
+          "target_language": {
+            "type": "string",
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "ja",
+              "en"
+            ]
+          },
+          "cue_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "replace": {
+            "type": "boolean"
+          },
+          "use_fallback_model": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "target_language"
+        ]
+      },
+      "TranscriptTranslationUnit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cue_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "cue_id",
+          "text"
+        ]
+      },
+      "TranscriptProposalSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "base_revision": {
+            "type": "string"
+          },
+          "target_language": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TranscriptProposal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "draft_id": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "base_revision": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/TranscriptTranslationInput"
+          },
+          "source_language": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "settings_revision": {
+            "type": "string"
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptTranslationUnit"
+            }
+          },
+          "results": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "completed": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ArchiveSuggestionInput": {
+        "type": "object",
+        "properties": {
+          "scope_node_id": {
+            "type": "string"
+          },
+          "instruction": {
+            "type": "string",
+            "description": "At most 800 UTF-8 bytes."
+          }
+        },
+        "required": [
+          "scope_node_id"
+        ]
+      },
+      "ArchiveSuggestionEdit": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "root",
+              "not_work",
+              "assign",
+              "exclude",
+              "restore"
+            ]
+          },
+          "work_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_id",
+          "decision",
+          "work_id"
+        ]
+      },
+      "ArchiveSuggestion": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ArchiveSuggestionEdit"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "work_title": {
+                "type": "string"
+              },
+              "previous_root_path": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "work_title",
+              "previous_root_path",
+              "reason"
+            ]
+          }
+        ]
+      },
+      "ArchiveSuggestionImpact": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Change"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "after_root_path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "after_root_path"
+            ]
+          }
+        ]
+      },
+      "ArchiveSuggestionPreview": {
+        "type": "object",
+        "properties": {
+          "scope_node_id": {
+            "type": "string"
+          },
+          "scope_limited": {
+            "type": "boolean"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveSuggestion"
+            },
+            "maxItems": 12
+          },
+          "edits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveSuggestionEdit"
+            },
+            "maxItems": 12
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ChangeSummary"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveSuggestionImpact"
+            },
+            "maxItems": 50
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "ArchiveSuggestionApply": {
+        "type": "object",
+        "properties": {
+          "scope_node_id": {
+            "type": "string"
+          },
+          "edits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchiveSuggestionEdit"
+            },
+            "minItems": 1,
+            "maxItems": 12
+          }
+        },
+        "required": [
+          "scope_node_id",
+          "edits"
+        ]
+      },
+      "ArchiveSuggestionApplied": {
+        "type": "object",
+        "properties": {
+          "edit_count": {
+            "type": "integer"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ChangeSummary"
+          }
+        },
+        "required": [
+          "edit_count",
+          "summary"
+        ]
       }
     }
   },

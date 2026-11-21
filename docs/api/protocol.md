@@ -14,13 +14,18 @@ Authorization: Bearer <access-token>
 {
   "api_version": "1",
   "version": "dev",
+  "os": "linux",
+  "arch": "amd64",
+  "deployment_type": "linux-manual",
   "capabilities": ["accounts.multi_user", "accounts.roles", "accounts.sessions", "playback.progress", "playback.profiles", "metadata.scrape", "catalog.crud", "catalog.i18n", "search.fts5", "scan.directory", "scan.jobs", "logs.query", "organize.directory_boundaries"]
 }
 ```
 
-示例只列部分能力；实际以 `/info` 返回的完整列表为准。
+示例只列部分能力；实际以 `/info` 返回的完整列表为准。正式包可返回整数 `build_number`。可选 `deployment_type` 取值为 `linux-systemd`、`linux-manual`、`windows` 或 `container`；未知时省略，客户端可提供官方发行说明。
 
 `GET /health` 正常返回 `200 {"status":"ok"}`；必要子系统不可用返回 503。`GET /info` 需要认证。
+
+`GET /updates/latest` 供管理员和已登录成员主动检查服务器更新，无查询或请求体。服务端从官方 GitHub 最新正式发行检查同一发布的版本、构建号、平台附件及校验清单。返回 `{"status":"current"}`、`{"status":"no_asset","version":"…"}`，或 `{"status":"available","version":"…","build_number":52,"asset_name":"…"}`。读取或校验失败返回 502 `update_check_failed`。该接口不下载或运行安装程序。
 
 第三方网页跨域调用时，部署者须明确允许该页面 Origin。跨域 API 使用 Bearer，不开放 Cookie credentials；同源网页的全部 API、图片和媒体使用登录设置的 HttpOnly 会话 Cookie，写请求必须校验同源 Origin/Referer（详见 accounts.md）；允许 Authorization、Content-Type、If-Match，请读取服务暴露的 ETag、X-Request-ID、Location。未知 Origin 返回 403；浏览器预检无需令牌。原生客户端无须人为添加 Origin。反向代理需保留认证和来源信息。HTTPS 入口连接 HTTP 上游时，须在网络设置中配置可信代理，并由代理传递外部协议、主机和客户端 IP；配置要求见[反代教程](../USAGE.md#通过-nginx-访问-ruri)。
 

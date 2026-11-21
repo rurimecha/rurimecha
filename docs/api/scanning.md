@@ -15,7 +15,7 @@
 | GET | /sources/{source}/remote-works | 浏览来源作品；支持 page、page_size、q、search_field 和 sort |
 | GET | /sources/{source}/remote-facets | 读取来源已有的社团、声优或标签；使用 field= circle、voice 或 tag |
 | GET | /sources/{source}/remote-works/{code} | 查看 RJ 作品资料和音轨树 |
-| GET | /sources/{source}/remote-works/{code}/cover | 查看来源封面 |
+| GET | /sources/{source}/remote-works/{code}/cover | 查看来源原始封面，或用 `?size=thumbnail` 读取列表缩略图 |
 | GET | /works/{work}/remote-cover | 读取已入库作品的来源封面 |
 | POST | /sources/{source}/remote-works/{code}/import | 入库或刷新选中的 RJ 作品 |
 | GET | /works/{work}/remote-download | 管理员查看作品可选目录树、完整副本状态及最近一次保存任务 |
@@ -28,6 +28,8 @@
 | GET / DELETE | /scan-jobs/{job} | 任务详情/删除终态历史 |
 | POST | /scan-jobs/{job}/cancel | 请求取消，无请求体 |
 | GET | /scan-jobs/{job}/issues | 扫描问题分页 |
+
+来源作品列表中的 `cover_url` 默认返回原图。列表可请求 `GET /sources/{source}/remote-works/{code}/cover?size=thumbnail`，返回保持比例、最长边不超过 192 像素的 JPEG。原图与缩略图的 ETag 独立；未知尺寸返回 400。
 
 ## 来源
 
@@ -155,7 +157,7 @@ mark_missing=true 明确要求核对缺失；只有某个根完整成功时，�
 {
   "id":"opaque-node-id","source_id":"source-a","parent_id":"opaque-root-id",
   "path":"MP3/01.mp3","path_base64":"TVAzLzAxLm1wMw==",
-  "name":"01.mp3","alias":"翻译后的曲目名","name_base64":"MDEubXAz",
+  "name":"01.mp3","alias":"曲目一","localized_aliases":{"en":"Track One"},"name_base64":"MDEubXAz",
   "kind":"file","read_complete":false,"present":true,"order":2,
   "seen_job_id":"opaque-job-id","created_at":"2026-10-29T12:00:00Z","updated_at":"2026-10-29T12:00:00Z",
   "media_kind":"audio","format":"mp3","playable":true,"duration_seconds":null,
@@ -165,9 +167,11 @@ mark_missing=true 明确要求核对缺失；只有某个根完整成功时，�
 
 path 相对来源根，目录分隔符统一为 `/`。根为 `.`，根 parent_id 为 null。path/name 只在原始字节是合法 UTF-8 时提供字符串，否则为 null；相应 Base64 始终保留服务端文件系统的原始字节和路径分隔符，标准 Base64 带填充。客户端显示异常名字时可自行替换不可显示字符，但不能以替换结果反推身份或修改路径。操作关系应使用 id。
 
-alias 是节点共享的显示名称，仅替换该目录或文件节点的展示文字，不改变上级目录、原始 name/path、搜索、排序、文件访问或归纳。未设置时为空字符串。已扫描节点重扫同一路径保留别名；移动或改名形成新节点身份，别名不自动转移。
+节点的 `localized_aliases` 以 `zh-Hans`、`zh-Hant`、`ja`、`en` 为键。客户端在译名模式使用与界面语言完全匹配的显示名，缺省回退原名。原名模式直接使用原名。普通节点投影中历史 `alias` 字段仅用于兼容，客户端忽略该字段。搜索、排序、文件访问和归纳使用原始名称及路径。同一路径重扫保留译名。移动或改名形成新节点身份，译名留在原节点。
 
-`GET /nodes/{node}/alias` 返回 `{node_id,alias,revision}` 和 ETag；未设置别名返回空字符串及修订 1。管理员用 `PUT /nodes/{node}/alias` 携带该 ETag 与 `{ "alias": "显示名称" }` 设置别名，空字符串恢复显示原名。别名为 1–255 个 Unicode 字符、最多 1024 字节，不含首尾空白、控制字符和路径分隔符。节点可为已扫描目录/文件或已登记草稿成员；不存在返回 404，缺少 If-Match 返回 428，过期返回 412。成员读取可见别名但不能通过成员编辑改写；别名编辑不改变作品和扫描修订。
+`GET /nodes/{node}/alias` 返回 `{node_id,alias,localized_aliases,revision}` 和 ETag。历史 `alias` 字段返回空字符串。尚未编辑的节点返回空对象及修订 1。管理员使用 `PUT /nodes/{node}/alias` 携带该 ETag，提交 `{"locale":"en","alias":"Track One"}` 修改单个语言，两个字段均必填。空字符串清除所选语言的显示名。其他语言和已存的历史数据保留。非空名称为 1–255 个 Unicode 字符、最多 1024 字节，不含首尾空白、控制字符和路径分隔符。可编辑已扫描节点或已登记的草稿成员。节点不存在返回 404，缺少 If-Match 返回 428，过期返回 412。所有译名共用独立的节点别名修订，作品与扫描修订保持原值。
+
+管理员可用 `POST /nodes/{node}/alias/translation` 生成原名的译名建议，携带当前别名 ETag 及 `{"target_language":"en","source_language":"ja"}`。省略源语言或传 `und` 由模型判断源语言。显式源语言与目标语言必须不同，目标语言使用以上四种代码。成功返回 `{locale,alias}` 与当前别名 ETag。译名供审阅和修改，保存使用上述 PUT。模型收到目录的原名或文件的名称主体，文件的原扩展名由 Core 恢复。禁用或繁忙返回 409，译名无效或无法生成返回 422，网关失败返回 502。原名在生成期间变化或修订失效时重新获取建议。批量翻译见 [文字生成](text-ai.md#目录和作品名称批量翻译)。
 
 media_kind 为文件类型线索；目录为空字符串。playable 是与 node_query 共用的索引播放资格：文件须 present、来源启用，且当前观察/人工音视频声明或支持的扩展名允许播放；缺失、来源停用、非文件或明确否认音视频时为 false。它不保证现场文件可读、浏览器原生解码或所需编码器已安装；客户端播放动作使用该布尔值，不能仅凭 media_kind 判断。format 为小写文件扩展名，目录或无扩展名时为空。duration_seconds 未知时为 null；人工时长独立有效，失效自动观察不参与时长/语言/字幕否定判断。languages 是去重后的音视频流语言，未知音视频为 ["und"]，不适用时为空数组。listening_state 按当前账户读取；无进度为 unstarted，有进度且未完成为 in_progress，完成为 completed。matched_file_count 只在 matching_directories 查询的目录项提供命中数，其他项为 0。单节点详情同样返回这些汇总字段。
 
@@ -225,3 +229,5 @@ mark_missing=true 只核对被扫描子树的缺失，兄弟节点不改变 pres
 ### 兼容来源连接测试
 
 `POST /sources/test-connection`（管理员）接受 `{remote_site_url, proxy_url?}`，测试尚未保存的网站地址和可选代理。成功返回 `{connected:true,elapsed_ms}`；30 秒超时，输入错误 400，未知站点 422/remote_source_unsupported，访问受限 422/remote_source_access_denied，网络故障 502/remote_source_unavailable。与创建来源共用兼容性探测，不修改数据库，不导入作品；成功仅说明可浏览，不保证所有音频文件可播放或下载速度。
+
+`POST /sources/test-download-directory`（管理员）接受 `{"download_path":"/media/downloads"}`，可在保存来源前检查服务器绝对目录。服务器按需创建目标与下载暂存目录，以运行服务的身份实际创建、写入、完成保存并清理专用测试文件。成功返回 204。无效路径返回 400 `download_folder_invalid`，目标与应用数据重叠返回 400 `media_data_overlap`。无法写入返回 422 `download_folder_unwritable`，无法完成硬链接发布返回 422 `download_folder_publish_failed`。创建或更新来源时，每次显式提交非空下载目录都重新测试，失败时不保存配置。清空目录不做写入测试。开始单文件或作品下载时再次检查当前目录。

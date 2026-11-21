@@ -7,6 +7,7 @@ Type=exec
 User=rurimecha
 Group=rurimecha
 WorkingDirectory=/opt/rurimecha
+Environment=RURI_DEPLOYMENT_TYPE=linux-systemd
 StateDirectory=rurimecha
 StateDirectoryMode=0700
 ExecStart=/opt/rurimecha/rurimecha-core -data-dir /var/lib/rurimecha
