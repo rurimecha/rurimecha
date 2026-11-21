@@ -1,6 +1,6 @@
 # Rurimecha features
 
-Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection. Open the desktop app on Windows x64. For Linux x86-64 or Docker x86-64, run a server and connect with a browser or the separately installed Android app.
+Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection. Run a Linux x86-64, Docker x86-64, or Windows x64 server, then connect with a browser or the separately installed Android app.
 
 ## Interface languages
 
@@ -44,7 +44,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Audio pages, bottom controls, transcript windows, and local playback provide 10-second back/forward buttons; seeking while paused keeps playback paused.
 - Pause while media loads or buffers. Open work details from a work name on the player page; screen readers announce the current time and total duration on the progress bar.
 - Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles stay visible inside Ruri and over other apps, return after unlocking, and reveal a close button when tapped.
-- Open Rurimecha from Start or choose to add a desktop shortcut during installation. Windows defaults to use on this computer. Administrators can enable connections from other devices in Network settings. Windows keeps app data by default on uninstall. You can opt to clear it while keeping original media. The Linux terminal installer lets you choose and check the listen IP and port.
+- Open Rurimecha from Start or choose to add a desktop shortcut during installation. Windows and Linux installers let you choose and check the listen IP and port. Windows keeps application data by default on uninstall. You can opt to clear it while keeping original media.
 - Check versions and updates under **Settings → Version and updates**. Android can also check app updates from the connection screen. Follow the host installation method to update Linux or Docker.
 - With an active license on the current server or phone, preview and save favorite ranges for replay or lists. Clips reference originals and need them to remain available.
 - Linux, Windows, and Docker include media tools for loudness normalization, compatible transcoding, and embedded subtitles. See [media tools](USAGE.md#preparing-media-tools).

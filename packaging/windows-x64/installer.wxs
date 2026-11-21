@@ -9,6 +9,10 @@
     <Icon Id="RuriIcon" SourceFile="$(var.PayloadDir)\Ruri.ico" />
     <Property Id="ARPPRODUCTICON" Value="RuriIcon" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="RURI_LISTEN_IP" Secure="yes" />
+    <Property Id="RURI_LISTEN_PORT" Secure="yes" />
+    <Property Id="RURI_ORIGINAL_IP" Secure="yes" />
+    <Property Id="RURI_ORIGINAL_PORT" Secure="yes" />
     <Property Id="RURI_DESKTOP_SHORTCUT" Secure="yes" />
     <Property Id="RURI_PREVIOUS_DESKTOP_SHORTCUT">
       <RegistrySearch Id="PreviousDesktopShortcut" Root="HKCU" Key="Software\Rurimecha"
@@ -30,26 +34,27 @@
     <UIRef Id="WixUI_ErrorProgressText" />
     <Binary Id="RuriInstallerActions" SourceFile="$(var.ActionsDll)" />
     <CustomAction Id="NormalizeInstallFolder" BinaryKey="RuriInstallerActions" DllEntry="NormalizeInstallFolder" />
-    <CustomAction Id="PrepareNetworkReset" BinaryKey="RuriInstallerActions" DllEntry="PrepareNetworkReset" />
-    <CustomAction Id="ResetNetwork" BinaryKey="RuriInstallerActions" DllEntry="ResetNetwork"
+    <CustomAction Id="ReadNetwork" BinaryKey="RuriInstallerActions" DllEntry="ReadNetwork" />
+    <CustomAction Id="CheckNetwork" BinaryKey="RuriInstallerActions" DllEntry="CheckNetwork" />
+    <CustomAction Id="PrepareNetwork" BinaryKey="RuriInstallerActions" DllEntry="PrepareNetwork" />
+    <CustomAction Id="ApplyNetwork" BinaryKey="RuriInstallerActions" DllEntry="ApplyNetwork"
                   Execute="deferred" Impersonate="yes" />
-    <CustomAction Id="RollbackNetworkReset" BinaryKey="RuriInstallerActions" DllEntry="RollbackNetworkReset"
+    <CustomAction Id="RollbackNetwork" BinaryKey="RuriInstallerActions" DllEntry="RollbackNetwork"
                   Execute="rollback" Impersonate="yes" />
-    <CustomAction Id="CompleteNetworkReset" BinaryKey="RuriInstallerActions" DllEntry="CompleteNetworkReset"
-                  Execute="commit" Impersonate="yes" />
     <CustomAction Id="PrepareRemoveData" BinaryKey="RuriInstallerActions" DllEntry="PrepareRemoveData" />
     <CustomAction Id="RemoveUserData" BinaryKey="RuriInstallerActions" DllEntry="RemoveUserData"
                   Execute="commit" Impersonate="yes" />
     <InstallUISequence>
       <Show Dialog="PrepareDlg" Before="AppSearch">0</Show>
+      <Custom Action="ReadNetwork" After="AppSearch">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
       <Show Dialog="RuriRemoveDlg" Before="ProgressDlg">Installed AND REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND NOT RuriRemovalConfirmed</Show>
     </InstallUISequence>
     <InstallExecuteSequence>
       <Custom Action="NormalizeInstallFolder" After="CostFinalize">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
-      <Custom Action="PrepareNetworkReset" Before="InstallValidate">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
-      <Custom Action="RollbackNetworkReset" Before="ResetNetwork">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
-      <Custom Action="ResetNetwork" After="InstallFiles">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
-      <Custom Action="CompleteNetworkReset" After="ResetNetwork">NOT Installed AND NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="ReadNetwork" After="AppSearch">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="PrepareNetwork" Before="InstallValidate">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="RollbackNetwork" Before="ApplyNetwork">NOT (REMOVE~="ALL")</Custom>
+      <Custom Action="ApplyNetwork" After="InstallFiles">NOT (REMOVE~="ALL")</Custom>
       <Custom Action="PrepareRemoveData" Before="RemoveUserData">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
       <Custom Action="RemoveUserData" Before="InstallFinalize">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE AND RURI_REMOVE_DATA="1"</Custom>
     </InstallExecuteSequence>
@@ -60,34 +65,44 @@
       <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog"
                Value="WelcomeDlg" Order="2">1</Publish>
       <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog"
-               Value="RuriInstallOptionsDlg" Order="6">WIXUI_INSTALLDIR_VALID="1"</Publish>
+               Value="RuriNetworkDlg" Order="6">WIXUI_INSTALLDIR_VALID="1"</Publish>
       <Publish Dialog="InstallDirDlg" Control="Next" Event="DoAction"
                Value="NormalizeInstallFolder" Order="5">WIXUI_INSTALLDIR_VALID="1"</Publish>
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog"
-               Value="RuriInstallOptionsDlg" Order="3">NOT Installed</Publish>
+               Value="RuriNetworkDlg" Order="3">NOT Installed</Publish>
       <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog"
                Value="RuriRemoveDlg" Order="2">1</Publish>
-      <Dialog Id="RuriInstallOptionsDlg" Width="370" Height="270" Title="Rurimecha 安装">
+      <Dialog Id="RuriNetworkDlg" Width="370" Height="270" Title="Rurimecha 安装">
         <Control Id="Title" Type="Text" X="15" Y="15" Width="340" Height="25"
                  Text="{\WixUI_Font_Title}安装选项" />
         <Control Id="Description" Type="Text" X="20" Y="48" Width="330" Height="50"
                  Text="所选位置下会自动创建 Rurimecha 文件夹；升级沿用原目录。实际安装目录：[INSTALLFOLDER]" />
-        <Control Id="DesktopShortcut" Type="CheckBox" X="20" Y="108" Width="330" Height="18"
+        <Control Id="IpLabel" Type="Text" X="20" Y="113" Width="80" Height="17" Text="监听 IP：" />
+        <Control Id="Ip" Type="Edit" X="105" Y="110" Width="240" Height="20" Property="RURI_LISTEN_IP" />
+        <Control Id="PortLabel" Type="Text" X="20" Y="150" Width="80" Height="17" Text="监听端口：" />
+        <Control Id="Port" Type="Edit" X="105" Y="147" Width="90" Height="20" Property="RURI_LISTEN_PORT" />
+        <Control Id="DesktopShortcut" Type="CheckBox" X="20" Y="175" Width="330" Height="18"
                  Property="RURI_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="安装后创建桌面快捷方式" />
-        <Control Id="ConnectionHint" Type="Text" X="20" Y="140" Width="330" Height="43"
-                 Text="安装后默认仅供本机使用，升级会清除以前的设备连接设置。如需让手机或其他电脑访问，请在 Ruri 的「网络设置」中开启「允许其他设备连接」。" />
-        <Control Id="ExitHint" Type="Text" X="20" Y="196" Width="330" Height="24"
-                 Text="安装或升级前，请先从系统托盘退出 Ruri。" />
+        <Control Id="Hint" Type="Text" X="20" Y="199" Width="330" Height="32"
+                 Text="0.0.0.0 表示接收本机所有 IPv4 地址上的连接。点击下一步检查地址和端口。安装或升级前，请先从系统托盘退出 Ruri。" />
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="上一步">
           <Publish Event="NewDialog" Value="InstallDirDlg">1</Publish>
         </Control>
         <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="下一步">
-          <Publish Event="AddLocal" Value="DesktopShortcutFeature" Order="1">RURI_DESKTOP_SHORTCUT="1"</Publish>
-          <Publish Event="Remove" Value="DesktopShortcutFeature" Order="2">RURI_DESKTOP_SHORTCUT&lt;&gt;"1"</Publish>
-          <Publish Event="NewDialog" Value="VerifyReadyDlg" Order="3">1</Publish>
+          <Publish Event="DoAction" Value="CheckNetwork" Order="1">1</Publish>
+          <Publish Event="SpawnDialog" Value="RuriNetworkErrorDlg" Order="2">RURI_NETWORK_VALID&lt;&gt;"1"</Publish>
+          <Publish Event="AddLocal" Value="DesktopShortcutFeature" Order="3">RURI_NETWORK_VALID="1" AND RURI_DESKTOP_SHORTCUT="1"</Publish>
+          <Publish Event="Remove" Value="DesktopShortcutFeature" Order="4">RURI_NETWORK_VALID="1" AND RURI_DESKTOP_SHORTCUT&lt;&gt;"1"</Publish>
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" Order="5">RURI_NETWORK_VALID="1"</Publish>
         </Control>
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="取消">
           <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+      </Dialog>
+      <Dialog Id="RuriNetworkErrorDlg" Width="300" Height="130" Title="请检查监听设置">
+        <Control Id="Message" Type="Text" X="15" Y="15" Width="270" Height="75" Text="[RURI_NETWORK_ERROR]" />
+        <Control Id="OK" Type="PushButton" X="122" Y="103" Width="56" Height="17" Default="yes" Cancel="yes" Text="确定">
+          <Publish Event="EndDialog" Value="Return">1</Publish>
         </Control>
       </Dialog>
       <Dialog Id="RuriRemoveDlg" Width="370" Height="230" Title="卸载 Rurimecha">

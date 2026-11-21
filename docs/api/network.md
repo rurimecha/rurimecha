@@ -8,9 +8,7 @@
 {"port":8080,"https_port":8443,"https_enabled":false,"force_https":false,"ipv4":true,"ipv6":false,"ipv4_addresses":[],"ipv6_addresses":[],"discovery":true,"local_networks":[],"allow_remote":false,"known_proxies":[]}
 ```
 
-Windows 桌面版首次打开时只使用本机 IPv4 回环地址上的可用端口，关闭局域网发现。上方示例是独立服务器的初始设置。
-
-HTTP 监听始终保留。`https_enabled` 开启后增加 HTTPS 监听；`force_https` 仅在 HTTPS 已开启时可用，HTTP 请求以 307 重定向到同主机的 HTTPS 端口。HTTPS 请求不跳转。HTTP 与 HTTPS 端口范围均为 1–65535；同时监听时不可相同。至少开启一种地址族。各地址族列表为空时监听该地址族的全部地址。非空列表填写本机单个 IP，可同时选择多个。
+以上为初始设置。HTTP 监听始终保留。`https_enabled` 开启后增加 HTTPS 监听；`force_https` 仅在 HTTPS 已开启时可用，HTTP 请求以 307 重定向到同主机的 HTTPS 端口。HTTPS 请求不跳转。HTTP 与 HTTPS 端口范围均为 1–65535；同时监听时不可相同。至少开启一种地址族。各地址族列表为空时监听该地址族的全部地址。非空列表填写本机单个 IP，可同时选择多个。
 
 首次启用 HTTPS 或更换证书时，PUT 请求可额外提交 `certificate_base64` 与 `private_key_base64`，两字段必须同时提供，各自解码后最多 256 KiB，内容为 PEM 格式证书链和匹配的私钥。省略时沿用已保存的证书。证书过期、未生效、格式错误或私钥不匹配返回 400 `network_certificate_invalid`，不能保存文件返回 503 `network_certificate_save_failed`。证书和私钥保存在应用数据目录的受限文件中；GET 仅返回 `certificate_configured`，不返回私钥或路径。关闭 HTTPS 不删除已保存证书；重新启用时可沿用，证书过期则需更换。HTTPS 地址中的主机名或 IP 必须与证书匹配，客户端也须信任签发者。
 

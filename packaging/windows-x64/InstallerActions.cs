@@ -1,7 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Web.Script.Serialization;
 using WixToolset.Dtf.WindowsInstaller;
 using FileAttributes = System.IO.FileAttributes;
 
@@ -36,75 +42,136 @@ public static class InstallerActions
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rurimecha", "data");
     }
 
-    private const string NetworkResetError = "无法重置旧的设备连接设置。请从系统托盘退出 Ruri，确认应用数据目录可写且未使用链接，再重新安装。";
-
     [CustomAction]
-    public static ActionResult PrepareNetworkReset(Session session)
+    public static ActionResult ReadNetwork(Session session)
     {
         try
         {
-            string directory = DataDirectory();
-            if (session["RollbackDisabled"] != "" && HasDataDirectory(new DirectoryInfo(directory)) &&
-                IsRegularFile(Path.Combine(directory, "network.json")))
-                return Fail(session, "请启用 Windows 安装回滚，以便在安装失败时保留原设备连接设置。", null);
-
-            var data = new CustomActionData();
-            data.Add("Directory", directory);
-            data.Add("Backup", Path.Combine(directory, ".msi-network-" + Guid.NewGuid().ToString("N")));
-            string payload = data.ToString();
-            session["ResetNetwork"] = payload;
-            session["RollbackNetworkReset"] = payload;
-            session["CompleteNetworkReset"] = payload;
+            string ip = "0.0.0.0", port = "8080", path = Path.Combine(DataDirectory(), "network.json");
+            if (File.Exists(path))
+            {
+                var config = new JavaScriptSerializer { MaxJsonLength = 65536 }.Deserialize<Dictionary<string, object>>(File.ReadAllText(path));
+                port = Convert.ToString(config["port"], CultureInfo.InvariantCulture);
+                bool ipv4 = Convert.ToBoolean(config["ipv4"]);
+                ip = ipv4 ? "0.0.0.0" : "::";
+                object addresses;
+                if (config.TryGetValue(ipv4 ? "ipv4_addresses" : "ipv6_addresses", out addresses) && addresses != null)
+                {
+                    foreach (object address in (IEnumerable)addresses)
+                    {
+                        ip = Convert.ToString(address);
+                        if (!IPAddress.IsLoopback(IPAddress.Parse(ip))) break;
+                    }
+                }
+                session["RURI_ORIGINAL_IP"] = ip;
+                session["RURI_ORIGINAL_PORT"] = port;
+            }
+            if (session["RURI_LISTEN_IP"] == "") session["RURI_LISTEN_IP"] = ip;
+            if (session["RURI_LISTEN_PORT"] == "") session["RURI_LISTEN_PORT"] = port;
             return ActionResult.Success;
         }
-        catch (Exception error) { return Fail(session, NetworkResetError, error); }
+        catch (Exception error) { return Fail(session, "无法读取已有网络设置。请先退出 Ruri，检查应用数据目录后重试。", error); }
+    }
+
+    // Bind real sockets, including the loopback address needed by the desktop window.
+    public static void CheckAddress(string address, int port)
+    {
+        IPAddress ip;
+        if (!IPAddress.TryParse(address, out ip) || port < 1 || port > 65535)
+            throw new ArgumentException("请输入本机 IP 和 1–65535 范围内的端口。");
+        var sockets = new List<Socket>();
+        try
+        {
+            var addresses = new List<IPAddress> { ip };
+            if (!ip.Equals(IPAddress.Any) && !ip.Equals(IPAddress.Loopback)) addresses.Add(IPAddress.Loopback);
+            foreach (IPAddress bind in addresses)
+            {
+                var socket = new Socket(bind.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                sockets.Add(socket);
+                socket.ExclusiveAddressUse = true;
+                if (bind.AddressFamily == AddressFamily.InterNetworkV6)
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, true);
+                socket.Bind(new IPEndPoint(bind, port));
+            }
+        }
+        finally { foreach (Socket socket in sockets) socket.Close(); }
     }
 
     [CustomAction]
-    public static ActionResult ResetNetwork(Session session)
+    public static ActionResult CheckNetwork(Session session)
     {
+        session["RURI_NETWORK_VALID"] = "0";
+        int port;
+        IPAddress ip;
+        if (!IPAddress.TryParse(session["RURI_LISTEN_IP"], out ip) ||
+            !int.TryParse(session["RURI_LISTEN_PORT"], out port) || port < 1 || port > 65535)
+        {
+            session["RURI_NETWORK_ERROR"] = "请输入本机 IP 和 1–65535 范围内的端口。";
+            return ActionResult.Success;
+        }
         try
         {
-            var data = session.CustomActionData;
-            string directory = data["Directory"];
-            if (!HasDataDirectory(new DirectoryInfo(directory))) return ActionResult.Success;
-            string path = Path.Combine(directory, "network.json");
-            if (IsRegularFile(path))
+            CheckAddress(ip.ToString(), port);
+            session["RURI_LISTEN_IP"] = ip.ToString();
+            session["RURI_LISTEN_PORT"] = port.ToString(CultureInfo.InvariantCulture);
+            session["RURI_NETWORK_VALID"] = "1";
+        }
+        catch (SocketException)
+        {
+            session["RURI_NETWORK_ERROR"] = "无法使用这个监听地址或端口。请确认 IP 属于本机，并退出 Ruri 或占用该端口的其他程序，再重试；也可以改用其他端口。";
+        }
+        return ActionResult.Success;
+    }
+
+    [CustomAction]
+    public static ActionResult PrepareNetwork(Session session)
+    {
+        CheckNetwork(session);
+        if (session["RURI_NETWORK_VALID"] != "1") return Fail(session, session["RURI_NETWORK_ERROR"], null);
+        string path = Path.Combine(DataDirectory(), "network.json");
+        var data = new CustomActionData();
+        data.Add("Directory", DataDirectory());
+        data.Add("Core", Path.Combine(session["INSTALLFOLDER"], "rurimecha-core.exe"));
+        IPAddress ip = IPAddress.Parse(session["RURI_LISTEN_IP"]);
+        data.Add("Address", (ip.AddressFamily == AddressFamily.InterNetworkV6 ? "[" + ip + "]" : ip.ToString()) + ":" + session["RURI_LISTEN_PORT"]);
+        data.Add("Changed", (session["RURI_ORIGINAL_IP"] != session["RURI_LISTEN_IP"] || session["RURI_ORIGINAL_PORT"] != session["RURI_LISTEN_PORT"]) ? "1" : "0");
+        data.Add("Original", File.Exists(path) ? Convert.ToBase64String(File.ReadAllBytes(path)) : "");
+        session["ApplyNetwork"] = data.ToString();
+        session["RollbackNetwork"] = data.ToString();
+        return ActionResult.Success;
+    }
+
+    [CustomAction]
+    public static ActionResult ApplyNetwork(Session session)
+    {
+        var data = session.CustomActionData;
+        if (data["Changed"] != "1") return ActionResult.Success;
+        try
+        {
+            var start = new ProcessStartInfo(data["Core"], "-data-dir \"" + data["Directory"] + "\" -configure-listen \"" + data["Address"] + "\"");
+            start.UseShellExecute = false;
+            start.CreateNoWindow = true;
+            start.RedirectStandardError = true;
+            using (var process = Process.Start(start))
             {
-                string lockPath = Path.Combine(directory, "core.lock");
-                using (var gate = IsRegularFile(lockPath) ? File.Open(lockPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None) : null)
-                    File.Move(path, data["Backup"]);
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                if (process.ExitCode != 0) throw new IOException(error);
             }
             return ActionResult.Success;
         }
-        catch (Exception error) { return Fail(session, NetworkResetError, error); }
+        catch (Exception error) { return Fail(session, "无法保存监听设置。请退出 Ruri，确认应用数据目录可写、端口可用，再重新安装。", error); }
     }
 
     [CustomAction]
-    public static ActionResult RollbackNetworkReset(Session session)
+    public static ActionResult RollbackNetwork(Session session)
     {
-        try
-        {
-            var data = session.CustomActionData;
-            string directory = data["Directory"];
-            if (HasDataDirectory(new DirectoryInfo(directory)) && IsRegularFile(data["Backup"]))
-                File.Move(data["Backup"], Path.Combine(directory, "network.json"));
-            return ActionResult.Success;
-        }
-        catch (Exception error) { return Fail(session, "无法恢复安装前的设备连接设置。请从系统托盘退出 Ruri，再重新安装。", error); }
-    }
-
-    [CustomAction]
-    public static ActionResult CompleteNetworkReset(Session session)
-    {
-        try
-        {
-            var data = session.CustomActionData;
-            if (HasDataDirectory(new DirectoryInfo(data["Directory"])) && IsRegularFile(data["Backup"]))
-                File.Delete(data["Backup"]);
-            return ActionResult.Success;
-        }
-        catch (Exception error) { return Fail(session, NetworkResetError, error); }
+        var data = session.CustomActionData;
+        if (data["Changed"] != "1") return ActionResult.Success;
+        string path = Path.Combine(data["Directory"], "network.json");
+        if (data["Original"] == "") File.Delete(path);
+        else File.WriteAllBytes(path, Convert.FromBase64String(data["Original"]));
+        return ActionResult.Success;
     }
 
     // Only these Core-owned locations are eligible for removal. Additional files
@@ -134,38 +201,19 @@ public static class InstallerActions
         public UnsafeDataException(string message) : base(message) {}
     }
 
-    private static FileAttributes? ExistingAttributes(string path)
-    {
-        try { return File.GetAttributes(path); }
-        catch (FileNotFoundException) { return null; }
-        catch (DirectoryNotFoundException) { return null; }
-    }
-
-    private static bool IsRegularFile(string path)
-    {
-        var attributes = ExistingAttributes(path);
-        if (!attributes.HasValue) return false;
-        if ((attributes.Value & (FileAttributes.Directory | FileAttributes.ReparsePoint)) != 0)
-            throw new IOException("Expected a regular application file: " + path);
-        return true;
-    }
-
-    private static bool HasDataDirectory(DirectoryInfo root)
-    {
-        var attributes = ExistingAttributes(root.FullName);
-        if (!attributes.HasValue) return false;
-        RejectLink(attributes.Value);
-        if ((attributes.Value & FileAttributes.Directory) == 0)
-            throw new UnsafeDataException("应用数据路径不是文件夹。请检查数据位置后重试，或取消勾选数据清理。");
-        for (DirectoryInfo parent = root.Parent; parent != null; parent = parent.Parent)
-            RejectLink(parent.Attributes);
-        return true;
-    }
-
     public static void ClearDataDirectory(string directory)
     {
         var root = new DirectoryInfo(directory);
-        if (!HasDataDirectory(root)) return;
+        FileAttributes rootAttributes;
+        try { rootAttributes = File.GetAttributes(root.FullName); }
+        catch (FileNotFoundException) { return; }
+        catch (DirectoryNotFoundException) { return; }
+        RejectLink(rootAttributes);
+        if ((rootAttributes & FileAttributes.Directory) == 0)
+            throw new UnsafeDataException("应用数据路径不是文件夹。请检查数据位置后重试，或取消勾选数据清理。");
+        for (DirectoryInfo parent = root.Parent; parent != null; parent = parent.Parent)
+            RejectLink(parent.Attributes);
+
         var entries = new List<FileSystemInfo>();
         InspectDataEntries(root, "", entries);
         string lockPath = Path.Combine(root.FullName, "core.lock");
