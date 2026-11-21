@@ -28,7 +28,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## AI translation and archive suggestions
 
-- With an active server license, administrators can add and test provider models in **AI configuration** and choose a model for each feature.
+- With an active server license, administrators can add and test provider models in **AI configuration** and choose a model for each feature. Each provider can use the system proxy, connect directly, or use a custom proxy.
 - In the Android local library, use **AI configuration** to add a provider, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 - View cumulative usage, search by date, and change the call detail limit in the local gateway management page.
 - Translate scripts, work metadata, and folder or file display names, or generate archive suggestions. Translate the display names in a folder or work together. Choose the target language, whether to skip existing translated names, and the prompt for this run. Switch between original names and translations in the current interface language with one button.

@@ -24318,7 +24318,7 @@
           "Text AI"
         ],
         "summary": "List models offered by a local AI gateway provider",
-        "description": "Administrator only. Query the current provider draft without saving. Omitting the key reuses a saved credential only when the provider ID, kind and effective address match. An empty key queries without a credential.",
+        "description": "Administrator only. Query the current provider draft without saving. Omitting the key reuses a saved credential only when the provider ID, kind and effective address match. An empty key queries without a credential. Discovery applies the provider draft's proxy mode and URL without saving them.",
         "requestBody": {
           "required": true,
           "content": {
@@ -24350,6 +24350,20 @@
                   "base_url": {
                     "type": "string",
                     "description": "Provider service base URL. Required for openai_compatible."
+                  },
+                  "proxy_mode": {
+                    "type": "string",
+                    "enum": [
+                      "system",
+                      "direct",
+                      "custom"
+                    ],
+                    "description": "Proxy mode for this provider. Omit to preserve the mode of an existing provider with the same ID, or to use system for a new provider."
+                  },
+                  "proxy_url": {
+                    "type": "string",
+                    "writeOnly": true,
+                    "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL."
                   },
                   "key": {
                     "type": "string",
@@ -24419,7 +24433,7 @@
           "Text AI"
         ],
         "summary": "Test a local AI gateway model",
-        "description": "Administrator only. Send one synthetic structured-output request using a saved and enabled model alias. Settings remain unchanged. The provider may charge for this test.",
+        "description": "Administrator only. Send one synthetic structured-output request using a saved and enabled model alias and its provider proxy settings. Settings remain unchanged. The provider may charge for this test.",
         "requestBody": {
           "required": true,
           "content": {
@@ -38949,6 +38963,30 @@
             "type": "boolean",
             "readOnly": true,
             "description": "True if a credential is available. An omitted value means false."
+          },
+          "proxy_mode": {
+            "type": "string",
+            "enum": [
+              "system",
+              "direct",
+              "custom"
+            ],
+            "description": "Proxy mode for this provider. Omit to preserve the mode of an existing provider with the same ID, or to use system for a new provider."
+          },
+          "proxy_url": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Full HTTP, HTTPS, SOCKS5, or SOCKS5H proxy URL for custom mode. Omit to retain a saved custom URL and its credentials. A supplied URL replaces the saved URL."
+          },
+          "proxy_address": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Saved custom proxy scheme, host, and port with credentials removed."
+          },
+          "has_proxy_credentials": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "True if the custom proxy uses URL credentials. Omitted when false."
           },
           "enabled": {
             "type": "boolean"

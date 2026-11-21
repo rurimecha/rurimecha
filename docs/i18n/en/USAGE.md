@@ -210,7 +210,13 @@ For a server library, sign in as an administrator and open **AI configuration**.
 
 In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
 
-The built-in gateway in Ruri for Windows and the Android local library can use the device’s system proxy to reach online models. After changing the proxy, load models again, run another test, or start a new translation. Model requests already underway keep their current connection.
+Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for each provider.
+
+- **Use system proxy** is the default. It uses the proxy configured on the device or server that runs the library.
+- **Ignore proxy** makes Ruri connect directly to the provider. Transparent forwarding on the network can still apply.
+- **Use a custom proxy** takes the full address from your proxy service, such as `http://127.0.0.1:7890`. For a server library, enter an address the server can reach. `127.0.0.1` refers to the server itself.
+
+Once saved, this choice applies to new requests to fetch, test, or use the provider’s models. To check the connection after a change, fetch the model list again or run a model test.
 
 Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
 
