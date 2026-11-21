@@ -13,11 +13,10 @@ Download the package for your platform from [GitHub Releases](https://github.com
 ### Windows installation
 
 1. Open the `.msi`, select **下一步** (Next), and choose an installation location. A `Rurimecha` subfolder is added unless that is already the selected folder name; upgrades keep the existing folder. Installation is for the current Windows user, requires no administrator privileges, and defaults to `%LOCALAPPDATA%\Programs\Rurimecha`. Each Windows user installs separately. If an older EXE version is installed, uninstall it in Windows Settings before installing the MSI; library data is kept.
-2. Choose a listen IP and port. Defaults are `0.0.0.0` and `8080`, accepting connections on all local IPv4 addresses. Use `127.0.0.1` for access only from this computer. A specific IP must belong to this computer. If the availability check fails, free the port or choose another. Reinstallation and upgrades retain existing network settings by default.
-3. To add a desktop shortcut, select **安装后创建桌面快捷方式** on the installation options page. The box is unchecked for new installations. If needed, install Microsoft's [WebView2 Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) and reopen.
-4. Open **Rurimecha** from Start. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**.
+2. To add a desktop shortcut, select **安装后创建桌面快捷方式** on the installation options page. The box is unchecked for new installations.
+3. Open **Rurimecha** from Start. On the first-time setup page, enter and confirm a new password for `admin`, then choose **Set password and sign in**. If Ruri asks for WebView2, install Microsoft's Evergreen Runtime and reopen. [Download WebView2](https://developer.microsoft.com/microsoft-edge/webview2/)
 
-Closing the window hides it in the tray while Ruri keeps running. Double-click the tray icon to reopen; right-click it and choose **Exit Ruri** to stop or update. Data stays in `%LOCALAPPDATA%\Rurimecha\data`, independently of the installation folder. See Connection and network for access from other devices.
+After installation, you can use Ruri directly from the desktop window. Connections and discovery from other devices are off until you enable them in the app. Closing the window hides it in the tray while Ruri keeps running. Double-click the tray icon to reopen. To stop or update Ruri, right-click the icon and choose **Exit Ruri**. Data stays in `%LOCALAPPDATA%\Rurimecha\data`, independently of the installation folder. [Connection and network](#connection-and-network)
 
 ### Linux installation
 
@@ -121,7 +120,7 @@ Open **Account and sessions** from the account menu, then choose **Check for upd
 
 When an official release checks for updates, either automatically or when you request it, it may send its platform, version, randomly generated installation ID, and license status to the Ruri website. Ruri maintainers use this information to count installations by version.
 
-- **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. When connected to Windows from a browser or phone, upgrade on the server PC.
+- **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. Upgrade on the Windows PC running Ruri. A successful upgrade or reinstall turns off connections and discovery from other devices. Your accounts, library, and other app data are kept. Turn on connections again in the desktop app to reconnect a phone or another computer.
 - **Android.** Choose **Download and install** and confirm in the system installer. Follow the system prompt if it asks you to allow installation. You can still use the current app if you cancel or installation fails. Installing over the existing app keeps your local library, license, and access to selected folders.
 - **Linux.** Download and extract the official x86-64 server package on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
 - **Docker.** Set `RURI_IMAGE` in the original Compose `.env` to `docker.io/rurimecha/rurimecha:<new-version>`, then run `docker compose pull core` and `docker compose up -d core`. Keep the existing data volume and media mounts. For custom deployments, replace the image using your existing deployment method.
@@ -356,7 +355,9 @@ Account & sessions → Login sessions & WebDAV shows current device names, clien
 
 ### Access from other devices
 
-Linux service defaults to `http://SERVER-LAN-IP:8080/`; allow that port in the firewall. Windows uses installation settings, initially all IPv4 addresses on 8080. Allow `rurimecha-core.exe` in the installation folder through the Windows private-network firewall. If it listens only on `127.0.0.1`, retain local access and add a LAN address in Network settings. Other devices cannot play while the computer sleeps, is off, or Ruri has exited. Docker uses host IP/external port, not the container address.
+- **Linux service** defaults to `http://SERVER-LAN-IP:8080/`. Allow that port in the firewall.
+- **Windows desktop** is for this computer only by default. As an administrator, open **Settings and management → Network settings**, turn on **Allow connections from other devices**, and select **Save network settings**. Ruri uses the current port. On the other device, open the LAN address shown and sign in with a Ruri account. If the connection fails, check that both devices are on the same LAN and that Windows Firewall allows Ruri on private networks. Saved settings survive a regular restart. Turn off the option and save to disconnect other devices. Other devices cannot play while the computer sleeps, is off, or Ruri has exited.
+- **Docker** uses the host IP address and external port. [Docker installation](#docker-installation)
 
 Blank LAN ranges detect directly attached private networks. Enter one range per line, e.g. `192.168.1.0/24`, retaining current ranges when adding Docker/VPN/routed-home networks. Remote access needs both the server-wide switch and the user's remote access permission. Use HTTPS or a trusted VPN outside home; HTTP login/media are unencrypted. For Nginx follow the next section.
 
