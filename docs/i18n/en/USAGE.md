@@ -6,7 +6,7 @@
 
 Ordinary Android playback of phone or server media requires no product license. Sign in to access server media with your account permissions. Creating and using other server accounts requires an active server license.
 
-**Pricing:** Testing is free. Planned pricing is CNY 5 per device per month or CNY 30 for a lifetime license for one device. See the official announcement for the final plan. Enter your email on the website to receive one free trial license with two device slots. Use the same key in **Server license** and the Android local library’s **Device license** to activate both, using one slot each. Each address gets one trial. Activate within 7 days of issue. The trial lasts 31 days from first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend the deadlines.
+**Pricing:** Testing is free. Planned pricing is CNY 5 per device per month or CNY 30 for a lifetime license for one device. See the official announcement for the final plan. Enter your email on the website to receive one free trial license with two device slots. Use the same key in **Server license** and the Android local library’s **Device license** to activate both, using one slot each. Use the same email address to apply again whenever your trial expires. If your current key can still be activated or your trial is still valid, applying again resends the original key. Activate within 7 days of issue. The trial lasts 31 days from first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend the deadlines.
 
 ## Installation and first sign-in
 
@@ -351,7 +351,9 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 Open **Server license** on the server to activate treasured clips, AI, and smart routing. When Android is connected to a server, those features use the server license. Open **Device license** in the Android local library to activate local treasured clips, work details translation, and smart routing. The same license key works on both. Each activation uses one slot.
 
-While the device is online, choose **Activate license** and enter your license key. You can keep the default device name or change it to something easy to recognize, such as “Living room PC.” After activation, the page shows the device name, expiry date, and enabled features. After renewing, select **Update license** and enter the original key. Activation, updates, and binding release require internet access. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
+On a device you already activated, open the license page and choose **Update license** to enter the new trial key. For your first activation, choose **Activate license**.
+
+While the device is online, choose **Activate license** and enter your license key. You can keep the default device name or change it to something easy to recognize, such as “Living room PC.” After activation, the page shows the device name, expiry date, and enabled features. After renewing, select **Update license** and enter your license key. Activation, updates, and binding release require internet access. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
 
 During activation or an update, Ruri sends the server hostname or Android device model, when available, to the license service so its administrators can verify the device. When you look up your license on the website, you’ll see the name you chose on the license page and the device type.
 
