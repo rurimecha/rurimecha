@@ -8,7 +8,7 @@
 
 - `GET /agent/settings` 读取当前启用状态、模型用途配置和 ETag。`gateway_mode` 为 `local`，`profiles` 与 `profiles_by_mode.local` 均表示内置网关的用途配置。兼容字段 `base_url` 与 `has_token` 分别返回空字符串和 `false`。
 - `POST /agent/settings/test` 与 `GET /agent/models` 读取内置网关中可用的模型别名。前者返回 `valid` 和 `models`，可提交空对象。读取模型列表无需调用生成服务，也不保存设置。
-- `PUT /agent/settings` 使用当前 ETag 作为 `If-Match` 保存启用状态和完整的 `profiles`。`gateway_mode` 可省略，也可显式提交 `local`。测试或保存时传入其他模式、非空 `base_url` 或 `token` 值会返回 `400`。作品资料翻译、台本翻译、目录与文件名翻译、归档建议可分别选择模型。停用后可以继续手工编辑。
+- `PUT /agent/settings` 使用当前 ETag 作为 `If-Match` 保存启用状态和完整的 `profiles`。`gateway_mode` 可省略，也可显式提交 `local`。测试或保存时传入其他模式、非空 `base_url` 或 `token` 值会返回 `400`。作品资料翻译、台本翻译、目录与文件名翻译、归档建议可分别选择模型。新选的模型，以及从停用改为启用的用途所选模型，必须在当前目录可用。仍保留的旧选择可随其他设置提交，便于更换或移除已从目录下线的模型。停用后可以继续手工编辑。
 
 ## 本地网关管理
 

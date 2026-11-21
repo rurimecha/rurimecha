@@ -210,13 +210,13 @@ In the Android local library, open **AI configuration** to add a provider, enter
 
 If a model is slow to respond, increase **Request timeout (seconds)** in **Manage local gateway**, save, and try the translation again. The setting applies to each model request from the local gateway.
 
-For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
+For a server library, sign in as an administrator and open **AI configuration**. Choose **Manage server gateway** in the Android app or **Manage local gateway** in the browser. Enter your provider details and add a model. Both use the same server settings. The server tests models and runs translations. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
 
 When a provider offers a **Default request method**, choose the method recommended by the provider. Each model uses that setting unless you select a different **Model request method**. If the test says the model requires Responses, choose **Retry with Responses**. After the test passes, choose **Save** or **Save settings** to use the current choices for future translations.
 
-In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
+In the gateway management page, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
 
-Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for each provider.
+Under **Providers** in the gateway management page, choose a **Proxy mode** for each provider.
 
 - **Use system proxy** is the default. It uses the proxy configured on the device or server that runs the library.
 - **Ignore proxy** makes Ruri connect directly to the provider. Transparent forwarding on the network can still apply.
@@ -224,7 +224,7 @@ Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for eac
 
 Fetching the model list and testing a model use the proxy settings currently entered. A test sends one sample request and may count against your provider quota. Once saved, these settings also apply to new requests to that provider.
 
-Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names. Online models receive the selected text. Review individual translations before saving them.
+Choose a model for each feature you want to use, enable the feature, then turn on AI. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names. Online models receive the selected text. Review individual translations before saving them.
 
 Choose **Translate work metadata** from the work’s action menu or at the top of **Edit metadata**. The **Title** field shows the title for the selected **Metadata language**. That language is also the source for translation. Batch translation starts with all translatable fields selected, including titles, summaries, detailed descriptions, credits, tags, and series names. Clear any fields you want to leave out. To translate just one field, use its button, such as **Translate title** or **Translate tags**. Existing translations in the target language are skipped by default. Turn off skipping to translate them again.
 

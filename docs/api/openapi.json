@@ -23926,7 +23926,7 @@
           "Text AI"
         ],
         "summary": "Save text AI settings",
-        "description": "Save AI enablement and replace the embedded gateway's profiles. Omitted gateway mode defaults to local.",
+        "description": "Save AI enablement and replace the embedded gateway's profiles. Omitted gateway mode defaults to local. New selections and selections for a newly enabled profile must be available in the model catalog. Unchanged selections may refer to removed or disabled models.",
         "responses": {
           "200": {
             "description": "OK",
