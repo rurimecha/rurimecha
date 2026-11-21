@@ -2,17 +2,17 @@
 
 以下 AI 路径相对 `/api/v1`，需管理员会话和有效服务器授权。授权状态见 `GET /license` 的 `capabilities.ai`。浏览器的写请求使用同源会话与 Origin/Referer。可通过 `GET /info` 的 `agent.text_gateway` 能力识别支持文字网关的 Core。机器可读定义见 [OpenAPI](openapi.json)。
 
-默认 Ruri 构建使用文字 AI 网关 `github.com/rurimecha/ai-gateway`。单独部署文字网关使用同一项目。历史音频模型网关 `ruri-ai-gateway` 已废弃，仅供代码参考。
+默认 Ruri 构建通过内置文字 AI 网关管理和使用模型。
 
 ## 连接和模型设置
 
-- `GET /agent/settings` 读取当前配置和 ETag。`gateway_mode` 为 `local` 或 `remote`，旧配置按 `remote` 读取。`profiles` 对应已选择模式，`profiles_by_mode` 返回分别保留的 `local` 和 `remote` 用途配置。`base_url` 与 `has_token` 始终表示已保存的远程连接，推理令牌只在提交时使用。
-- `POST /agent/settings/test` 读取指定模式的可选模型别名，返回 `valid` 与 `models`。选择 `local` 时无需提供地址或推理令牌。选择 `remote` 时使用填写的 Gateway 根地址及令牌，地址相同时可省略令牌并沿用已保存的值。测试列表不调用模型生成，配置保持原值。`GET /agent/models` 读取已保存模式的模型列表。
-- `PUT /agent/settings` 使用当前 ETag 作为 `If-Match` 保存启用状态、`gateway_mode` 和该模式的完整 `profiles`。省略 `gateway_mode` 按 `remote` 处理。保存 `local` 时保留远程地址、令牌和用途配置，保存 `remote` 时保留本地用途配置。远程地址变化时需提供对应的令牌。同地址省略 `token` 可保留原令牌，空字符串清除令牌。作品资料翻译、台本翻译、目录与文件名翻译、归档建议可分别选择模型。停用后可以继续手工编辑。
+- `GET /agent/settings` 读取当前启用状态、模型用途配置和 ETag。`gateway_mode` 为 `local`，`profiles` 与 `profiles_by_mode.local` 均表示内置网关的用途配置。兼容字段 `base_url` 与 `has_token` 分别返回空字符串和 `false`。
+- `POST /agent/settings/test` 与 `GET /agent/models` 读取内置网关中可用的模型别名。前者返回 `valid` 和 `models`，可提交空对象。读取模型列表无需调用生成服务，也不保存设置。
+- `PUT /agent/settings` 使用当前 ETag 作为 `If-Match` 保存启用状态和完整的 `profiles`。`gateway_mode` 可省略，也可显式提交 `local`。测试或保存时传入其他模式、非空 `base_url` 或 `token` 值会返回 `400`。作品资料翻译、台本翻译、目录与文件名翻译、归档建议可分别选择模型。停用后可以继续手工编辑。
 
 ## 本地网关管理
 
-`GET /ai-gateway/manage` 打开内置网关的 HTML 管理页。页面使用 Core 管理员会话，可增改、启用或停用供应商和模型。这里管理的供应商密钥用于访问上游模型服务，远程 Gateway 推理令牌在 AI 设置中另行配置。
+`GET /ai-gateway/manage` 打开内置网关的 HTML 管理页。页面使用 Core 管理员会话，可增改、启用或停用供应商和模型。供应商密钥用于访问对应的模型服务。
 
 `GET /ai-gateway/settings` 返回同一内置网关的配置与 ETag。`PUT /ai-gateway/settings` 用该 ETag 作为 `If-Match` 提交完整配置，成功后返回保存结果及新 ETag。`providers` 和 `models` 可用空数组，`timeout_seconds` 可为 1 至 3600，`max_concurrent` 可为 1 至 64。
 
@@ -34,7 +34,7 @@
 
 `GET /agent/metadata-translation-prompt` 返回 `{"prompt":"默认翻译提示词"}`，不调用模型。`POST /agent/jobs` 使用 `work_ids`、`target_locale` 及可选 `source_locale`、`fields`（`title`、`description`）、`expected_revisions`、`prompt`。每项任务可指定一个目标语言，支持简体中文、繁体中文、日语和英语。省略源语言时使用每部作品的原始语言。结果为 `202` 与任务 `Location`。
 
-省略 `prompt` 时沿用默认翻译提示词。可传至多 4,000 个 Unicode 码点的本次翻译提示词，全文为空白或包含空字符时返回 `400`。内置或兼容文字网关使用它替换可编辑的翻译指示，并继续应用固定的输出结构与资料隔离规则。旧版类型化翻译网关将本次文字作为附加翻译指示。提示词仅随本次任务发送，不写入任务历史或 AI 设置。
+省略 `prompt` 时沿用默认翻译提示词。可传至多 4,000 个 Unicode 码点的本次翻译提示词，全文为空白或包含空字符时返回 `400`。内置文字网关使用它替换可编辑的翻译指示，并继续应用固定的输出结构与资料隔离规则。提示词仅随本次任务发送，不写入任务历史或 AI 设置。
 
 `GET /agent/jobs` 返回近期任务。`GET /agent/jobs/{job}` 返回逐部作品状态、生成的 `candidate_ids`、可选 `description_parts` 和 `work_revision`。选定简介时，详细介绍的译文保留图片地址、顺序和曲目时长。`POST /agent/jobs/{job}/cancel` 请求停止生成。生成文字是待选内容，已发布的资料保持原值。
 

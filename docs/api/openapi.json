@@ -23889,7 +23889,7 @@
           "Text AI"
         ],
         "summary": "Read text AI settings",
-        "description": "Read the active gateway mode, both sets of task profiles, and whether a remote gateway token is stored. The remote address and token status are available even in local mode.",
+        "description": "Read enablement and model profiles for the embedded gateway.",
         "responses": {
           "200": {
             "description": "OK",
@@ -23926,7 +23926,7 @@
           "Text AI"
         ],
         "summary": "Save text AI settings",
-        "description": "Save AI enablement and the selected gateway mode. Profiles replace only the selected mode's profiles. Local mode retains the remote address and token; editing the remote address does not reuse the old token. Omitted gateway mode defaults to remote for older clients.",
+        "description": "Save AI enablement and replace the embedded gateway's profiles. Omitted gateway mode defaults to local.",
         "responses": {
           "200": {
             "description": "OK",
@@ -23997,7 +23997,7 @@
           "Text AI"
         ],
         "summary": "Connect to the configured text gateway",
-        "description": "List models for the requested mode without saving anything. In local mode the server lists the embedded gateway's configured model aliases, with no request address or token required. In remote mode the server probes the specified connection. This operation does not generate text.",
+        "description": "List the embedded gateway's configured model aliases. This operation saves no settings and makes no inference request.",
         "responses": {
           "200": {
             "description": "OK",
@@ -38835,15 +38835,23 @@
           },
           "base_url": {
             "type": "string",
-            "description": "Remote Gateway root address. Local mode keeps the saved remote address."
+            "deprecated": true,
+            "enum": [
+              ""
+            ],
+            "description": "Omit this legacy field."
           },
           "profiles": {
             "$ref": "#/components/schemas/TextModelProfiles"
           },
           "token": {
             "type": "string",
-            "writeOnly": true,
-            "description": "Remote Gateway inference token. Omit to keep an existing token for the same remote address, or send an empty string to clear it. Local mode keeps the saved remote token."
+            "nullable": true,
+            "deprecated": true,
+            "enum": [
+              null
+            ],
+            "description": "Omit this legacy field."
           }
         }
       },
@@ -38858,31 +38866,29 @@
           },
           "base_url": {
             "type": "string",
-            "description": "Saved remote Gateway root address, including when local mode is selected."
+            "deprecated": true,
+            "description": "Legacy field, always empty."
           },
           "profiles": {
             "$ref": "#/components/schemas/TextModelProfiles"
           },
           "profiles_by_mode": {
             "type": "object",
-            "description": "Task profiles retained independently for the local and remote gateways.",
+            "description": "The embedded gateway's model profiles, also returned as profiles.",
             "properties": {
               "local": {
-                "$ref": "#/components/schemas/TextModelProfiles"
-              },
-              "remote": {
                 "$ref": "#/components/schemas/TextModelProfiles"
               }
             },
             "required": [
-              "local",
-              "remote"
+              "local"
             ],
             "additionalProperties": false
           },
           "has_token": {
             "type": "boolean",
-            "description": "Whether the remote Gateway inference token is stored."
+            "deprecated": true,
+            "description": "Legacy field, always false."
           },
           "revision": {
             "type": "string"
@@ -38901,11 +38907,10 @@
       "TextAIGatewayMode": {
         "type": "string",
         "enum": [
-          "local",
-          "remote"
+          "local"
         ],
-        "default": "remote",
-        "description": "Select the embedded gateway or a separately hosted gateway. Older settings default to remote."
+        "default": "local",
+        "description": "The embedded gateway."
       },
       "TextModelProfiles": {
         "type": "object",

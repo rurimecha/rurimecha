@@ -204,20 +204,15 @@ Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on m
 
 ## AI translation and archive suggestions
 
-In the Android local library, open **AI configuration**. Choose the local gateway to add a provider, enter its key, find models, and test the connection. To use a remote gateway, choose it, enter the connection details, and select **Test and save**. Ruri remembers the model for each gateway. After saving, start translating from a work’s details. Cloud models still require internet access on the phone.
+In the Android local library, open **AI configuration** to add a provider, enter its key, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 
-As an administrator, open **AI configuration**, choose a gateway, and enable AI.
+For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. Save and test the model, then return to **AI configuration**. The model list refreshes automatically.
 
-- For **Local gateway**, open **Manage local gateway** in a browser. Enter your provider details and add a model, then select it from the list. If the list is unavailable or the model is missing, enter the model ID manually. Save and test your model, then return to AI configuration. The model list refreshes automatically.
-- For **Remote gateway**, enter its address and access token, then select **Test and save**. Ruri applies the address and token after the test succeeds.
-
-If you host your own remote gateway, use the current text AI gateway, `ai-gateway`. Create an access token on its management page, then return to Ruri to test the connection.
-
-In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library. For a remote gateway, open that gateway’s management page.
+In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
 
 The built-in gateway in Ruri for Windows and the Android local library can use the device’s system proxy to reach online models. After changing the proxy, load models again, run another test, or start a new translation. Model requests already underway keep their current connection.
 
-Enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
+Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
 
 Choose **Translate work metadata** from the work’s action menu or at the top of **Edit metadata**. The **Title** field shows the title for the selected **Metadata language**. That language is also the source for translation. Batch translation starts with all translatable fields selected, including titles, summaries, detailed descriptions, credits, tags, and series names. Clear any fields you want to leave out. To translate just one field, use its button, such as **Translate title** or **Translate tags**. Existing translations in the target language are skipped by default. Turn off skipping to translate them again.
 
