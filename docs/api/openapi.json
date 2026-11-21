@@ -24905,6 +24905,126 @@
         ]
       }
     },
+    "/works/{work}/translation-job": {
+      "get": {
+        "operationId": "getOpenWorkTranslationJob",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Find the open translation for a work",
+        "description": "Returns the work's running job or pending result, or a null job when neither exists.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/WorkTranslationJob"
+                        },
+                        {
+                          "type": "object",
+                          "nullable": true,
+                          "enum": [
+                            null
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "job"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "work",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/agent/jobs/{job}/discard": {
+      "post": {
+        "operationId": "discardWorkTranslationResult",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Discard a pending translation result",
+        "description": "Closes the result without editing the work. Only pending results can be discarded.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkTranslationJob"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "job",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
     "/agent/jobs/{job}/cancel": {
       "post": {
         "operationId": "cancelWorkTranslationJob",
@@ -39272,6 +39392,11 @@
       "WorkTranslationInput": {
         "type": "object",
         "properties": {
+          "review_required": {
+            "type": "boolean",
+            "default": false,
+            "description": "Require a single work and editor_fields. Keep the result available for review until applied or discarded. An existing translation for the same work can return 409 translation_review_pending."
+          },
           "work_ids": {
             "type": "array",
             "items": {
@@ -39393,6 +39518,20 @@
       "WorkTranslationJob": {
         "type": "object",
         "properties": {
+          "review_required": {
+            "type": "boolean",
+            "description": "True for the background review workflow."
+          },
+          "review_state": {
+            "type": "string",
+            "enum": [
+              "waiting",
+              "pending",
+              "applied",
+              "discarded"
+            ],
+            "description": "Omitted on legacy jobs and on managed jobs that end without a result."
+          },
           "id": {
             "type": "string"
           },

@@ -33,6 +33,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - View cumulative usage, search by date, and change the call detail limit in the local gateway management page.
 - Translate scripts, work metadata, and folder or file display names. Translate the display names in a folder or work together. Choose the target language, whether to skip existing translated names, and the prompt for this run. Switch between original names and translations in the current interface language with one button.
 - Translate selected work metadata fields together or translate an individual field, such as the title or tags. Review and adjust the prompt before starting, then compare the new translations with the source, edit them, and save the results you choose.
+- Run work-details translations in the background and review them from the work or Background tasks. Each work can have one running or unreviewed translation at a time.
 
 ## Playback, resuming, and collecting
 

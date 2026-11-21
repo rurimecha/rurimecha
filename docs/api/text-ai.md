@@ -50,6 +50,10 @@
 
 对应任务项的 `editor_values` 按目标语言字段返回 `value` 和可核对的文本位置 `paths`。确认时提交 `PATCH /works/{work}/metadata-editor`，传 `translation_job` 与 `translated_fields`，后者按目标字段列出与 `paths` 顺序一致的核对文字。沿用 `If-Match`，与手动 `values`、`unlock` 互斥。确认会保存并保护所选目标字段，文本以外的数据按草稿保留。
 
+`POST /agent/jobs` 可为一个作品的 `editor_fields` 任务传 `review_required: true`。同一作品已有此类进行中或待确认的翻译时，创建请求返回 `409 translation_review_pending`。此时调用 `GET /works/{work}/translation-job` 继续查看，响应为 `{"job":{…}}`，无此类任务时为 `{"job":null}`。此查询和任务列表沿用 AI 任务的授权规则。
+
+此类任务在运行时的 `review_state` 为 `waiting`，已生成的结果为 `pending`。待确认结果保留至确认、放弃或作品被移除。确认沿用元数据编辑接口，在同一事务中写入选中的目标字段并把结果标记为 `applied`。`POST /agent/jobs/{job}/discard` 可将待确认结果标记为 `discarded`，该操作不改动作品。以已处理结果再次确认会收到 `409 translation_review_closed`。任务中断或失败时没有待确认结果，可重新创建任务。
+
 ## 台本翻译
 
 `POST /nodes/{node}/transcript-drafts` 接受现有轨道 `track` 和读取编辑器时取得的 `revision`，返回独立草稿、`201`、`Location` 和草稿 ETag。保留原文与现有时间，轨道修订变化返回 `412`。已有草稿可直接翻译。
