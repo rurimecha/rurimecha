@@ -30,13 +30,15 @@
 
 ## 作品资料翻译
 
-`POST /agent/jobs` 使用 `work_ids`、`target_locale` 及可选 `source_locale`、`fields`（`title`、`description`）、`expected_revisions`。每项任务可指定一个目标语言，支持简体中文、繁体中文、日语和英语。省略源语言时使用每部作品的原始语言。结果为 `202` 与任务 `Location`。
+`GET /agent/metadata-translation-prompt` 返回 `{"prompt":"默认翻译提示词"}`，不调用模型。`POST /agent/jobs` 使用 `work_ids`、`target_locale` 及可选 `source_locale`、`fields`（`title`、`description`）、`expected_revisions`、`prompt`。每项任务可指定一个目标语言，支持简体中文、繁体中文、日语和英语。省略源语言时使用每部作品的原始语言。结果为 `202` 与任务 `Location`。
+
+省略 `prompt` 时沿用默认翻译提示词。可传至多 4,000 个 Unicode 码点的本次翻译提示词，全文为空白或包含空字符时返回 `400`。内置或兼容文字网关使用它替换可编辑的翻译指示，并继续应用固定的输出结构与资料隔离规则。旧版类型化翻译网关将本次文字作为附加翻译指示。提示词仅随本次任务发送，不写入任务历史或 AI 设置。
 
 `GET /agent/jobs` 返回近期任务。`GET /agent/jobs/{job}` 返回逐部作品状态、生成的 `candidate_ids`、可选 `description_parts` 和 `work_revision`。选定简介时，详细介绍的译文保留图片地址、顺序和曲目时长。`POST /agent/jobs/{job}/cancel` 请求停止生成。生成文字是待选内容，已发布的资料保持原值。
 
 读取候选和最新的 [元数据编辑快照](metadata-scraping.md)，核对项目 `work_revision`。用户确认后，在同一次 `PATCH /works/{work}/metadata-editor` 用快照的 `If-Match` 提交选中的目标语言字段，可分别选择标题、简介和详细介绍。变更后的作品需重新核对，过期的确认返回 `412`。
 
-从元数据编辑器发起翻译时，`GET /works/{work}/metadata-editor` 的 `translation_fields` 列出含文字的可选字段。创建任务传入其中属于 `source_locale` 的 `editor_fields`，与旧的 `fields` 互斥。`skip_existing` 默认为 true，会跳过目标语言已有文字的整个字段。设置为 false 可重新生成。
+从元数据编辑器发起翻译时，`GET /works/{work}/metadata-editor` 的 `translation_fields` 列出含文字的可选字段。创建任务传入其中属于 `source_locale` 的 `editor_fields`，与旧的 `fields` 互斥。提供方的年龄分类和原始介绍数据不在可选范围，详细介绍使用 `texts/{locale}/description_parts`。`skip_existing` 默认为 true，会跳过目标语言已有文字的整个字段。设置为 false 可重新生成。
 
 对应任务项的 `editor_values` 按目标语言字段返回 `value` 和可核对的文本位置 `paths`。确认时提交 `PATCH /works/{work}/metadata-editor`，传 `translation_job` 与 `translated_fields`，后者按目标字段列出与 `paths` 顺序一致的核对文字。沿用 `If-Match`，与手动 `values`、`unlock` 互斥。确认会保存并保护所选目标字段，文本以外的数据按草稿保留。
 

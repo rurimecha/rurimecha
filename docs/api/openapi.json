@@ -24750,6 +24750,44 @@
         ]
       }
     },
+    "/agent/metadata-translation-prompt": {
+      "get": {
+        "operationId": "getWorkTranslationPrompt",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read the default editable work translation prompt without invoking a model",
+        "responses": {
+          "200": {
+            "description": "Default translation instructions. Requires an administrator session and a server AI entitlement.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prompt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "prompt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
     "/agent/jobs": {
       "get": {
         "operationId": "listWorkTranslationJobs",
@@ -39142,6 +39180,13 @@
             "type": "boolean",
             "default": true,
             "description": "Skip editor fields with text in the target language."
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000,
+            "writeOnly": true,
+            "description": "Editable translation instructions for this job. Omit to use the default. May not be all whitespace or contain NUL. Output rules still apply. Excluded from job history and AI settings."
           },
           "expected_revisions": {
             "type": "object",
