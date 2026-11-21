@@ -208,6 +208,8 @@ In the Android local library, open **AI configuration** to add a provider, enter
 
 For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
 
+When a provider offers a **Default request method**, choose the method recommended by the provider. Each model uses that setting unless you select a different **Model request method**. If the test says the model requires Responses, choose **Retry with Responses**. After the test passes, choose **Save** or **Save settings** to use the current choices for future translations.
+
 In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
 
 Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for each provider.
