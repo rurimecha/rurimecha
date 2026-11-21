@@ -1,6 +1,6 @@
 # 产品授权管理
 
-单档授权按安装实例绑定。服务器和 Android 本机库分别向授权中心激活和验证，服务器实例内的账户共享该服务器授权。证书表示产品 `rurimecha` 在有限期内已获授权，不携带功能清单、程序版本或数据库结构摘要。调整功能范围不会导致既有证书失效。服务器上的珍藏片段、AI 和智能选路需要有效服务器授权。Android 本机库的珍藏片段和 AI 需要有效本机授权。普通媒体播放与下载、多用户和更多声优依照现有账号访问规则。
+单档授权按安装实例绑定。服务器和 Android 本机库分别向授权中心激活和验证，服务器实例内的账户共享该服务器授权。证书表示产品 `rurimecha` 在有限期内已获授权，不携带功能清单、程序版本或数据库结构摘要。调整功能范围不会导致既有证书失效。服务器上的珍藏片段、AI 和智能选路需要有效服务器授权。Android 本机库的珍藏片段、AI 和智能选路需要有效本机授权。普通媒体播放与下载、多用户和更多声优依照现有账号访问规则。
 
 ## Core 管理接口
 
@@ -12,7 +12,7 @@
 | `POST /license/activate` | `{"license_key":"…","device_name":"客厅服务器"}`。密钥 32..256 字节，设备名称 1..80 个 Unicode 字符。Core 自动登记可读取的运行环境主机名。成功返回当前状态 |
 | `POST /license/deactivate` | 必须提交空对象 `{}`；返回 `{"ok":true}` |
 
-状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.multi_user`、`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前服务器授权能力。手机本机授权含 AI 和珍藏片段。允许增加其他键，客户端应忽略未知键。
+状态 `active` 表示有效，其余为对应 `license_*` 代码。`capabilities.multi_user`、`capabilities.ai`、`capabilities.treasured_clips` 和 `capabilities.smart_routing` 表示当前实例的授权能力。手机本机授权含 AI、珍藏片段和智能选路。允许增加其他键，客户端应忽略未知键。
 
 激活及续期需要 Core 连接发行方激活服务。同一许可证、同一实例密钥重复激活复用绑定名额，可在线更新期限和宿主机信息；到期日由云端许可证决定，重新激活不会重置期限。激活密钥只用于本次请求，不在 Core 持久保存或写入日志。超时后可安全重试。
 

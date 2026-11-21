@@ -2,7 +2,7 @@
 
 **Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
 
-**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and server smart routing require a license. Ordinary playback and downloads follow account permissions. Creating and using additional accounts requires an active server license.
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and smart routing require a license. Ordinary playback and downloads follow account permissions. Creating and using additional accounts requires an active server license.
 
 **Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three installations. The final plan will be announced later. Activate premium features separately on the phone and server. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
 
@@ -176,6 +176,8 @@ In Appearance & browsing preferences choose Original first or language preferenc
 
 With an active server license, administrators can turn on **Smart routing** in **Network settings** to try more connections when accessing DLsite or ASMR Online. Availability depends on the server network and region. Turning it off keeps previously saved information.
 
+In the Android local library, activate the device license and then turn on **Smart routing** in **Metadata retrieval settings**. Availability depends on the phone’s network and region.
+
 Use websites and proxies reachable over IPv4 when fetching work information.
 
 Enable Fetch work details in metadata settings and test the DLsite connection. RJ-numbered audio works can receive titles, covers, and descriptions.
@@ -341,7 +343,7 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 ## Server license and accounts
 
-Open **Server license** on the server to activate treasured clips, AI, and smart routing. When Android is connected to a server, those features use the server license. Open **Device license** in the Android local library to activate local treasured clips and work details translation. The same license key works on both. Each activation uses one slot.
+Open **Server license** on the server to activate treasured clips, AI, and smart routing. When Android is connected to a server, those features use the server license. Open **Device license** in the Android local library to activate local treasured clips, work details translation, and smart routing. The same license key works on both. Each activation uses one slot.
 
 While the device is online, choose **Activate license** and enter your license key. You can keep the default device name or change it to something easy to recognize, such as “Living room PC.” After activation, the page shows the device name, expiry date, and enabled features. After renewing, select **Update license** and enter the original key. Activation, updates, and binding release require internet access. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
 

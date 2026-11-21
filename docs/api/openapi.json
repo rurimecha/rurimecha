@@ -35747,7 +35747,7 @@
             "properties": {
               "ai": { "type": "boolean" },
               "treasured_clips": { "type": "boolean" },
-              "smart_routing": { "type": "boolean" }
+              "smart_routing": { "type": "boolean", "description": "Available with an active license for the current server or Android local library." }
             },
             "additionalProperties": {
               "type": "boolean"
