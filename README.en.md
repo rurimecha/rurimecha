@@ -23,7 +23,7 @@ Saved clips, AI, multi-user accounts, and Smart routing on the server require a 
 
 Check for updates under Settings → Version and updates or on the Android connection screen. Open the new MSI on Windows or follow the Android system installer. On Linux, run the new installer on the host. For Docker, replace the image using the guide.
 
-Request a free trial key by email on the Ruri website. Activate within 7 days of issue and use it for 31 days after first activation. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three devices sharing a key. See the official announcement for the final plan. [Ruri website](https://rurimecha.top/)
+Request a free trial key by email on the Ruri website. The trial has two device slots. Activate the server and Android local library separately with the same key, using one slot each. Activate within 7 days of issue. The trial lasts 31 days from first activation. Planned pricing is CNY 5 per device per month or CNY 30 for a lifetime license for one device. See the official announcement for the final plan. [Ruri website](https://rurimecha.top/)
 
 [Features](docs/i18n/en/FEATURES.md) · [User guide](docs/i18n/en/USAGE.md)
 

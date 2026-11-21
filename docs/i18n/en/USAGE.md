@@ -2,9 +2,11 @@
 
 **Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
 
-**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and smart routing require a license. Ordinary playback and downloads follow account permissions. Creating and using additional accounts requires an active server license.
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and smart routing require a license. Ordinary playback and downloads follow account permissions.
 
-**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three installations. The final plan will be announced later. Activate premium features separately on the phone and server. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
+Ordinary Android playback of phone or server media requires no product license. Sign in to access server media with your account permissions. Creating and using other server accounts requires an active server license.
+
+**Pricing:** Testing is free. Planned pricing is CNY 5 per device per month or CNY 30 for a lifetime license for one device. See the official announcement for the final plan. Enter your email on the website to receive one free trial license with two device slots. Use the same key in **Server license** and the Android local library’s **Device license** to activate both, using one slot each. Each address gets one trial. Activate within 7 days of issue. The trial lasts 31 days from first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend the deadlines.
 
 ## Installation and first sign-in
 
