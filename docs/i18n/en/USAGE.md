@@ -208,6 +208,8 @@ Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on m
 
 In the Android local library, open **AI configuration** to add a provider, enter its key, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 
+If a model is slow to respond, increase **Request timeout (seconds)** in **Manage local gateway**, save, and try the translation again. The setting applies to each model request from the local gateway.
+
 For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
 
 When a provider offers a **Default request method**, choose the method recommended by the provider. Each model uses that setting unless you select a different **Model request method**. If the test says the model requires Responses, choose **Retry with Responses**. After the test passes, choose **Save** or **Save settings** to use the current choices for future translations.
