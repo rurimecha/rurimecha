@@ -202,7 +202,7 @@ New installations fetch Simplified Chinese and Japanese by default. Enable Tradi
 
 Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on macOS); long-press text on mobile.
 
-## AI translation and archive suggestions
+## AI translation
 
 In the Android local library, open **AI configuration** to add a provider, enter its key, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 
@@ -220,7 +220,7 @@ Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for eac
 
 Fetching the model list and testing a model use the proxy settings currently entered. A test sends one sample request and may count against your provider quota. Once saved, these settings also apply to new requests to that provider.
 
-Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names, or generate archive suggestions for a folder. Online models receive the selected text. Review individual translations and archive suggestions before saving or applying them.
+Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names. Online models receive the selected text. Review individual translations before saving them.
 
 Choose **Translate work metadata** from the work’s action menu or at the top of **Edit metadata**. The **Title** field shows the title for the selected **Metadata language**. That language is also the source for translation. Batch translation starts with all translatable fields selected, including titles, summaries, detailed descriptions, credits, tags, and series names. Clear any fields you want to leave out. To translate just one field, use its button, such as **Translate title** or **Translate tags**. Existing translations in the target language are skipped by default. Turn off skipping to translate them again.
 

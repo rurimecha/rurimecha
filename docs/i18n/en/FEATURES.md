@@ -26,12 +26,12 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - For a Kikoeru-compatible source, enter its address and optional proxy, then select Test connection before saving. Existing sources also offer this check. Success means the library can be browsed; it does not measure audio download speed.
 - For ASMR.one audio that has not been fully saved to the server, choose Smooth playback first or Quality first in the player. Smooth playback first uses a smaller version when available; Quality first plays the selected original file. Switching keeps your playback position. Completed server downloads always play the local original, and downloads are never replaced with the smaller version. The next track only starts preloading after the current track is fully buffered.
 
-## AI translation and archive suggestions
+## AI translation
 
 - With an active server license, administrators can add and test provider models in **AI configuration** and choose a model for each feature. Each provider can use the system proxy, connect directly, or use a custom proxy.
 - In the Android local library, use **AI configuration** to add a provider, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 - View cumulative usage, search by date, and change the call detail limit in the local gateway management page.
-- Translate scripts, work metadata, and folder or file display names, or generate archive suggestions. Translate the display names in a folder or work together. Choose the target language, whether to skip existing translated names, and the prompt for this run. Switch between original names and translations in the current interface language with one button.
+- Translate scripts, work metadata, and folder or file display names. Translate the display names in a folder or work together. Choose the target language, whether to skip existing translated names, and the prompt for this run. Switch between original names and translations in the current interface language with one button.
 - Translate selected work metadata fields together or translate an individual field, such as the title or tags. Review and adjust the prompt before starting, then compare the new translations with the source, edit them, and save the results you choose.
 
 ## Playback, resuming, and collecting
