@@ -36,7 +36,7 @@
 
 `GET /agent/metadata-translation-prompt` 返回 `{"prompt":"默认翻译提示词"}`，不调用模型。`POST /agent/jobs` 使用 `work_ids`、`target_locale` 及可选 `source_locale`、`fields`（`title`、`description`）、`expected_revisions`、`prompt`。每项任务可指定一个目标语言，支持简体中文、繁体中文、日语和英语。省略源语言时使用每部作品的原始语言。结果为 `202` 与任务 `Location`。
 
-省略 `prompt` 时沿用默认翻译提示词。可传至多 4,000 个 Unicode 码点的本次翻译提示词，全文为空白或包含空字符时返回 `400`。内置文字网关使用它替换可编辑的翻译指示，并继续应用固定的输出结构与资料隔离规则。提示词仅随本次任务发送，不写入任务历史或 AI 设置。
+省略 `prompt` 或传空字符串时，不发送系统提示词。要使用中文默认提示词，先读出内容，再随创建请求提交。可传至多 4,000 个 Unicode 码点的本次提示词，非空值若全文为空白或包含空字符则返回 `400`。固定的翻译要求、资料范围和输出校验仍适用。可编辑提示词仅随本次任务发送，不写入任务历史或 AI 设置。
 
 `GET /agent/jobs` 返回近期任务。`GET /agent/jobs/{job}` 返回逐部作品状态、生成的 `candidate_ids`、可选 `description_parts` 和 `work_revision`。选定简介时，详细介绍的译文保留图片地址、顺序和曲目时长。`POST /agent/jobs/{job}/cancel` 请求停止生成。生成文字是待选内容，已发布的资料保持原值。
 

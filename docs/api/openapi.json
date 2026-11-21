@@ -24773,7 +24773,7 @@
         "summary": "Read the default editable work translation prompt without invoking a model",
         "responses": {
           "200": {
-            "description": "Default translation instructions. Requires an administrator session and a server AI entitlement.",
+            "description": "Default editable translation instructions in Chinese. Requires an administrator session and a server AI entitlement.",
             "content": {
               "application/json": {
                 "schema": {
@@ -39226,10 +39226,9 @@
           },
           "prompt": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 4000,
             "writeOnly": true,
-            "description": "Editable translation instructions for this job. Omit to use the default. May not be all whitespace or contain NUL. Output rules still apply. Excluded from job history and AI settings."
+            "description": "Optional system prompt for this job. Omit or send an empty string to send no system prompt. To use the default, send the Chinese template from /agent/metadata-translation-prompt. Nonempty values may not be all whitespace or contain NUL. Output rules still apply. Excluded from job history and AI settings."
           },
           "expected_revisions": {
             "type": "object",

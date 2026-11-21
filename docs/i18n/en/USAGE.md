@@ -222,7 +222,7 @@ Turn on AI, then enable each feature you want to use and choose its model. Ruri 
 
 Choose **Translate work metadata** from the work’s action menu or at the top of **Edit metadata**. The **Title** field shows the title for the selected **Metadata language**. That language is also the source for translation. Batch translation starts with all translatable fields selected, including titles, summaries, detailed descriptions, credits, tags, and series names. Clear any fields you want to leave out. To translate just one field, use its button, such as **Translate title** or **Translate tags**. Existing translations in the target language are skipped by default. Turn off skipping to translate them again.
 
-Before starting, review the default translation prompt and edit it to request specific wording or tone. Changes apply only to this run. Choose **Restore default prompt** to undo them. When you start, Ruri sends the selected text that will be translated and this prompt to your configured translation service.
+**Send the system prompt** is off by default. Turn it on to view and edit the default Chinese prompt for this run, for example to request specific wording or tone. Choose **Restore default prompt** to undo your edits. When you start, Ruri sends the selected text to your configured translation service, skipping any fields you marked to skip. Turning on the switch sends this run’s prompt as well.
 
 In **Confirm translation**, compare the source text with the editable translation for each field. If a translation already exists in the target language, you can expand it for comparison. Select the results you want to keep, then choose **Confirm save and protect** to save and protect them in the target language.
 
