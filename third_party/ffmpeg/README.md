@@ -26,11 +26,15 @@
 
 `Dockerfile`、`build.sh`、`smoke.py` 及对应的 GitHub Actions 构建配置按 [MIT](LICENSE.build) 授权。各上游源码沿用各自的许可证。合成的 FFmpeg 工具按 GPL-3.0-or-later 分发，随包携带 [许可文本](licenses) 和 [对应源码指引](SOURCE.txt)。
 
+## 复用已核验的构建
+
+本地发行从工作区保留的 `releases/ffmpeg/9.0.2-rurimecha.1/` 读取三种平台的原二进制和对应源码。版本未变时，运行 `bash third_party/ffmpeg/pack-prebuilt.sh <原构建目录> <新的打包输入目录>` 即可。脚本对照提交内的 `prebuilt.SHA256SUMS` 核对原始字节，再生成打包脚本所需的归档。更新 FFmpeg 时才运行构建并更新核验清单。
+
 ## 在 GitHub Actions 构建
 
 在 **Actions → Build FFmpeg tools → Run workflow** 手动启动，工作流需要存在于仓库默认分支。`reuse_run_id` 默认选择已验证成功的运行 `42772332252`，直接复用其中的 Linux amd64、Windows amd64 和对应源码附件。需要更换构建时可填写本仓库同一工作流的其他成功运行 ID；只有清空该输入才会重新编译三个目标。[GitHub 托管 runner](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
 
-在私有分发仓库运行时，工作流会核对源码归档中的 Git 提交，计算两个 amd64 工具包和源码包的校验和，再一起保存到 `ghcr.io/rurimecha/ffmpeg-tools`。给 Core 仓库授予该包的 Actions 读取权限，并将运行摘要中的 `sha256:…` 保存到 Core 仓库变量 `RURI_FFMPEG_DIGEST`。此后候选版打包按摘要下载，升级工具时才需要更新该变量。[GHCR 跨仓库读取权限](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility#ensuring-workflow-access-to-your-package)
+在私有分发仓库运行时，工作流会核对源码归档中的 Git 提交，计算所选运行中的平台工具包和源码包的校验和，再一起保存到 `ghcr.io/rurimecha/ffmpeg-tools`。给 Core 仓库授予该包的 Actions 读取权限，并将运行摘要中的 `sha256:…` 保存到 Core 仓库变量 `RURI_FFMPEG_DIGEST`。此后候选版打包按摘要下载，升级工具时才需要更新该变量。[GHCR 跨仓库读取权限](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility#ensuring-workflow-access-to-your-package)
 
 ## 在已有 Docker 的机器上构建
 
@@ -52,7 +56,7 @@ python3 third_party/ffmpeg/smoke.py linux-amd64 releases/ffmpeg/9.0.2-rurimecha.
 
 ## 作为发行输入使用
 
-Rurimecha 打包脚本接收同时包含两个 amd64 工具归档、对应源码归档和 `SHA256SUMS` 的目录。它会校验归档并保留工具的许可文件、源码说明和源码校验和，同时附上 [IJG 声明](redistribution/IJG.txt) 和 Windows 构建使用的 [MinGW-w64 与 Winpthreads 8.0.0 声明](redistribution/windows-amd64)。Docker 选与镜像架构一致的 Linux 工具，基础镜像须有兼容的 glibc。
+Rurimecha 打包脚本接收包含 Linux amd64、Linux arm64、Windows amd64 工具归档、对应源码归档和 `SHA256SUMS` 的目录。它会校验归档并保留工具的许可文件、源码说明和源码校验和，同时附上 [IJG 声明](redistribution/IJG.txt) 和 Windows 构建使用的 [MinGW-w64 与 Winpthreads 8.0.0 声明](redistribution/windows-amd64)。Docker 选与镜像架构一致的 Linux 工具，基础镜像须有兼容的 glibc。
 
 公开发行时，在二进制下载入口同时提供 `ruri-ffmpeg-9.0.2-rurimecha.1-sources.tar.gz`。发布容器镜像时，在镜像的说明页明确链接到对应发行版的源码。 [GNU GPLv3 第 6 节](https://www.gnu.org/licenses/gpl-3.0.html#section6)
 

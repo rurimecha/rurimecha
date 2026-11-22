@@ -14,7 +14,7 @@ GET /works 增加可组合参数：tag、credit、role、language、text_locale�
 
 日期为 YYYY-MM-DD，包含端点；只有年/月精度的发布日期按该年/月首日参与比较。entity_id 使用上述来源别名匹配。q 仍是字面子串，额外支持实体规范名/别名检索，再按实体别名匹配作品；不执行查询运算符，也不自动简繁转写。
 
-GET /works/facets 接收相同过滤条件，返回 total、tags、credits、languages、providers 和 truncated。各值含 value/count，count 为去重作品数；同一数据库快照内统计，按数量降序，每类最多 100 项。limit/offset 不影响聚合范围。仍可用标准 /works 分页读取实际结果。
+GET /works/facets 接收上述过滤条件，返回 total、tags、credits、languages、providers 和 truncated。各值含 value/count，count 为去重作品数；同一数据库快照内统计，按数量降序，每类最多 100 项。limit/offset 不影响聚合范围。仍可用标准 /works 分页读取实际结果。
 
 人物/社团 entity_id 与 role 同时使用时，别名命中和角色要求作用于同一署名；不会因作品另有一个无关声优而将插画实体计入声优结果。标签实体与角色仍是作品级组合条件。
 
@@ -30,6 +30,8 @@ GET /works/facets 接收相同过滤条件，返回 total、tags、credits、lan
 `GET /works/facet-values?kind=tag|voice_actor|illustrator|circle` 独立浏览全部有效作品，不继承作品库的分类、搜索、来源、收藏集等筛选。不接受这些作品过滤参数。支持 `q`（名称/显式别名字面子串，NFKC/大小写折叠）、`sort=count|name`（默认作品数降序，名称及实体ID打破平局）、`limit`（默认50，1..500）与 `offset`（默认0）。搜索先于分页，无旧分面的100/500项截断。
 
 响应为 `{items:[{name,count,entity_id,aliases:[],work_id,cover_work_id,cover_work}],total,limit,offset}`。`total` 是搜索后目录条目数，`count` 是每个条目的去重有效作品数。返回列表及计数来自同一快照。声优只统计 `voice_actor`，画师只统计 `illustrator`，社团只统计 `circle`，不混入插画或其他制作。词条的多个别名命中同一作品只计一次，不合并作品。
+
+标签目录可传 `tag_locales=zh-Hans,zh-Hant,ja,en,und`，以逗号分隔选择上述任意语言，不接受重复值。显式空值返回空页；省略沿用当前资料显示范围。设置 `tag_locales` 时仅允许 `kind=tag`，且不得同时传 `metadata_locale`。按所选语言中实际保存的标签名称计数，同名标签在同一作品跨语言出现时只计一次。使用 `GET /works?tag=名称&tag_locales=…` 读取相同范围的作品，也可传空值取得空页。这个范围只影响 `tag` 匹配，作品仍按账号或请求选择的资料语言显示。
 
 非空 `entity_id` 的条目用 `/works?entity_id=...` 浏览，声优/画师/社团再传对应 `role`；无实体的标签用 `tag=name`，声优/画师/社团用 `credit=name&role=...`。别名仍遵循上述来源证据规则；如果某原始名有不能归入实体的作品，保留原始名条目并计算该精确名称的全部命中，保证列表数量与点击结果一致。多个实体或原始名之间可以重叠，不得把条目数量相加当作全库作品总量。`aliases` 是去重显式别名，不包含规范名称。
 

@@ -2,13 +2,15 @@
 
 **Want to look around first?** Open the [demo](https://asmr.rurimecha.top/) and choose the guest experience on the sign-in page to browse and play demo works. Guest favorites and listening progress are not saved. Ruri does not provide audio works; add media folders you provide yourself.
 
-**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and smart routing require a license. Ordinary playback and downloads follow account permissions. Creating and using additional accounts requires an active server license.
+**Choose how to get started:** Windows has an MSI installer and needs no command line. Follow the sections below for Linux or Docker. Android can organize and play files on the phone or connect to a Ruri server. The built-in administrator can sign in on the web, Android, or WebDAV. Treasured clips, AI, and smart routing require a license. Ordinary playback and downloads follow account permissions.
 
-**Pricing:** Testing is free. Future pricing is provisionally CNY 10/month, CNY 60/year, or CNY 90 for a lifetime license, with up to three installations. The final plan will be announced later. Activate premium features separately on the phone and server. Enter your own email address on the website to receive a free trial license automatically, without manual review. Each address gets one trial. Activate within 7 days of issue; the trial lasts 31 days after first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend its deadlines.
+Ordinary Android playback of phone or server media requires no product license. Sign in to access server media with your account permissions. Creating and using other server accounts requires an active server license.
+
+**Pricing:** Testing is free. Planned pricing is CNY 5 per device per month or CNY 30 for a lifetime license for one device. See the official announcement for the final plan. Enter your email on the website to receive one free trial license with two device slots. Use the same key in **Server license** and the Android local library’s **Device license** to activate both, using one slot each. Use the same email address to apply again whenever your trial expires. If your current key can still be activated or your trial is still valid, applying again resends the original key. Activate within 7 days of issue. The trial lasts 31 days from first activation. If the email does not arrive, check spam, submit again later, or look up your existing license. Retrying does not extend the deadlines.
 
 ## Installation and first sign-in
 
-Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux x86-64, Docker Linux x86-64, and Windows x64. Install the Android APK separately to use files on your phone or to connect to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
+Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux and Docker on x86-64 or ARM64, and Windows on x64. Install the Android APK separately to use files on your phone or to connect to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
 
 ### Windows installation
 
@@ -21,7 +23,7 @@ Closing the window hides it in the tray while Ruri keeps running. Double-click t
 
 ### Linux installation
 
-Extract the full x86-64 server package, open a terminal there, and run:
+Extract the full server package for your device. Choose `amd64` for x86-64 or `arm64` for ARM64 (AArch64), then open a terminal in the extracted folder and run:
 
 ```sh
 sudo ./install.sh
@@ -43,7 +45,7 @@ Without installing a service, run `./rurimecha-core -data-dir ./data` and leave 
 
 ### Docker installation
 
-Use Docker and Docker Compose on an x86-64 Linux computer or NAS; this image does not run directly on ARM. A NAS container interface can use the same image, mounts, and ports.
+Use Docker and Docker Compose on an x86-64 or ARM64 Linux computer or NAS. The same tag selects the image for your device. On ARM64, remove `platform: linux/amd64` if it is present in an older Compose file. A NAS container interface can use the same image, mounts, and ports.
 
 1. Download [compose.yaml](https://raw.githubusercontent.com/rurimecha/rurimecha/main/packaging/docker/compose.yaml) and [reset-admin-password.sh](https://raw.githubusercontent.com/rurimecha/rurimecha/main/packaging/docker/reset-admin-password.sh) into one folder. Create `.env` beside them:
 
@@ -123,7 +125,7 @@ When an official release checks for updates, either automatically or when you re
 
 - **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. When connected to Windows from a browser or phone, upgrade on the server PC.
 - **Android.** Choose **Download and install** and confirm in the system installer. Follow the system prompt if it asks you to allow installation. You can still use the current app if you cancel or installation fails. Installing over the existing app keeps your local library, license, and access to selected folders.
-- **Linux.** Download and extract the official x86-64 server package on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
+- **Linux.** Download and extract the official server package for your architecture on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
 - **Docker.** Set `RURI_IMAGE` in the original Compose `.env` to `docker.io/rurimecha/rurimecha:<new-version>`, then run `docker compose pull core` and `docker compose up -d core`. Keep the existing data volume and media mounts. For custom deployments, replace the image using your existing deployment method.
 
 Ruri automatically upgrades supported databases on startup. Before upgrading the database, it creates a temporary backup in a `core.db.before-v…` folder in the data directory. Ruri automatically deletes this backup after a successful upgrade. Sign in with your existing account to continue. If startup fails, keep the data directory and any backup folder it contains. Check free disk space and write permissions, and follow the startup message to verify the version before retrying.
@@ -154,11 +156,15 @@ For a kikoeru-compatible library, select that source type and enter its address.
 
 After adding a work to the library, administrators can choose Save work to server in its files area. Expand the tree and select folders or files. Extension buttons select matching file types; Select all and Clear selection are also available. Check the selected count and size, including any unknown sizes, then choose Start saving. Files keep their original folder structure in that source’s server download folder, and complete copies are skipped. Saving continues after closing the window. Reopen the same work’s download window to check progress or stop saving. Failed or stopped saves keep the original selection for retrying unfinished files. Up to two saves can run at once; if selected files overlap or all slots are in use, try again later.
 
-Open Image category in the work’s files area to preview images, change their roles or select a cover. Images from compatible sources require a network connection. Select a failed preview to retry. Images larger than 16 MiB cannot be previewed; download them from the file list to view them.
+From the work menu, open **Edit metadata → Cover**, choose a work image or a downloaded image as the default cover, and save. Every metadata language without its own cover uses this image. To choose a different image for one language, select **Language-specific cover**, then pick the language and image. Select **Use the default cover** and save to restore the shared cover.
+
+Open Image category in the work’s files area to preview images, change their roles or choose the default cover. Images from compatible sources require a network connection. Select a failed preview to retry. Images larger than 16 MiB cannot be previewed; download them from the file list to view them.
 
 Compatible-source folders and media information are obtained when adding works. Use Re-archive from the source folder menu to organize again; separate scanning/extraction is unnecessary. Folders marked Ordinary folder stay ordinary until Restore automatic detection is chosen. After assigning a folder as a separate work or ordinary folder, wait for re-archiving and automatic refresh; inspect Background tasks if needed. File-type filters remain while entering subfolders, going up, or temporarily visiting another page within the same source. Back returns to a browsing location rather than undoing each filter change. Choosing another source or opening another work’s files restores the default file type. Entering a subfolder clears the name search; opening file details and returning preserves the search and browsing position. Clear filters restores the defaults immediately. A fresh start without restoring the previous browsing page uses default filters; save a filter to reuse it.
 
 ## Finding works and choosing versions
+
+Open Tags and select the metadata languages to browse. Simplified Chinese, Traditional Chinese, Japanese, English, and Unknown language are selected when you open the page. Select a tag to see works with that tag in the selected languages. Each work counts once per tag.
 
 In a work’s **Included content** section, choose **All files** from the file type menu to see every file in the work, including files outside the selected playback group. Choose **Images** or **Transcripts / documents** to find those attachments. Select a filename to read text, zoom in on an image, or page through a PDF. The preview limits are 2 MiB for text, 16 MiB for images, and 32 MiB for PDFs. Use another app to open larger files.
 
@@ -196,8 +202,8 @@ When product details or images run out of retries, open Background tasks and cho
 
 New installations fetch Simplified Chinese and Japanese by default. Enable Traditional Chinese or English in metadata settings if available from the source.
 
-- Switch language under View details to change the title, description, people, tags, price, and images together; absent fields show as unavailable.
-- Select the language in Edit work details before saving; edits apply only to that language.
+- When a work has details in multiple languages, use **Metadata language** at the top of the work page to switch its title, description, credits, tags, and price. Choose **Follow account** to use your account’s preference again.
+- To edit text for a language, select that language in **Edit metadata** before saving.
 - For Unknown details, choose Set language. If the target exists, Merge fills gaps; Overwrite replaces the full target-language record.
 - To update one language, choose Refresh individual parts → Force refresh product details and choose languages for this run. Other languages stay intact. Retry failed items from task results.
 - Fill missing images, download images again, extract media information, scan, or re-archive from the same refresh menu.
@@ -349,7 +355,9 @@ Progress is still saved. In Listening history, delete one record or clear your h
 
 Open **Server license** on the server to activate treasured clips, AI, and smart routing. When Android is connected to a server, those features use the server license. Open **Device license** in the Android local library to activate local treasured clips, work details translation, and smart routing. The same license key works on both. Each activation uses one slot.
 
-While the device is online, choose **Activate license** and enter your license key. You can keep the default device name or change it to something easy to recognize, such as “Living room PC.” After activation, the page shows the device name, expiry date, and enabled features. After renewing, select **Update license** and enter the original key. Activation, updates, and binding release require internet access. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
+On a device you already activated, open the license page and choose **Update license** to enter the new trial key. For your first activation, choose **Activate license**.
+
+While the device is online, choose **Activate license** and enter your license key. You can keep the default device name or change it to something easy to recognize, such as “Living room PC.” After activation, the page shows the device name, expiry date, and enabled features. After renewing, select **Update license** and enter your license key. Activation, updates, and binding release require internet access. An active license works offline until expiry. If the provider revokes a license, the change takes effect when the current authorization expires or you next manage the license online.
 
 During activation or an update, Ruri sends the server hostname or Android device model, when available, to the license service so its administrators can verify the device. When you look up your license on the website, you’ll see the name you chose on the license page and the device type.
 

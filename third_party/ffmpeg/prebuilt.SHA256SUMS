@@ -1,0 +1,7 @@
+664ee46aa9730edeb0f22dd8e80afc74867342dfd7ef24323eaa2bd014435405  ruri-ffmpeg-9.0.2-rurimecha.1-sources.tar.gz
+51890eb33e2e767ace55b97e90e708711b59f1baafd0f736c37f941192d70bb4  linux-amd64/bin/ffmpeg
+57d2f5eec38f9e420b7a4fa0d2c5805d693fb959f32098bf458a9ffb73936513  linux-amd64/bin/ffprobe
+f1a2d4e6976bce5d90309bb1c67da0bb9497d6d322e38bcbd38faa849754e06f  linux-arm64/bin/ffmpeg
+e8d7cfe294a770b236c9a5dbfeb7526be272d3e108edca4c33e182fcaf98690d  linux-arm64/bin/ffprobe
+d55051c23ef65f3ab8199279805c237a49585a0f31f03a015617a7d8ca444f94  windows-amd64/bin/ffmpeg.exe
+fb95b6009513d4c3902bfb1353b4d17c960d7f565e0422aa5b5d48d29a25044f  windows-amd64/bin/ffprobe.exe
