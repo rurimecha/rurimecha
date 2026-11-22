@@ -13,7 +13,7 @@ import tempfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--version', required=True)
-parser.add_argument('--platform', choices=('linux-amd64', 'windows-x64'), required=True)
+parser.add_argument('--platform', choices=('linux-amd64', 'linux-arm64', 'windows-x64'), required=True)
 parser.add_argument('--core-package', type=Path, required=True)
 parser.add_argument('--web', type=Path, required=True)
 parser.add_argument('--ffmpeg', type=Path, required=True, help='verified FFmpeg bundle directory with platform archives and corresponding source')
@@ -27,7 +27,7 @@ for value in (args.version, args.platform):
 windows = args.platform == 'windows-x64'
 if windows and args.windows_staging is None:
     parser.error('Windows requires --windows-staging for the desktop installer inputs')
-if windows and args.apk is not None:
+if args.platform != 'linux-amd64' and args.apk is not None:
     parser.error('--apk requires --platform linux-amd64')
 if not windows and args.windows_staging is not None:
     parser.error('--windows-staging requires --platform windows-x64')
@@ -57,11 +57,12 @@ def artifact_files(directory):
             files[path.relative_to(directory).as_posix()] = digest(path)
     return files
 
-def matches_tool_platform(path, windows):
+def matches_platform(path):
     with path.open('rb') as stream:
         header = stream.read(64)
         if not windows:
-            return header[:6] == b'\x7fELF\x02\x01' and header[18:20] == b'\x3e\x00'
+            machine = 183 if args.platform == 'linux-arm64' else 62
+            return header[:6] == b'\x7fELF\x02\x01' and int.from_bytes(header[18:20], 'little') == machine
         if len(header) != 64 or header[:2] != b'MZ':
             return False
         stream.seek(int.from_bytes(header[60:64], 'little'))
@@ -72,9 +73,13 @@ def ffmpeg_archives(bundle):
     if len(sources) != 1:
         parser.error('FFmpeg bundle must contain one corresponding source archive')
     source = sources[0]
-    platform = 'windows-amd64' if windows else 'linux-amd64'
+    platform = 'windows-amd64' if windows else args.platform
     tools = bundle / f'ruri-ffmpeg-{platform}.tar.gz'
-    archives = sorted((source, bundle / 'ruri-ffmpeg-linux-amd64.tar.gz', bundle / 'ruri-ffmpeg-windows-amd64.tar.gz'))
+    archives = [source, bundle / 'ruri-ffmpeg-linux-amd64.tar.gz', bundle / 'ruri-ffmpeg-windows-amd64.tar.gz']
+    arm64 = bundle / 'ruri-ffmpeg-linux-arm64.tar.gz'
+    if args.platform == 'linux-arm64' or arm64.exists():
+        archives.append(arm64)
+    archives.sort()
     sums = bundle / 'SHA256SUMS'
     for path in (*archives, sums):
         if not path.is_file() or path.is_symlink():
@@ -84,7 +89,7 @@ def ffmpeg_archives(bundle):
         parser.error('FFmpeg tool or source archive checksum mismatch')
     return tools, source, hashes[source.name]
 
-def verify_ffmpeg(bundle, source, windows):
+def verify_ffmpeg(bundle, source):
     files = artifact_files(bundle)
     suffix = '.exe' if windows else ''
     tools = [f'bin/{name}{suffix}' for name in ('ffmpeg', 'ffprobe')]
@@ -111,7 +116,7 @@ def verify_ffmpeg(bundle, source, windows):
         parser.error('FFmpeg license notices do not match the release recipe')
     for name in tools:
         path = bundle / name
-        if not matches_tool_platform(path, windows) or (not windows and not path.stat().st_mode & 0o111):
+        if not matches_platform(path) or (not windows and not path.stat().st_mode & 0o111):
             parser.error(f'FFmpeg tool is not an executable for {args.platform}: {name}')
     sums = ''.join(f'{files[name]}  {name}\n' for name in tools)
     if (bundle / 'SHA256SUMS').read_text() != sums:
@@ -156,6 +161,8 @@ required = ('rurimecha-core' + suffix, 'rurimecha-api-docs.tar.gz')
 for name in required:
     if not (args.core_package / name).is_file() or (args.core_package / name).is_symlink():
         parser.error(f'missing or invalid core artifact: {name}')
+if not matches_platform(args.core_package / required[0]):
+    parser.error(f'Core executable does not match {args.platform}')
 notices = args.core_package / 'third_party'
 if not notices.is_dir() or not artifact_files(notices):
     parser.error('third-party license notices are required')
@@ -179,7 +186,7 @@ with tempfile.TemporaryDirectory(prefix='release-', dir=output.parent) as tempor
     media_tools.mkdir()
     with tarfile.open(tools_archive) as archive:
         archive.extractall(media_tools, filter='data')
-    source_revision = verify_ffmpeg(media_tools, source_archive, windows)
+    source_revision = verify_ffmpeg(media_tools, source_archive)
     notices_dir = root / 'third_party/ffmpeg/redistribution'
     shutil.copy2(notices_dir / 'IJG.txt', media_tools / 'licenses')
     if windows:
@@ -188,23 +195,25 @@ with tempfile.TemporaryDirectory(prefix='release-', dir=output.parent) as tempor
             parser.error('verify the MinGW-w64 and Winpthreads notices for the new Windows toolchain')
         shutil.copytree(notices_dir / 'windows-amd64', media_tools / 'licenses', dirs_exist_ok=True)
     (media_tools / 'SOURCE-SHA256').write_text(f'{source_sha256}  {source_archive.name}\n')
-    shutil.copy2(root / 'packaging' / args.platform / reset, core / reset)
+    packaging = root / 'packaging' / ('windows-x64' if windows else 'linux-amd64')
+    shutil.copy2(packaging / reset, core / reset)
     if windows:
         core.rename(output)
     else:
         for name in ('install.sh', 'rurimecha.service'):
-            shutil.copy2(root / 'packaging' / args.platform / name, core / name)
+            shutil.copy2(packaging / name, core / name)
         attachments = staging / 'attachments'
         attachments.mkdir()
         shutil.copy2(source_archive, attachments / source_archive.name)
         with tarfile.open(attachments / f'rurimecha-core-{args.platform}-{args.version}.tar.gz', 'w:gz') as archive:
             archive.add(core, arcname='rurimecha-core')
-        with tarfile.open(attachments / f'rurimecha-web-{args.version}.tar.gz', 'w:gz') as archive:
-            archive.add(args.web, arcname='rurimecha-web')
-        docker = root / 'packaging/docker'
-        with tarfile.open(attachments / f'rurimecha-docker-{args.version}.tar.gz', 'w:gz') as archive:
-            for name in ('compose.yaml', 'reset-admin-password.sh'):
-                archive.add(docker / name, arcname=f'rurimecha-docker/{name}')
+        if args.platform == 'linux-amd64':
+            with tarfile.open(attachments / f'rurimecha-web-{args.version}.tar.gz', 'w:gz') as archive:
+                archive.add(args.web, arcname='rurimecha-web')
+            docker = root / 'packaging/docker'
+            with tarfile.open(attachments / f'rurimecha-docker-{args.version}.tar.gz', 'w:gz') as archive:
+                for name in ('compose.yaml', 'reset-admin-password.sh'):
+                    archive.add(docker / name, arcname=f'rurimecha-docker/{name}')
         if args.apk:
             shutil.copy2(args.apk, attachments / f'rurimecha-android-{args.version}.apk')
         metadata = {'version': args.version, 'build_number': info['build_number'],

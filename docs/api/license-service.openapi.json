@@ -1173,8 +1173,7 @@
                     "maxLength": 43
                   },
                   "existing_license_id": {
-                    "type": "string",
-                    "description": "ID from the current device certificate. When it differs from the requested license, the previous binding must be released (409 license_deactivation_required), except when the same recorded device switches from an expired trial to a newer trial issued to the same customer."
+                    "type": "string"
                   },
                   "target": {
                     "type": "string",

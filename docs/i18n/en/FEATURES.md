@@ -1,6 +1,6 @@
 # Rurimecha features
 
-Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection. Run a Linux x86-64, Docker x86-64, or Windows x64 server, then connect with a browser or the separately installed Android app.
+Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection. Run a server on Linux or Docker (x86-64 or ARM64) or Windows x64, then connect with a browser or the separately installed Android app.
 
 ## Interface languages
 
@@ -84,7 +84,7 @@ Open Player settings → Video quality while watching a video. Supported videos 
 
 ## Scope and limits
 
-- Server packages support Linux/Windows x64 and Docker Linux x86-64; no ARM package is provided.
+- Linux packages and Docker images are available for x86-64 and ARM64. The Windows installer is for x64.
 - Compatible sources can play files provided by the source. Available video quality, transcoding, embedded subtitle and volume normalization options depend on the file and the media tools available to the server.
 - WebDAV has no upload, rename, delete, or progress sync. Reverse proxies need a dedicated domain root; subpaths are unsupported.
 - Web sessions show the browser and operating system. Use these alongside the sign-in time to recognize your sessions.

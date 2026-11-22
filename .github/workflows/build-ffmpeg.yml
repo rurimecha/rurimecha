@@ -98,6 +98,9 @@ jobs:
           PY
           mkdir ffmpeg-bundle
           cp "${sources[0]}" ffmpeg-artifacts/ruri-ffmpeg-{linux,windows}-amd64.tar.gz ffmpeg-bundle/
+          if [[ -f ffmpeg-artifacts/ruri-ffmpeg-linux-arm64.tar.gz ]]; then
+            cp ffmpeg-artifacts/ruri-ffmpeg-linux-arm64.tar.gz ffmpeg-bundle/
+          fi
           (cd ffmpeg-bundle && sha256sum ruri-ffmpeg-*.tar.gz > SHA256SUMS)
 
           image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/ffmpeg-tools:run-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"

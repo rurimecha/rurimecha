@@ -1,6 +1,6 @@
 # Rurimecha 功能一覽
 
-Rurimecha（Ruri）適合用來整理自己收藏的音聲、ASMR 和影片。伺服器支持 Linux x86-64、Docker x86-64 和 Windows x64。裝好後用瀏覽器訪問，也可以單獨安裝 Android 客戶端。
+Rurimecha（Ruri）適合用來整理自己收藏的音聲、ASMR 和影片。伺服器支持 Linux 和 Docker（x86-64、ARM64）以及 Windows x64。裝好後用瀏覽器訪問，也可以單獨安裝 Android 客戶端。
 
 ## 界面語言
 
@@ -86,7 +86,7 @@ Rurimecha（Ruri）適合用來整理自己收藏的音聲、ASMR 和影片。�
 
 ## 適用範圍與限制
 
-- 發行伺服器包支持 Linux/Windows x64，Docker 鏡像為 Linux x86-64；沒有 ARM 發行包。
+- Linux 安裝套件與 Docker 映像提供 x86-64、ARM64 版本。Windows 提供 x64 安裝套件。
 - 相容來源可播放來源網站提供的檔案。可用的影片畫質、轉碼、內嵌字幕及音量正規化選項，取決於所選檔案與伺服器可用的影音工具。
 - WebDAV 只讀，不提供上傳、改名、刪除或收聽進度同步。反向代理使用獨立域名根路徑，不支持子目錄入口。
 - 網頁登入在登入會話清單中顯示瀏覽器和系統名稱，可搭配登入時間辨認自己的登入記錄。

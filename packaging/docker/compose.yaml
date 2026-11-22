@@ -1,7 +1,6 @@
 services:
   core:
     image: ${RURI_IMAGE:?Set RURI_IMAGE to the Ruri release image}
-    platform: linux/amd64
     init: true
     ports:
       - "127.0.0.1:8080:8080"

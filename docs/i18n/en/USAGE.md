@@ -10,7 +10,7 @@ Ordinary Android playback of phone or server media requires no product license. 
 
 ## Installation and first sign-in
 
-Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux x86-64, Docker Linux x86-64, and Windows x64. Install the Android APK separately to use files on your phone or to connect to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
+Download the package for your platform from [GitHub Releases](https://github.com/rurimecha/rurimecha/releases) and verify its SHA-256. Servers support Linux and Docker on x86-64 or ARM64, and Windows on x64. Install the Android APK separately to use files on your phone or to connect to a running Ruri server. Your own computer can be the server; for a NAS or another computer, use its LAN address.
 
 ### Windows installation
 
@@ -23,7 +23,7 @@ Closing the window hides it in the tray while Ruri keeps running. Double-click t
 
 ### Linux installation
 
-Extract the full x86-64 server package, open a terminal there, and run:
+Extract the full server package for your device. Choose `amd64` for x86-64 or `arm64` for ARM64 (AArch64), then open a terminal in the extracted folder and run:
 
 ```sh
 sudo ./install.sh
@@ -45,7 +45,7 @@ Without installing a service, run `./rurimecha-core -data-dir ./data` and leave 
 
 ### Docker installation
 
-Use Docker and Docker Compose on an x86-64 Linux computer or NAS; this image does not run directly on ARM. A NAS container interface can use the same image, mounts, and ports.
+Use Docker and Docker Compose on an x86-64 or ARM64 Linux computer or NAS. The same tag selects the image for your device. On ARM64, remove `platform: linux/amd64` if it is present in an older Compose file. A NAS container interface can use the same image, mounts, and ports.
 
 1. Download [compose.yaml](https://raw.githubusercontent.com/rurimecha/rurimecha/main/packaging/docker/compose.yaml) and [reset-admin-password.sh](https://raw.githubusercontent.com/rurimecha/rurimecha/main/packaging/docker/reset-admin-password.sh) into one folder. Create `.env` beside them:
 
@@ -125,7 +125,7 @@ When an official release checks for updates, either automatically or when you re
 
 - **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. When connected to Windows from a browser or phone, upgrade on the server PC.
 - **Android.** Choose **Download and install** and confirm in the system installer. Follow the system prompt if it asks you to allow installation. You can still use the current app if you cancel or installation fails. Installing over the existing app keeps your local library, license, and access to selected folders.
-- **Linux.** Download and extract the official x86-64 server package on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
+- **Linux.** Download and extract the official server package for your architecture on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
 - **Docker.** Set `RURI_IMAGE` in the original Compose `.env` to `docker.io/rurimecha/rurimecha:<new-version>`, then run `docker compose pull core` and `docker compose up -d core`. Keep the existing data volume and media mounts. For custom deployments, replace the image using your existing deployment method.
 
 Ruri automatically upgrades supported databases on startup. Before upgrading the database, it creates a temporary backup in a `core.db.before-v…` folder in the data directory. Ruri automatically deletes this backup after a successful upgrade. Sign in with your existing account to continue. If startup fails, keep the data directory and any backup folder it contains. Check free disk space and write permissions, and follow the startup message to verify the version before retrying.
@@ -216,13 +216,13 @@ In the Android local library, open **AI configuration** to add a provider, enter
 
 If a model is slow to respond, increase **Request timeout (seconds)** in **Manage local gateway**, save, and try the translation again. The setting applies to each model request from the local gateway.
 
-For a server library, sign in as an administrator and open **AI configuration**. In a browser, choose **Manage local gateway**, enter your provider details, and add a model. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
+For a server library, sign in as an administrator and open **AI configuration**. Choose **Manage server gateway** in the Android app or **Manage local gateway** in the browser. Enter your provider details and add a model. Both use the same server settings. The server tests models and runs translations. If the model list is unavailable or the model is missing, enter its ID manually. After choosing or entering a model ID, you can test it before saving. Leave the alias blank to use the model name. Return to **AI configuration** to see the refreshed model list.
 
 When a provider offers a **Default request method**, choose the method recommended by the provider. Each model uses that setting unless you select a different **Model request method**. If the test says the model requires Responses, choose **Retry with Responses**. After the test passes, choose **Save** or **Save settings** to use the current choices for future translations.
 
-In **Manage local gateway**, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
+In the gateway management page, open **Model usage and call history** to see cumulative token usage or search by UTC date. The gateway keeps the latest 1,000 call details by default. You can adjust this limit on the same page and still see cumulative usage. This is also available in the Android local library.
 
-Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for each provider.
+Under **Providers** in the gateway management page, choose a **Proxy mode** for each provider.
 
 - **Use system proxy** is the default. It uses the proxy configured on the device or server that runs the library.
 - **Ignore proxy** makes Ruri connect directly to the provider. Transparent forwarding on the network can still apply.
@@ -230,7 +230,7 @@ Under **Providers** in **Manage local gateway**, choose a **Proxy mode** for eac
 
 Fetching the model list and testing a model use the proxy settings currently entered. A test sends one sample request and may count against your provider quota. Once saved, these settings also apply to new requests to that provider.
 
-Turn on AI, then enable each feature you want to use and choose its model. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names. Online models receive the selected text. Review individual translations before saving them.
+Choose a model for each feature you want to use, enable the feature, then turn on AI. Ruri saves these choices automatically. You can translate scripts, work details, and folder or file display names. Online models receive the selected text. Review individual translations before saving them.
 
 Choose **Translate work metadata** from the work’s action menu or at the top of **Edit metadata**. The **Title** field shows the title for the selected **Metadata language**. That language is also the source for translation. Batch translation starts with all translatable fields selected, including titles, summaries, detailed descriptions, credits, tags, and series names. Clear any fields you want to leave out. To translate just one field, use its button, such as **Translate title** or **Translate tags**. Existing translations in the target language are skipped by default. Turn off skipping to translate them again.
 

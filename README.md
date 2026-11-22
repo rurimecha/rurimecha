@@ -45,8 +45,8 @@
 | 你要在哪里运行 | 安装方式 | 接着做什么 |
 | --- | --- | --- |
 | Windows x64 电脑 | 下载 MSI，安装后从开始菜单打开 Rurimecha | [Windows 安装](docs/USAGE.md#windows-安装) |
-| Linux x86-64 电脑或 NAS | 解压服务器包，运行 `sudo ./install.sh` | [Linux 安装](docs/USAGE.md#linux-安装) |
-| 已安装 Docker 的 x86-64 设备 | 按手册下载 Compose 文件，填写媒体路径，运行 `docker compose up -d` | [Docker 安装与端口设置](docs/USAGE.md#docker-安装) |
+| Linux x86-64 或 ARM64 电脑或 NAS | 解压服务器包，运行 `sudo ./install.sh` | [Linux 安装](docs/USAGE.md#linux-安装) |
+| 已安装 Docker 的 x86-64 或 ARM64 设备 | 按手册下载 Compose 文件，填写媒体路径，运行 `docker compose up -d` | [Docker 安装与端口设置](docs/USAGE.md#docker-安装) |
 | Android 手机 | 安装 APK，打开本机媒体库或填写服务器地址并登录 | [在 Android 上收听](docs/USAGE.md#在-android-上收听) |
 
 在「设置 → 版本与更新」可以检查更新。Android 连接页也可检查手机版更新。Windows 桌面端打开新版 MSI，Android 下载新版并按系统提示安装。Linux 管理员在主机上运行新版安装器，Docker 用户按安装指南替换镜像。
