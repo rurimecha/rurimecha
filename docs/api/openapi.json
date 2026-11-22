@@ -362,6 +362,14 @@
             }
           },
           {
+            "name": "tag_locales",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Requires tag. Match saved tags in the selected comma-separated locales zh-Hans, zh-Hant, ja, en and und, without repeating locales. Empty matches no works. Omitting uses the display language. Work display language is independent."
+          },
+          {
             "name": "credit",
             "in": "query",
             "schema": {
@@ -15587,7 +15595,7 @@
           "presentation"
         ],
         "summary": "getLocalWorkArtwork",
-        "description": "getLocalWorkArtwork",
+        "description": "Lists image files in this work. include_cached=true adds currently downloaded images referenced by any of the work’s metadata languages.",
         "responses": {
           "200": {
             "description": "Success",
@@ -15649,6 +15657,15 @@
             "schema": {
               "type": "string",
               "description": "Opaque identity, retained as text."
+            }
+          },
+          {
+            "name": "include_cached",
+            "in": "query",
+            "description": "Include downloaded images from all metadata languages of this work.",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ]
@@ -17415,6 +17432,14 @@
               "type": "string"
             },
             "description": "Literal name or explicit alias substring; no work-search filters."
+          },
+          {
+            "name": "tag_locales",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only for kind=tag, without metadata_locale. Comma-separated saved tag locales from zh-Hans, zh-Hant, ja, en and und, without repeats. Empty returns no tags. Omitting uses the display language. A work counts once per exact tag name across selected locales."
           },
           {
             "name": "sort",
@@ -22313,7 +22338,7 @@
           "presentation"
         ],
         "summary": "Read the selected source cover or preferred local/cached work cover",
-        "description": "Authenticated read. If the selected cover reference matches the saved cover URL of an imported compatible-source work, reads that source cover with a 15-second total deadline and 16 MiB limit. Other manual or localized cover references are not replaced by the source cover. Otherwise resolves local work artwork, then a downloaded cover in the selected metadata view without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Image authorization, Range, ETag and private cache apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "description": "Authenticated read. A language-specific cover takes precedence over the work default. The default is the shared cover reference or, for existing works, the cover recorded only on the original metadata language. scope=work selects the default directly. A selected compatible-source cover URL is read from the source with a 15-second total deadline and 16 MiB limit. Other selected references read node images or previously downloaded images before falling back to local work artwork. Reads do not download uncached provider URLs. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Image authorization, Range, ETag and private cache apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
         "parameters": [
           {
             "name": "work",
@@ -22370,6 +22395,15 @@
               "type": "string"
             },
             "description": "Optional exact metadata language; omitted follows account display preferences."
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "description": "Read the work default directly. Cannot be combined with metadata_locale.",
+            "schema": {
+              "type": "string",
+              "enum": ["work"]
+            }
           }
         ],
         "responses": {
@@ -22481,7 +22515,7 @@
           "presentation"
         ],
         "summary": "Read the selected source cover or preferred local/cached work cover",
-        "description": "Authenticated read. If the selected cover reference matches the saved cover URL of an imported compatible-source work, reads that source cover with a 15-second total deadline and 16 MiB limit. Other manual or localized cover references are not replaced by the source cover. Otherwise resolves local work artwork, then a downloaded cover in the selected metadata view without network downloads. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Image authorization, Range, ETag and private cache apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
+        "description": "Authenticated read. A language-specific cover takes precedence over the work default. The default is the shared cover reference or, for existing works, the cover recorded only on the original metadata language. scope=work selects the default directly. A selected compatible-source cover URL is read from the source with a 15-second total deadline and 16 MiB limit. Other selected references read node images or previously downloaded images before falling back to local work artwork. Reads do not download uncached provider URLs. Missing cover or work returns 404. Optional size=thumbnail returns a bounded 512-pixel JPEG; omitted returns the original. Image authorization, Range, ETag and private cache apply. Explicit node references may be read directly through node image/embedded-artwork routes.",
         "parameters": [
           {
             "name": "work",
@@ -22538,6 +22572,15 @@
               "type": "string"
             },
             "description": "Optional exact metadata language; omitted follows account display preferences."
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "description": "Read the work default directly. Cannot be combined with metadata_locale.",
+            "schema": {
+              "type": "string",
+              "enum": ["work"]
+            }
           }
         ],
         "responses": {
@@ -33672,6 +33715,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ArtworkItem"
+            }
+          },
+          "cached_images": {
+            "type": "array",
+            "description": "Downloaded images across this work’s metadata languages, included when requested by getLocalWorkArtwork.",
+            "items": {
+              "$ref": "#/components/schemas/WorkImage"
             }
           }
         },

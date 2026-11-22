@@ -156,11 +156,15 @@ For a kikoeru-compatible library, select that source type and enter its address.
 
 After adding a work to the library, administrators can choose Save work to server in its files area. Expand the tree and select folders or files. Extension buttons select matching file types; Select all and Clear selection are also available. Check the selected count and size, including any unknown sizes, then choose Start saving. Files keep their original folder structure in that source’s server download folder, and complete copies are skipped. Saving continues after closing the window. Reopen the same work’s download window to check progress or stop saving. Failed or stopped saves keep the original selection for retrying unfinished files. Up to two saves can run at once; if selected files overlap or all slots are in use, try again later.
 
-Open Image category in the work’s files area to preview images, change their roles or select a cover. Images from compatible sources require a network connection. Select a failed preview to retry. Images larger than 16 MiB cannot be previewed; download them from the file list to view them.
+From the work menu, open **Edit metadata → Cover**, choose a work image or a downloaded image as the default cover, and save. Every metadata language without its own cover uses this image. To choose a different image for one language, select **Language-specific cover**, then pick the language and image. Select **Use the default cover** and save to restore the shared cover.
+
+Open Image category in the work’s files area to preview images, change their roles or choose the default cover. Images from compatible sources require a network connection. Select a failed preview to retry. Images larger than 16 MiB cannot be previewed; download them from the file list to view them.
 
 Compatible-source folders and media information are obtained when adding works. Use Re-archive from the source folder menu to organize again; separate scanning/extraction is unnecessary. Folders marked Ordinary folder stay ordinary until Restore automatic detection is chosen. After assigning a folder as a separate work or ordinary folder, wait for re-archiving and automatic refresh; inspect Background tasks if needed. File-type filters remain while entering subfolders, going up, or temporarily visiting another page within the same source. Back returns to a browsing location rather than undoing each filter change. Choosing another source or opening another work’s files restores the default file type. Entering a subfolder clears the name search; opening file details and returning preserves the search and browsing position. Clear filters restores the defaults immediately. A fresh start without restoring the previous browsing page uses default filters; save a filter to reuse it.
 
 ## Finding works and choosing versions
+
+Open Tags and select the metadata languages to browse. Simplified Chinese, Traditional Chinese, Japanese, English, and Unknown language are selected when you open the page. Select a tag to see works with that tag in the selected languages. Each work counts once per tag.
 
 In a work’s **Included content** section, choose **All files** from the file type menu to see every file in the work, including files outside the selected playback group. Choose **Images** or **Transcripts / documents** to find those attachments. Select a filename to read text, zoom in on an image, or page through a PDF. The preview limits are 2 MiB for text, 16 MiB for images, and 32 MiB for PDFs. Use another app to open larger files.
 
@@ -198,8 +202,8 @@ When product details or images run out of retries, open Background tasks and cho
 
 New installations fetch Simplified Chinese and Japanese by default. Enable Traditional Chinese or English in metadata settings if available from the source.
 
-- Switch language under View details to change the title, description, people, tags, price, and images together; absent fields show as unavailable.
-- Select the language in Edit work details before saving; edits apply only to that language.
+- When a work has details in multiple languages, use **Metadata language** at the top of the work page to switch its title, description, credits, tags, and price. Choose **Follow account** to use your account’s preference again.
+- To edit text for a language, select that language in **Edit metadata** before saving.
 - For Unknown details, choose Set language. If the target exists, Merge fills gaps; Overwrite replaces the full target-language record.
 - To update one language, choose Refresh individual parts → Force refresh product details and choose languages for this run. Other languages stay intact. Retry failed items from task results.
 - Fill missing images, download images again, extract media information, scan, or re-archive from the same refresh menu.

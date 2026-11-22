@@ -68,13 +68,13 @@ GET 读取到不符合当前格式的已保存偏好时，返回 HTTP 409、erro
 
 ## 图片与播放背景
 
-`GET/HEAD /works/{work}/cover` 一次返回优先封面：所选封面引用与已入库兼容来源保存的封面地址相同时，读取该来源封面；其他情况先取作品图片，读取失败或没有图片时取所选资料版本中已下载的商品封面。不会将其他手工或语言封面引用替换为来源封面。来源封面读取总时限 15 秒、不超过 16 MiB；其他本地和缓存路径不触发外网下载。无封面或作品不存在时返回 404。接受 `size=thumbnail`（最长边 512 像素 JPEG，省略取原图）及 `metadata_locale`（省略遵循账户资料显示偏好）；保留图片认证、根限制、Range、ETag 和私有缓存。明确的 node 封面引用仍可直接读取节点图片/内嵌封面。
+`GET/HEAD /works/{work}/cover` 优先显示当前资料语言的封面引用，缺少时沿用作品默认封面。默认封面取作品共享 `cover_ref`，未设置时使用原资料语言已有封面。所选封面与已入库兼容来源的封面地址相同时读取该来源，限 15 秒、16 MiB。其他所选引用先尝试节点图片或已下载的商品图片，再尝试作品图片。未缓存的商品图片不会在读取时联网下载。无封面或作品不存在时返回 404。接受 `size=thumbnail`（最长边 512 像素 JPEG，省略取原图）及 `metadata_locale`（省略遵循账户资料显示偏好）。`scope=work` 直接读取默认封面，可用于编辑预览，不与 `metadata_locale` 同用。保留认证、根限制、Range、ETag 和私有缓存。明确的 node 封面引用仍可直接读取节点图片或内嵌封面。
 
-`GET /works/{work}/artwork` 返回本地图片；`GET /nodes/{node}/artwork` 返回当前音视频的播放图片。响应 items 的 path 是相对 `/api/v1/` 的认证读取地址。专属图片要求同来源、同直接父目录，匹配完整媒体文件名或不含扩展名的前缀，后续必须是明确分隔符；01 不匹配 010。专属图片优先，否则回退作品图片、缓存商品图片或附近图片，最后尝试已有观察中的内嵌封面；不抽取视频帧。
+`GET /works/{work}/artwork` 返回作品图片文件。传 `include_cached=true` 另返回 `cached_images`，包含同一部作品所有资料语言中仍有引用的已下载图片，结构同作品图片列表中的 `WorkImage`；`GET /nodes/{node}/artwork` 返回当前音视频的播放图片。响应 items 的 path 是相对 `/api/v1/` 的认证读取地址。专属图片要求同来源、同直接父目录，匹配完整媒体文件名或不含扩展名的前缀，后续必须是明确分隔符；01 不匹配 010。专属图片优先，否则回退作品图片、缓存商品图片或附近图片，最后尝试已有观察中的内嵌封面；不抽取视频帧。
 
 已有翻译的本地图片条目可返回 `localized_aliases`，图片匹配使用原名。
 
-`GET /nodes/{node}/image-roles` 返回 ETag 与 roles；`PUT` 带 ETag 和 `{roles:[cover,track,other],reset:false}`。分类可重叠；reset 恢复自动分类。人工分类独立存储，重扫不删除。封面引用继续使用现有作品 cover_ref 手工修改接口。
+`GET /nodes/{node}/image-roles` 返回 ETag 与 roles；`PUT` 带 ETag 和 `{roles:[cover,track,other],reset:false}`。分类可重叠；reset 恢复自动分类。人工分类独立存储，重扫不删除。使用元数据编辑接口中的 `cover_ref` 修改作品默认封面，使用 `localized/{locale}/cover_ref` 单独修改某种资料语言的封面。
 
 `GET/HEAD /nodes/{node}/image` 提供不超过 16 MiB 的 JPEG/PNG/GIF/WebP；兼容来源已知大小超过上限时不发起下载，远程附件读取总时限为 15 秒，包含响应正文。`GET/HEAD /nodes/{node}/embedded-artwork` 有界提取已观察附图。根限制、来源状态和会话每次重查；支持 Range/条件请求，缓存 private。内嵌附图按节点文件快照和内容失效代次缓存到独立存储，单图最多 8 MiB；提取共享已有播放处理上限；工具缺失不阻止浏览和原文件播放。
 
