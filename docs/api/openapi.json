@@ -23932,7 +23932,7 @@
           "Text AI"
         ],
         "summary": "Read text AI settings",
-        "description": "Read enablement and model profiles for the embedded gateway.",
+        "description": "Read the active embedded or standalone gateway connection and the model profiles retained for both modes. Credentials are never returned.",
         "responses": {
           "200": {
             "description": "OK",
@@ -23969,7 +23969,7 @@
           "Text AI"
         ],
         "summary": "Save text AI settings",
-        "description": "Save AI enablement and replace the embedded gateway's profiles. Omitted gateway mode defaults to local. New selections and selections for a newly enabled profile must be available in the model catalog. Unchanged selections may refer to removed or disabled models.",
+        "description": "Save AI enablement and replace the selected gateway mode's profiles. Standalone gateways accept an HTTP or HTTPS root address. New selections and selections for a newly enabled profile must be available in that gateway's model catalog; a managed local model must be installed. Unchanged selections may refer to removed or disabled models.",
         "responses": {
           "200": {
             "description": "OK",
@@ -24033,6 +24033,108 @@
         }
       }
     },
+    "/agent/translation-glossary": {
+      "get": {
+        "operationId": "getTranslationGlossary",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Read the translation glossary",
+        "description": "Administrator and active AI authorization required. Returns the editable glossary for this library, including the built-in entries when it has never been saved.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationGlossary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setTranslationGlossary",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Save the translation glossary",
+        "description": "Administrator and active AI authorization required. Replaces the full list, using the ETag from GET as If-Match. Saving makes no model request.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-ID": {
+                "$ref": "#/components/headers/RequestID"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationGlossary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "parameters": [
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslationGlossaryInput"
+              }
+            }
+          }
+        }
+      }
+    },
     "/agent/settings/test": {
       "post": {
         "operationId": "testTextAIConnection",
@@ -24040,7 +24142,7 @@
           "Text AI"
         ],
         "summary": "Connect to the configured text gateway",
-        "description": "List the embedded gateway's configured model aliases. This operation saves no settings and makes no inference request.",
+        "description": "List models from the selected embedded or standalone gateway. This operation saves no settings and makes no inference request. A standalone draft accepts an HTTP or HTTPS root address and can reuse the saved token when the address is unchanged.",
         "responses": {
           "200": {
             "description": "OK",
@@ -24354,6 +24456,225 @@
         }
       }
     },
+    "/ai-gateway/local-models": {
+      "get": {
+        "operationId": "listLocalAIGatewayManagedModels",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "List downloadable models and installation progress",
+        "description": "Administrator only. Returns the fixed local model catalog on the embedded gateway. Only installed models are available to AI profiles.",
+        "responses": {
+          "200": {
+            "description": "Fixed model catalog and current installation states",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayLocalModels"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/local-models/{model}/install": {
+      "post": {
+        "operationId": "installLocalAIGatewayModel",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Download and install a fixed local model",
+        "description": "Starts or resumes an asynchronous installation. The model file and fixed runtime source are downloaded and verified before the model becomes available.",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Installation queued or already running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayLocalModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "409": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "500": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/local-models/{model}/repair": {
+      "post": {
+        "operationId": "repairLocalAIGatewayModel",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Repair a failed local model installation",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Repair queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayLocalModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "409": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "500": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/local-models/{model}/cancel": {
+      "post": {
+        "operationId": "cancelLocalAIGatewayModelInstall",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Stop a local model installation",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Cancellation requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIGatewayLocalModel"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "409": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
+    "/ai-gateway/local-models/{model}": {
+      "delete": {
+        "operationId": "removeLocalAIGatewayModel",
+        "tags": [
+          "Text AI"
+        ],
+        "summary": "Uninstall a local model",
+        "description": "Deletes the selected model file and its installation state without changing other models or gateway settings.",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Model uninstalled"
+          },
+          "401": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "403": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "409": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "500": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayAdminError"
+          }
+        }
+      }
+    },
     "/ai-gateway/provider-models": {
       "post": {
         "operationId": "discoverLocalAIGatewayProviderModels",
@@ -24496,7 +24817,7 @@
           "Text AI"
         ],
         "summary": "List configured text models",
-        "description": "List model aliases from the embedded text gateway.",
+        "description": "List models from the currently selected embedded or standalone text gateway.",
         "responses": {
           "200": {
             "description": "OK",
@@ -35915,9 +36236,16 @@
           "capabilities": {
             "type": "object",
             "properties": {
-              "ai": { "type": "boolean" },
-              "treasured_clips": { "type": "boolean" },
-              "smart_routing": { "type": "boolean", "description": "Available with an active license for the current server or Android local library." }
+              "ai": {
+                "type": "boolean"
+              },
+              "treasured_clips": {
+                "type": "boolean"
+              },
+              "smart_routing": {
+                "type": "boolean",
+                "description": "Available with an active license for the current server or Android local library."
+              }
             },
             "additionalProperties": {
               "type": "boolean"
@@ -35929,7 +36257,12 @@
           },
           "device_type": {
             "type": "string",
-            "enum": ["windows", "linux", "docker", "android"],
+            "enum": [
+              "windows",
+              "linux",
+              "docker",
+              "android"
+            ],
             "description": "Display platform for device administrators."
           },
           "device_name": {
@@ -37481,6 +37814,11 @@
             "maxLength": 4000,
             "writeOnly": true,
             "description": "Optional name translation instructions for this job. Omit or use an empty string to send no system message. Custom instructions are not recorded in job history or AI settings."
+          },
+          "use_glossary": {
+            "type": "boolean",
+            "default": false,
+            "description": "Send only glossary terms matching the selected source text and target language to the selected model."
           }
         },
         "required": [
@@ -37733,6 +38071,11 @@
               "en"
             ],
             "description": "Display language for the suggestion. Must differ from an explicit source language."
+          },
+          "use_glossary": {
+            "type": "boolean",
+            "default": false,
+            "description": "Send only glossary terms matching the selected source text and target language to the selected model."
           }
         },
         "required": [
@@ -38975,6 +39318,16 @@
           },
           "guidance": {
             "type": "string"
+          },
+          "translation_formats": {
+            "type": "object",
+            "description": "Optional adapters by model alias for metadata and node name translation on the text gateway. Omit an alias for the standard format.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "hy_mt_structured"
+              ]
+            }
           }
         }
       },
@@ -38989,11 +39342,7 @@
           },
           "base_url": {
             "type": "string",
-            "deprecated": true,
-            "enum": [
-              ""
-            ],
-            "description": "Omit this legacy field."
+            "description": "Standalone gateway root URL using HTTP or HTTPS. Required when an enabled gateway_mode is remote. Ignored for the embedded gateway without clearing the saved remote address."
           },
           "profiles": {
             "$ref": "#/components/schemas/TextModelProfiles"
@@ -39001,11 +39350,9 @@
           "token": {
             "type": "string",
             "nullable": true,
-            "deprecated": true,
-            "enum": [
-              null
-            ],
-            "description": "Omit this legacy field."
+            "maxLength": 4096,
+            "writeOnly": true,
+            "description": "Standalone gateway access token. Omit to retain it only when the normalized address is unchanged; send an empty string to clear it."
           }
         }
       },
@@ -39020,29 +39367,31 @@
           },
           "base_url": {
             "type": "string",
-            "deprecated": true,
-            "description": "Legacy field, always empty."
+            "description": "Saved standalone gateway root URL, retained while the embedded gateway is selected."
           },
           "profiles": {
             "$ref": "#/components/schemas/TextModelProfiles"
           },
           "profiles_by_mode": {
             "type": "object",
-            "description": "The embedded gateway's model profiles, also returned as profiles.",
+            "description": "Model profiles retained independently for the embedded and standalone gateways. profiles is the entry for gateway_mode.",
             "properties": {
               "local": {
+                "$ref": "#/components/schemas/TextModelProfiles"
+              },
+              "remote": {
                 "$ref": "#/components/schemas/TextModelProfiles"
               }
             },
             "required": [
-              "local"
+              "local",
+              "remote"
             ],
             "additionalProperties": false
           },
           "has_token": {
             "type": "boolean",
-            "deprecated": true,
-            "description": "Legacy field, always false."
+            "description": "True when a standalone gateway token is saved."
           },
           "revision": {
             "type": "string"
@@ -39061,10 +39410,10 @@
       "TextAIGatewayMode": {
         "type": "string",
         "enum": [
-          "local"
+          "local",
+          "remote"
         ],
-        "default": "local",
-        "description": "The embedded gateway."
+        "description": "local selects the embedded gateway; remote selects the separately deployed gateway."
       },
       "TextModelProfiles": {
         "type": "object",
@@ -39233,6 +39582,105 @@
           "max_concurrent"
         ],
         "additionalProperties": false
+      },
+      "AIGatewayLocalModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "description",
+          "license",
+          "source",
+          "state",
+          "downloaded_bytes",
+          "total_bytes",
+          "supported"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "hy-mt3-1.8b-q4"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "format": "uri"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_installed",
+              "queued",
+              "running",
+              "installed",
+              "canceled",
+              "interrupted",
+              "failed"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "downloading",
+              "verifying",
+              "preparing_runtime",
+              "checking",
+              "ready"
+            ]
+          },
+          "downloaded_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "total_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "error": {
+            "type": "string"
+          },
+          "supported": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AIGatewayLocalModels": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "models",
+          "runtime_version"
+        ],
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIGatewayLocalModel"
+            }
+          },
+          "runtime_version": {
+            "type": "string",
+            "description": "Fixed llama.cpp source revision used by this build."
+          }
+        }
       },
       "AIGatewayProviderDraft": {
         "type": "object",
@@ -39502,6 +39950,11 @@
           },
           "use_fallback_model": {
             "type": "boolean"
+          },
+          "use_glossary": {
+            "type": "boolean",
+            "default": false,
+            "description": "Send only glossary terms matching the selected source text and target language to the selected model."
           }
         },
         "required": [
@@ -39542,12 +39995,22 @@
                   "items": {
                     "type": "array",
                     "items": {
-                      "oneOf": [{"type": "integer"}, {"type": "string"}]
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
                     }
                   }
                 }
               },
-              "required": ["value", "paths"]
+              "required": [
+                "value",
+                "paths"
+              ]
             }
           },
           "description_parts": {
@@ -39644,6 +40107,11 @@
             "items": {
               "$ref": "#/components/schemas/WorkTranslationItem"
             }
+          },
+          "use_glossary": {
+            "type": "boolean",
+            "default": false,
+            "description": "Send only glossary terms matching the selected source text and target language to the selected model."
           }
         }
       },
@@ -39978,6 +40446,85 @@
           "edit_count",
           "summary"
         ]
+      },
+      "TranslationGlossaryEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "terms"
+        ],
+        "properties": {
+          "terms": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 2,
+            "properties": {
+              "ja": {
+                "type": "string",
+                "minLength": 1,
+                "description": "At most 192 UTF-8 bytes on one line."
+              },
+              "zh-Hans": {
+                "type": "string",
+                "minLength": 1,
+                "description": "At most 192 UTF-8 bytes on one line."
+              },
+              "zh-Hant": {
+                "type": "string",
+                "minLength": 1,
+                "description": "At most 192 UTF-8 bytes on one line."
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "description": "At most 192 UTF-8 bytes on one line."
+              }
+            }
+          },
+          "context": {
+            "type": "string",
+            "description": "Optional usage note, at most 512 UTF-8 bytes."
+          },
+          "disabled": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "TranslationGlossary": {
+        "type": "object",
+        "required": [
+          "revision",
+          "entries"
+        ],
+        "properties": {
+          "revision": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/TranslationGlossaryEntry"
+            }
+          }
+        }
+      },
+      "TranslationGlossaryInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entries"
+        ],
+        "properties": {
+          "entries": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/TranslationGlossaryEntry"
+            }
+          }
+        }
       }
     }
   },

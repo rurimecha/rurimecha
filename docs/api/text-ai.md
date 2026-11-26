@@ -2,19 +2,25 @@
 
 以下 AI 路径相对 `/api/v1`，需管理员会话和有效服务器授权。授权状态见 `GET /license` 的 `capabilities.ai`。浏览器的写请求使用同源会话与 Origin/Referer。可通过 `GET /info` 的 `agent.text_gateway` 能力识别支持文字网关的 Core。机器可读定义见 [OpenAPI](openapi.json)。
 
-默认 Ruri 构建通过内置文字 AI 网关管理和使用模型。
+默认 Ruri 构建可在内置文字 AI 网关和独立网关之间选择。两种模式分别保存用途配置；切换模式不会清除另一侧的模型选择。
 
 ## 连接和模型设置
 
-- `GET /agent/settings` 读取当前启用状态、模型用途配置和 ETag。`gateway_mode` 为 `local`，`profiles` 与 `profiles_by_mode.local` 均表示内置网关的用途配置。兼容字段 `base_url` 与 `has_token` 分别返回空字符串和 `false`。
-- `POST /agent/settings/test` 与 `GET /agent/models` 读取内置网关中可用的模型别名。前者返回 `valid` 和 `models`，可提交空对象。读取模型列表无需调用生成服务，也不保存设置。
-- `PUT /agent/settings` 使用当前 ETag 作为 `If-Match` 保存启用状态和完整的 `profiles`。`gateway_mode` 可省略，也可显式提交 `local`。测试或保存时传入其他模式、非空 `base_url` 或 `token` 值会返回 `400`。作品资料翻译、台本翻译、目录与文件名翻译、归档建议可分别选择模型。新选的模型，以及从停用改为启用的用途所选模型，必须在当前目录可用。仍保留的旧选择可随其他设置提交，便于更换或移除已从目录下线的模型。停用后可以继续手工编辑。
+- `GET /agent/settings` 读取当前启用状态、连接模式、模型用途配置和 ETag。`gateway_mode` 为 `local`（内置）或 `remote`（独立），`profiles` 表示当前模式，`profiles_by_mode` 保留两种模式各自的配置。`base_url` 和 `has_token` 表示已保存的独立网关连接；响应不返回令牌内容。
+- `POST /agent/settings/test` 和 `GET /agent/models` 读取所选网关的模型。内置模式提交 `gateway_mode: local`；独立模式提交 `gateway_mode: remote`、HTTP 或 HTTPS 根地址 `base_url`，并可提交 `token`。省略令牌且地址与已保存值相同时沿用已保存令牌。读取列表不保存设置，也不发起生成请求。
+- `PUT /agent/settings` 使用当前 ETag 作为 `If-Match` 保存当前模式的启用状态和完整 `profiles`。独立模式启用时必须提供地址和有效的已保存或新令牌。作品资料翻译、台本翻译及目录与文件名翻译可分别选择模型。新选的模型，以及从停用改为启用的用途所选模型，必须在当前目录可用；未安装的本地模型不能启用。仍保留的旧选择可随其他设置提交，便于更换或移除已从目录下线的模型。停用后可以继续手工编辑。
 
 ## 本地网关管理
 
 `GET /ai-gateway/manage` 打开内置网关的 HTML 管理页。页面使用 Core 管理员会话，可增改、启用或停用供应商和模型。供应商密钥用于访问对应的模型服务。浏览器打开后收到未登录或需要管理员权限的响应时，可显示 HTML 提示。语言优先使用 `lang`，其次使用 `Accept-Language`。
 
 `GET /ai-gateway/settings` 返回同一内置网关的配置与 ETag。`PUT /ai-gateway/settings` 用该 ETag 作为 `If-Match` 提交完整配置，成功后返回保存结果及新 ETag。`providers` 和 `models` 可用空数组，`timeout_seconds` 可为 1 至 3600，`max_concurrent` 可为 1 至 64。
+
+`GET /ai-gateway/local-models` 返回网关设备上的固定本地模型目录和安装状态。当前目录包括 Hy-MT3 1.8B Q4_K_M。状态包含 `state`、`stage`、已下载与总字节数、`supported` 和可选错误码；只有 `installed` 的模型会进入可用模型列表。
+
+- `POST /ai-gateway/local-models/{model}/install` 开始或继续下载和安装；`repair` 重新检查失败的下载，并在运行组件失败时重建固定组件；`cancel` 停止当前操作。操作异步执行并返回 `202`，随后轮询目录。
+- `DELETE /ai-gateway/local-models/{model}` 卸载所选模型，不删除其他模型、供应商设置或共享的已验证下载。正在安装时返回 `409 model_busy`。
+- 模型文件和固定运行组件发行包使用清单中的 HTTPS 地址、大小和 SHA-256 校验。运行组件固定为 llama.cpp `b12751`，不会解析最新版；网关会直接安装当前平台的官方发行包，无需编译工具。
 
 - 供应商用唯一 `id` 标识，填写 `kind` 与 `enabled`，可指定 `base_url`。`openai_compatible` 必须填写服务地址。远端使用 HTTPS，本机回环地址可使用 HTTP。`key_env` 表示启动时配置的环境变量引用，管理页可以沿用该引用。若需要换用新的环境变量，请在服务器启动配置处理。
 - 返回的 `has_key` 表示已配置可用密钥，缺省为 `false`。密钥用只写字段 `key` 提交。同一供应商类型和服务地址下，省略 `key` 保留密钥，空字符串清除密钥及其环境变量引用。更换带有密钥的供应商类型或服务地址时，需明确设置新密钥或清除旧密钥。
@@ -35,6 +41,12 @@
 `GET /ai-gateway/activity` 需要 Ruri 管理员会话及有效服务器 AI 授权。可传 `from` 和 `to`（UTC 日期，`YYYY-MM-DD`，含当天），分别省略时无该端范围限制。返回 `models`（所选日期的累计用量）、`calls`（该范围内保留的明细）、`retention_limit`、`max_retention_limit` 和 `save_failed`。默认返回至多 50 条最新明细，返回 `next_offset` 时可传该值请求下一页。每条明细包含 RFC3339 时间、模型别名、耗时、结果和供应商提供的用量。通过已保存别名发起的测试计入用量。用量缺失时省略 `usage`。累计用量包含升级时仍保有的旧记录和之后的新调用。
 
 `PUT /ai-gateway/activity/retention` 需要同一管理员权限，传入 `limit` 和上次读取的 `expected_limit`。设置范围为 0–10,000，默认为 1,000。减少上限立即删除超出的旧明细，设 0 时仅保留累计用量。成功返回 204。上限已被其他客户端更改时返回 `409 retention_changed`，应刷新后再操作。
+
+## 翻译术语表
+
+`GET /agent/translation-glossary` 读取当前资料库的术语表并返回 ETag。管理员可用 `PUT /agent/translation-glossary` 携带 `If-Match` 保存完整的 `entries`。条目包含 `terms`（从 `ja`、`zh-Hans`、`zh-Hant`、`en` 中至少选择两种）、可选 `context` 和 `disabled`。支持至多 256 条，每个术语至多 192 个 UTF‑8 字节，使用说明至多 512 字节。未保存过时返回内置表，保存空表后返回空表。保存不调用模型，修订冲突返回 `412`。读写需要管理员权限及有效 AI 授权。
+
+作品资料翻译和名称翻译的创建请求可传 `use_glossary: true`，省略时默认关闭。选中时按本批原文和语言配对选择术语，只发送命中条目的原词、目标译法和使用说明。已有的系统提示词选择独立生效。当前文字网关的两个翻译配置可用 `translation_formats` 按模型别名指定 `hy_mt_structured`，未指定时使用通用格式。模型返回的段落必须覆盖本批文本并保留支持的占位符。
 
 ## 作品资料翻译
 
