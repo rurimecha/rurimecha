@@ -171,7 +171,7 @@ path 相对来源根，目录分隔符统一为 `/`。根为 `.`，根 parent_id
 
 `GET /nodes/{node}/alias` 返回 `{node_id,alias,localized_aliases,revision}` 和 ETag。历史 `alias` 字段返回空字符串。尚未编辑的节点返回空对象及修订 1。管理员使用 `PUT /nodes/{node}/alias` 携带该 ETag，提交 `{"locale":"en","alias":"Track One"}` 修改单个语言，两个字段均必填。空字符串清除所选语言的显示名。其他语言和已存的历史数据保留。非空名称为 1–255 个 Unicode 字符、最多 1024 字节，不含首尾空白、控制字符和路径分隔符。可编辑已扫描节点或已登记的草稿成员。节点不存在返回 404，缺少 If-Match 返回 428，过期返回 412。所有译名共用独立的节点别名修订，作品与扫描修订保持原值。
 
-管理员可用 `POST /nodes/{node}/alias/translation` 生成原名的译名建议，携带当前别名 ETag 及 `{"target_language":"en","source_language":"ja"}`。可传 `use_glossary: true` 使用匹配的术语。省略源语言或传 `und` 由模型判断源语言。显式源语言与目标语言必须不同，目标语言使用以上四种代码。成功返回 `{locale,alias}` 与当前别名 ETag。译名供审阅和修改，保存使用上述 PUT。模型收到目录的原名或文件的名称主体，文件的原扩展名由 Core 恢复。禁用或繁忙返回 409，译名无效或无法生成返回 422，网关失败返回 502。原名在生成期间变化或修订失效时重新获取建议。批量翻译见 [文字生成](text-ai.md#目录和作品名称批量翻译)。
+管理员可用 `POST /nodes/{node}/alias/translation` 生成原名的译名建议，携带当前别名 ETag 及 `{"target_language":"en","source_language":"ja"}`。省略源语言或传 `und` 由模型判断源语言。显式源语言与目标语言必须不同，目标语言使用以上四种代码。成功返回 `{locale,alias}` 与当前别名 ETag。译名供审阅和修改，保存使用上述 PUT。模型收到目录的原名或文件的名称主体，文件的原扩展名由 Core 恢复。禁用或繁忙返回 409，译名无效或无法生成返回 422，网关失败返回 502。原名在生成期间变化或修订失效时重新获取建议。批量翻译见 [文字生成](text-ai.md#目录和作品名称批量翻译)。
 
 media_kind 为文件类型线索；目录为空字符串。playable 是与 node_query 共用的索引播放资格：文件须 present、来源启用，且当前观察/人工音视频声明或支持的扩展名允许播放；缺失、来源停用、非文件或明确否认音视频时为 false。它不保证现场文件可读、浏览器原生解码或所需编码器已安装；客户端播放动作使用该布尔值，不能仅凭 media_kind 判断。format 为小写文件扩展名，目录或无扩展名时为空。duration_seconds 未知时为 null；人工时长独立有效，失效自动观察不参与时长/语言/字幕否定判断。languages 是去重后的音视频流语言，未知音视频为 ["und"]，不适用时为空数组。listening_state 按当前账户读取；无进度为 unstarted，有进度且未完成为 in_progress，完成为 completed。matched_file_count 只在 matching_directories 查询的目录项提供命中数，其他项为 0。单节点详情同样返回这些汇总字段。
 

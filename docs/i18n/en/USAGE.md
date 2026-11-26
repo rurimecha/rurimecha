@@ -117,16 +117,14 @@ Change your password in Account & sessions → Change password, entering the cur
 
 ## Upgrading an existing installation
 
-**When connecting to another device, update Ruri on both devices.**
+**Older Android clients are incompatible with the new server. Update both together.**
 
-Open **Account and sessions** from the account menu, then choose **Check for updates** under **Version and updates**. The list shows each platform as Windows, Android, or Linux with its version. Android can check both devices separately while connected. You can also check the phone’s updates from the connection screen or local library settings. If the check fails, try again or open the [official release page](https://github.com/rurimecha/rurimecha/releases/latest).
+Open **Account and sessions** from the account menu, then choose **Check for updates** under **Version and updates**. When Android is connected to a server, you can check the app and server separately. You can also check the app from the connection screen or local library settings. If the check fails, try again or open the [official release page](https://github.com/rurimecha/rurimecha/releases/latest).
 
 When an official release checks for updates, either automatically or when you request it, it may send its platform, version, randomly generated installation ID, and license status to the Ruri website. Ruri maintainers use this information to count installations by version.
 
-If an older version still opens an installation wizard, finish that update in the wizard. Subsequent updates can use the steps below.
-
-- **Windows desktop.** Choose **Download and install** under **Version and updates**. Confirm when the download is ready. Ruri closes, installs the update, and reopens automatically, keeping your installation folder and listening settings. You can cancel the download. If downloading or checking the package fails, keep using the current version and retry. When connected to Windows from a browser or phone, upgrade on that Windows computer.
-- **Android.** Choose **Download and install** to see download progress or cancel downloading. If installation permission is needed, open system settings, find Ruri, allow app installation, and return to retry. Confirm installation in the system screen after downloading. If installation does not finish, return to Ruri and retry. After updating, reopen **Version and updates** to check the installed version. Installing over the existing app keeps your local library, license, settings, and access to selected folders.
+- **Windows desktop.** Download and install from **Version and updates**, then confirm and follow the installer. If you cancel, reopen the current version. When connected to Windows from a browser or phone, upgrade on the server PC.
+- **Android.** Choose **Download and install** and confirm in the system installer. Follow the system prompt if it asks you to allow installation. You can still use the current app if you cancel or installation fails. Installing over the existing app keeps your local library, license, and access to selected folders.
 - **Linux.** Download and extract the official server package for your architecture on the host. For a system service, run `sudo ./install.sh` from the new package and keep the existing listener settings and data. For a manual installation, stop Ruri and start the new binary with the same `-data-dir`.
 - **Docker.** Set `RURI_IMAGE` in the original Compose `.env` to `docker.io/rurimecha/rurimecha:<new-version>`, then run `docker compose pull core` and `docker compose up -d core`. Keep the existing data volume and media mounts. For custom deployments, replace the image using your existing deployment method.
 
@@ -213,16 +211,6 @@ New installations fetch Simplified Chinese and Japanese by default. Enable Tradi
 Select and copy titles, paths, details, and messages with Ctrl+C (Command+C on macOS); long-press text on mobile.
 
 ## AI translation
-
-In AI Settings → Translation glossary, add, edit, or disable terms in Japanese, Simplified Chinese, Traditional Chinese, and English. Open a term and fill in at least two languages.
-
-Select Use glossary when translating work metadata or names in bulk. Ruri sends matching terms for the selected text and target language to the selected model. This option is off by default.
-
-If you have configured a compatible HY-MT model, choose HY-MT structured translation for that model in the advanced settings for the translation task.
-
-For a server library, choose **Built-in gateway** or **Standalone gateway** in **AI configuration**. For a standalone gateway, enter an HTTP or HTTPS address that Ruri can reach and its access token; a LAN address can use HTTP directly. Choose **Test and save**, then select a model. Each mode keeps its own model selections when you switch between them.
-
-Open **Local models** in the built-in or standalone gateway management page to download Hy-MT3 1.8B Q4_K_M. You can follow progress, stop or continue, repair, and uninstall. The model and runtime are stored on the gateway device; return to **AI configuration** after installation to select it. Automatic installation currently supports x86-64 and ARM64 gateways on Linux, macOS, and Windows. The runtime is downloaded automatically and does not require separate build tools. Android local libraries cannot yet run this managed local model.
 
 In the Android local library, open **AI configuration** to add a provider, enter its key, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 

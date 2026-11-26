@@ -28,9 +28,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 
 ## AI translation
 
-- In AI Settings → Translation glossary, add, edit, or disable terms in Japanese, Simplified Chinese, Traditional Chinese, and English. Open a term and fill in at least two languages. Select Use glossary when translating work metadata or names in bulk. Ruri sends matching terms for the selected text and target language to the selected model. This option is off by default.
 - With an active server license, administrators can add and test provider models in **AI configuration** and choose a model for each feature. Each provider can use the system proxy, connect directly, or use a custom proxy.
-- Switch between built-in and standalone gateways while keeping separate model selections. Standalone gateways can use a LAN HTTP address directly. Download, repair, or uninstall Hy-MT3 1.8B Q4_K_M in gateway management.
 - In the Android local library, use **AI configuration** to add a provider, find models, and test the connection. After saving, start translating from a work’s details. Cloud models require internet access on the phone.
 - View cumulative usage, search by date, and change the call detail limit in the local gateway management page.
 - Translate scripts, work metadata, and folder or file display names. Translate the display names in a folder or work together. Choose the target language, whether to skip existing translated names, and the prompt for this run. Switch between original names and translations in the current interface language with one button.
@@ -48,7 +46,7 @@ Rurimecha (Ruri) organizes and plays your own audio, ASMR, and video collection.
 - Pause while media loads or buffers. Open work details from a work name on the player page; screen readers announce the current time and total duration on the progress bar.
 - Resize the transcript on audio pages. On larger web windows, keep the transcript open while browsing elsewhere. Android floating subtitles stay visible inside Ruri and over other apps, return after unlocking, and reveal a close button when tapped.
 - Open Rurimecha from Start or choose to add a desktop shortcut during installation. Windows and Linux installers let you choose and check the listen IP and port. Windows keeps application data by default on uninstall. You can opt to clear it while keeping original media.
-- View versions and download and install updates under **Settings → Version and updates**. Windows installs and reopens automatically after confirmation. Android asks you to confirm installation in the system screen; app updates are also available from the connection screen. Update Linux and Docker through their host installation method.
+- Check versions and updates under **Settings → Version and updates**. Android can also check app updates from the connection screen. Follow the host installation method to update Linux or Docker.
 - With an active license on the current server or phone, preview and save favorite ranges for replay or lists. Clips reference originals and need them to remain available.
 - Linux, Windows, and Docker include media tools for loudness normalization, compatible transcoding, and embedded subtitles. See [media tools](USAGE.md#preparing-media-tools).
 - Other WebDAV players can browse folders and play originals using Ruri credentials. Access is read-only. Configure certificates, separate HTTP/HTTPS ports, and optional HTTPS redirects.
